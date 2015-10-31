@@ -1,0 +1,106 @@
+@charset "UTF-8";
+
+.menu .property {
+    line-height: 40px;
+}
+.menu .property span, .menu .property label {
+    padding-left: 10px;
+    color: #0087ba;
+}
+.menu .property label input {
+    margin-right: 3px;
+}
+
+.body {
+    margin: 3.3em 0 .7em 1%;
+}
+.body div {
+    float: left;
+}
+
+.body .ui.link.api.items {
+    margin-top: 20px !important;
+    width: 960px;
+}
+.body .ui.link.api.items .item {
+    margin-top: 5px;
+}
+.body .ui.link.api.items .item .header {
+    width: 100%;
+    font-weight: normal;
+}
+.body .ui.link.api.items .item .description {
+    margin: -20px 0 0 300px;
+}
+
+.body .case {
+    width: 19.5%;
+    border-right: #aaaaaa solid 1px;
+}
+.body .case .title {
+    padding: 6px 7px 4px 7px;
+    font-weight: bolder;
+    font-size: 1.1em;
+}
+.body .case .description {
+    display: none;
+}
+.body .case .ui.secondary.vertical.menu {
+    margin-top: 3px;
+    width: 100%;
+}
+.body .case .ui.secondary.vertical.menu > .item {
+    margin-bottom: 0;
+    padding: 8px 7px 8px 13px;
+}
+.body .case .message {
+    display: inline-block;
+    padding: 0 10px 3px 10px;
+    min-height: 40px;
+    color: #0087ba;
+}
+.body .case .divider {
+    width: 100%;
+    border-bottom: #cccccc solid 1px;
+}
+
+.body .params {
+    padding-left: 1%;
+    width: 46.5%;
+}
+.param-mode {
+    float: right;
+}
+.body .params .mode {
+    float: right;
+    margin-bottom: -2em;
+    font-size: 0.8em;
+}
+
+.body .result {
+    padding-left: 1.4%;
+    width: 32.5%;
+}
+
+table th { height: 2.2em; }
+table tr { height: 2.11em; }
+table td.param-name { font-size: 1.1em; }
+table td .ui.input input[name=param] { font-size: 1.1em; margin: .2em 0 .1em .2em;}
+div.param, div.param-url {
+    width: 100%;
+    font-size:1.1em;
+    border-bottom: solid 1px #aaaaaa;
+}
+
+.result .buttons {
+    margin: 7px 0 12px 0;
+}
+.result .buttons .button {
+    padding: .7em 1.5em;
+}
+
+#result {
+    width: 100%;
+    height: 300px;
+    border: #aaaaaa solid 1px;
+}

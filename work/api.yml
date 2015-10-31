@@ -1,0 +1,81 @@
+web:
+  host: 0.0.0.0
+  port: 8081
+
+# 该段（app）的配置会存放到 flask.current_app.config 中
+app:
+  # 登陆url，用户访问没有权限的action时会跳到该url
+  # login_url: '/user/login'
+  ## flask 配置
+  DEBUG: true
+
+  # Session
+  #SECRET_KEY: 'xxxxxxxxxxxxxyyyyyyyyyyyyyyyyzzzzzzzzzzz'
+  #PERMANENT_SESSION_LIFETIME: 31  # 保留用户session几天（登陆页面用户选择以后免登陆时，系统保留登录状态的天数）
+
+  plugins:
+    -
+      api.plugin.Token
+
+  test_user:
+    -
+      demo
+
+# view 视图
+view_packages:
+  - tests
+  - demo
+
+# 数据库列表
+databases:
+  -
+    key: default
+    type: mysql
+    params:
+      host: 192.168.10.183
+      port: 3306
+      database: xxx
+      user: xxx
+      password: xxx
+
+# 日志输出
+logging:
+
+  # 默认格式／stream格式, 日志文件格式可在handler中自定义: docs.python.org/3/library/logging.html#logrecord-attributes
+  format: '%(asctime)s %(levelname)s %(message)s'      # %(process)d  [%(name)s]
+
+  # 定义的模块日志是否同时在default中输出, 可在logger中自定义
+  propagate: False
+
+  # 参数可以在handler中自定义
+  class:
+    # 屏幕输出
+    stream:
+      colour: True              # 不支持Windows
+    # 按文件固定大小输出文件日志
+    rotating_file:
+      max_size: 1024*1024*50    # 【默认值】日志文件最大限制（单位byte）
+      backup_count: 10          # 【默认值】保留的日志文件数
+    # 按固定时间输出文件日志
+    time_rotating_file:
+      when: d                   # 【默认值】计时单位 s:秒 m:分 h:小时 d:天 w:星期
+      interval: 30              # 【默认值】多少时间（计时单位又上面的when定义）
+      backup_count: 10          # 【默认值】保留的日志文件数
+
+  handler:
+    default:
+      format: '%(asctime)s %(levelname)s [%(name)s] %(message)s'
+      class: time_rotating_file
+      path: log/api.log       # 指定目录（启动脚本自行指定）的相对路径
+
+  # stream必须放置在所有handler的最后面, 不然日志文件中会有乱码
+  logger:
+    default:
+      level: debug
+      handler: default stream
+    api:
+      level: debug
+      handler: default stream
+    peewee:
+      level: info
+      handler: default stream

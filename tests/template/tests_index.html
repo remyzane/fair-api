@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+    <meta charset="UTF-8">
+    <title>API 测试界面</title>
+    <script type="text/javascript" src="/res/libs/jquery.min.js"></script>
+    <script type="text/javascript" src="/res/libs/ZeroClipboard.min.js"></script>
+    <link rel="stylesheet" href="/res/fonts/lato.min.css"/>
+    <link rel="stylesheet" href="/res/libs/semantic/semantic.min.css"/>
+    <script type="text/javascript" src="/res/libs/semantic/semantic.min.js"></script>
+    <link rel="stylesheet" href="/res/css/tests/tests.min.css"/>
+    <script type="text/javascript" src="/res/js/tests/tests.min.js"></script>
+    <script type="text/javascript">
+        var user = '{{user}}';
+        var json_p = '{{json_p}}';
+        var post_type = '{{post_type}}';
+        var curr_api_uri = '{{curr_api_uri}}';
+        var curr_api_path = '{{curr_api_path}}';
+        var curr_api_method = '{{curr_api_method}}';
+        var test_cases = {};
+    </script>
+</head>
+<body>
+
+<div class="ui top fixed inverted menu">
+    {% if curr_api_uri %}
+    <a class="item icon home-button" href="/tests/?user={{user}}">
+        <i class="home icon"></i>
+    </a>
+
+    <div class="ui dropdown item">
+        <i class="sidebar icon"></i>接口列表
+        <div class="menu">
+            {% for api_uri, description in api_list %}
+            {% if api_uri == curr_api_uri %}
+            <div class="uri item active">{{ api_uri }}</div>
+            {% else %}
+            <div class="uri item">{{ api_uri }}</div>
+            {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <a class="item copy-button">
+        <i class="linkify icon"></i>拷贝地址
+    </a>
+    <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
+        <i class="setting icon"></i>
+    </a>
+
+    <div class="item property">
+        <span>{{ curr_api_method }}</span>
+        <span>{{ curr_api_uri }}</span>
+    </div>
+    {% endif %}
+    <div class="right menu">
+        {% if curr_api_uri %}
+        <a class="item" onclick="do_test()">
+            <i class="setting icon"></i>测试接口
+        </a>
+        {% endif %}
+        <a class="item" href="/tests/">
+            <i class="sign out icon"></i>退出
+        </a>
+    </div>
+</div>
+
+<div class="body x">
+    {% if curr_api_uri %}
+    <div class="case">
+        <div class="title">接口&返回码说明</div>
+        <div class="description">{{curr_api_description | safe}}</div>
+        <div class="ui secondary vertical menu">
+            {% for code, message, cases in curr_api_codes %}
+                {% if code == '----' %}
+            <div class="divider"></div>
+                {% else %}
+            <a class="item" code="{{code}}" message="{{message}}" cases="{{cases}}" use_index=-1
+               onclick="use_case('{{code}}')">{{ code }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="message"><span>{{curr_api_description | safe}}</span></div>
+    </div>
+    <div class="params">
+        <table style="width:100%;border-spacing:0;">
+            <tr>
+                <th style="width:8%;">类型</th>
+                <th style="width:3%;"></th>
+                <th style="width:25%;">参数名称</th>
+                <th>参数值</th>
+                <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
+            </tr>
+            {% for name, type, requisite in curr_api_params %}
+            <tr>
+                <td style="font-size:.8em;">{{ type }}</td>
+                <td style="text-align:center;">{% if requisite %}●{% endif %}</td>
+                <td class="param-name">{{ name }}</td>
+                <td>
+                    <div class="ui transparent input param">
+                        <input type="text" id="{{ name }}" name="param" onchange="param_onchange(this);">
+                    </div>
+                </td>
+                <td>
+                    <input type="checkbox" id="{{ name }}_select" name="param_select" style="float:right">
+                </td>
+                <input type="hidden" id="{{ name }}_type" name="param_type" value="{{ type }}">
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="result">
+        <div class="four ui small basic buttons">
+            <button class="ui button" onclick="do_use_json()">&lt;&lt; json</button>
+            <button class="ui button" onclick="do_to_json()">&gt;&gt; json</button>
+            <button class="ui button" onclick="do_use_url()">&lt;&lt; url</button>
+            <button class="ui button" onclick="do_to_url()">&gt;&gt; url</button>
+        </div>
+        <textarea id="result"></textarea>
+    </div>
+    {% else %}
+    <div class="ui link api items">
+        {% for api_uri, description in api_list %}
+        <div class="item">
+            <div class="content">
+                <div class="header">{{ api_uri }}</div>
+                <div class="description">
+                    <p>{{ description | safe }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+<div class="ui modal">
+    <div class="header">设置&nbsp;&nbsp;{{ curr_api_uri }}</div>
+    <div class="content">
+        {% if json_p %}
+        <label for="json_p">
+            <input type="checkbox" id="json_p"
+                   {% if api_config.get('json_p') %} checked="checked" {% endif %}>&nbsp;&nbsp;
+            使用JSONP，参数名：{{json_p}}（固定）&nbsp;&nbsp;&nbsp; 参数值：一般由网络库生成如jQuery.ajax
+        </label>
+        {% endif %}
+        {% if curr_api_method == 'POST' %}
+        POST方式：&nbsp;&nbsp;&nbsp;
+        <label for="post_type_j">
+            <input type="radio" id="post_type_j" name="post_type" value="j"
+                   {% if api_config.get('post_type')!='f'%} checked="checked" {% endif %}/>&nbsp;&nbsp;application/json
+        </label>&nbsp;&nbsp;&nbsp;
+        <label for="post_type_f">
+            <input type="radio" id="post_type_f" name="post_type" value="f"
+                   {% if api_config.get('post_type')=='f' %} checked="checked" {% endif %}/>&nbsp;&nbsp;application/x-www-form-urlencoded
+        </label>
+        {% endif %}
+        <h4 class="ui dividing header"></h4>
+        <table style="width:100%;border-spacing:0;">
+            <tr>
+                <th style="width:8%;">类型</th>
+                <th style="width:3%;"></th>
+                <th style="width:19%;">参数名称</th>
+                <th style="width:18%;">参数值</th>
+                <th style="width:52%;">通过URL生成参数（请求时使用URL+用户填写值）</th>
+            </tr>
+            {% for name, type, requisite in curr_api_params %}
+            <tr>
+                <td style="font-size:.8em;">{{ type }}</td>
+                <td style="text-align:center;">{% if requisite %}●{% endif %}</td>
+                <td>{{ name }}</td>
+                <td>
+                    <label for="{{ name }}_pure_auto">
+                        <input type="checkbox" id="{{ name }}_pure_auto"
+                                {% if params_config.get(name) and params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;无需填写
+                    </label>
+                </td>
+                <td>
+                    <div class="ui transparent input param-url">
+                        <input type="text" id="{{ name }}_url" name="param_url"
+                                value="{% if params_config.get(name) %}{{ params_config[name]['url']}}{% endif %}">
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="actions">
+        <div class="ui red cancel button">
+            <i class="remove icon"></i>
+            取消
+        </div>
+        <div class="ui green ok button">
+            <i class="checkmark icon"></i>
+            设置
+        </div>
+    </div>
+</div>
+</body>
+</html>
