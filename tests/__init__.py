@@ -59,8 +59,9 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     for _name in dir(plugin):
         if _name[:2] != '__':
             obj = getattr(plugin, _name)
+            print(obj)
             if type(obj) == type(object) and issubclass(obj, plugin.Plugin) and obj is not plugin.Plugin:
-                for code in obj.code:
+                for code in obj.codes:
                     if code in c_keys:
                         c_keys.remove(code)
                         keys.append(code)
@@ -103,7 +104,7 @@ def index():
     param_curr_uri = request.args.get('api', '')
     post_type = request.args.get('type', 'j')
     user = request.args.get('user', '')
-    if user not in app.config['test_user']:
+    if user not in app.config['tests_access_keys']:
         message = '请输入正确的访问密钥' if request.args.get('user') else '请输入访问密钥'
         return render_template('tests/template/tests_auth.html', message=message)
 

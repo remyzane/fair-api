@@ -75,7 +75,7 @@ class Api(object):
 
         # 设置plugin的code
         for _plugin in cls.plugins:
-            cls.codes.update(_plugin.code)
+            cls.codes.update(_plugin.codes)
 
     @classmethod
     def init(cls):

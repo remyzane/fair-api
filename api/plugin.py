@@ -9,12 +9,7 @@ from .api import RR
 
 
 class Plugin(object):
-    code = {}
-
-
-PARAM_TOKEN = 'token'
-PARAM_IDENTITY = 'identity'
-TOKEN_TIME_OUT = 60
+    codes = {}
 
 
 class TokenException(Exception):
@@ -33,8 +28,13 @@ class TokenKeyInvalid(TokenException):
     pass
 
 
+PARAM_TOKEN = 'token'
+PARAM_IDENTITY = 'identity'
+TOKEN_TIME_OUT = 60
+
+
 class Token(Plugin):
-    code = {'token_invalid': 'Token校样无效'}
+    codes = {'token_invalid': 'Token校样无效'}
 
     @staticmethod
     def do(api):

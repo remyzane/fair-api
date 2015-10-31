@@ -160,7 +160,12 @@ function do_use_json(){
         // 转换 u（u'' -> "")
         json_str = json_str.replace(new RegExp("u'", "g"), "\"");
         json_str = json_str.replace(new RegExp("'", "g"), "\"");
-        var params = JSON.parse(json_str);
+        try{
+            var params = JSON.parse(json_str);
+        }catch(e){
+            alert('SyntaxError');
+            return;
+        }
     }
     // 检测是否有多余参数
     for (var item in params) {
@@ -189,12 +194,17 @@ function do_use_url(){
     if (params_str.substring(0, curr_api_path.length) == curr_api_path) {
         params_str = params_str.substring(curr_api_path.length, params_str.length)
     }
-    var params = queryStringToJSON(params_str);
-    // 检测是否有多余参数
-    for (var item in params) {
-        if ($("#" + item).length == 0) {
-            alert('未知参数【' + item + '】，该参数会引起接口［param_unknown］异常');
+    try {
+        var params = queryStringToJSON(params_str);
+        // 检测是否有多余参数
+        for (var item in params) {
+            if ($("#" + item).length == 0) {
+                alert('未知参数【' + item + '】，该参数会引起接口［param_unknown］异常');
+            }
         }
+    }catch(e){
+        alert('SyntaxError');
+        return;
     }
     $("input[name='param']").each(function(){
         if (params.hasOwnProperty(this.id)){
@@ -234,8 +244,7 @@ function do_test(){
             },
             error: function(xhr, status, error) { alert('接口【' + curr_api_path + '】无法访问'); }
         };
-        //var json_p = $("input[name='json_p']").val();
-        if (json_p){
+        if ($('#json_p').is(':checked')){
             request.dataType = 'jsonp';
             request.jsonp = json_p;
             request.cache = true;           // 避免jquery自动加上"_"参数(一个时间戳, 用户防止服务器端缓存)
@@ -405,12 +414,11 @@ function get_params_config(){
 }
 
 function save_config(){
-    var json_p = $('#json_p').is(':checked')
     var data = {
         "user": user,
         "api_path": curr_api_uri,
         "post_type": get_post_type(),
-        "json_p": json_p,
+        "json_p": $('#json_p').is(':checked'),
         "params": get_params_config()
     };
     $.ajax({

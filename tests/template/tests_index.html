@@ -139,7 +139,7 @@
         <label for="json_p">
             <input type="checkbox" id="json_p"
                    {% if api_config.get('json_p') %} checked="checked" {% endif %}>&nbsp;&nbsp;
-            使用JSONP，参数名：{{json_p}}（固定）&nbsp;&nbsp;&nbsp; 参数值：一般由网络库生成如jQuery.ajax
+            使用JSONP，参数名：{{json_p}}（Api子类中定义）&nbsp;&nbsp;&nbsp; 参数值：一般由网络库生成如jQuery.ajax
         </label>
         {% endif %}
         {% if curr_api_method == 'POST' %}

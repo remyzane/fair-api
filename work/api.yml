@@ -14,12 +14,10 @@ app:
   #PERMANENT_SESSION_LIFETIME: 31  # 保留用户session几天（登陆页面用户选择以后免登陆时，系统保留登录状态的天数）
 
   plugins:
-    -
-      api.plugin.Token
+    - api.plugin.Token
 
-  test_user:
-    -
-      demo
+  tests_access_keys:
+    - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
 
 # view 视图
 view_packages:
