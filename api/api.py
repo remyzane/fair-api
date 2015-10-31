@@ -172,7 +172,8 @@ class Api(object):
                 # 类型转换（application/json时不处理）（Str和其子类不处理）
                 if not self.post_json and not issubclass(_type, Str):
                     try:
-                        self.params[param] = _type.conversion(value) if value else None
+                        value = _type.conversion(value) if value else None
+                        self.params[param] = value
                     except ValueError:
                         raise RR(self.result(_type.code, {'parameter': param, 'value': value}))
                 # 参数校样

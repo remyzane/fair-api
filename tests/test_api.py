@@ -9,7 +9,7 @@ from api.plugin import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN
 
 
 def test_token():
-    identity = 'one user'
+    identity = 'somebody'
     Token._unit_test_key = b'p' * 16
 
     pytest.raises(TokenInvalid, Token.create, 'plaintext', 'error timestamp')

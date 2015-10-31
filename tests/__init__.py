@@ -59,7 +59,6 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     for _name in dir(plugin):
         if _name[:2] != '__':
             obj = getattr(plugin, _name)
-            print(obj)
             if type(obj) == type(object) and issubclass(obj, plugin.Plugin) and obj is not plugin.Plugin:
                 for code in obj.codes:
                     if code in c_keys:

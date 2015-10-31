@@ -30,24 +30,26 @@ class TokenKeyInvalid(TokenException):
 
 PARAM_TOKEN = 'token'
 PARAM_IDENTITY = 'identity'
-TOKEN_TIME_OUT = 60
+TOKEN_TIME_OUT = 60             # 1 minute
 
 
 class Token(Plugin):
     codes = {'token_invalid': 'Token校样无效'}
 
-    @staticmethod
-    def do(api):
-        # 判断是否设置不做token检查
-        if hasattr(api, 'no_token'):
-            return
-        # 参数检查
-        if not api.params.get(PARAM_IDENTITY):
-            raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
-        if not api.params.get(PARAM_TOKEN):
+    @classmethod
+    def do(cls, api):
+        token = api.params.get(PARAM_TOKEN)
+        identity = api.params.get(PARAM_IDENTITY)
+        # 获取token参数
+        if not token:
             raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN}))
-
-        raise RR(api.result('token_invalid', {'error': 'aaa'}))
+        if not identity:
+            raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
+        # 进行token校样
+        try:
+            cls.check(identity, token)
+        except TokenException as e:
+            raise RR(api.result('token_invalid', {'error': str(e)}))
 
     # unit test use only
     _unit_test_key = None
@@ -82,6 +84,8 @@ class Token(Plugin):
 
     @classmethod
     def check(cls, identity, cipher_text):
+        if len(cipher_text) % 16 != 0:
+            raise TokenInvalid('Token must be a multiple of 16 in length')
         key = cls.get_key(identity)
         try:
             aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + 'x')
@@ -90,7 +94,7 @@ class Token(Plugin):
         try:
             byte_text = aes_obj.decrypt(base64.b16decode(cipher_text, True)).rstrip(b'\x00')
             plaintext = byte_text[: -16]
-        except binascii.Error:                  # base64 raise
+        except binascii.Error:                      # base64 raise
             raise TokenInvalid('Token invalid')
         try:
             # 检测有效时间
