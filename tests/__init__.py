@@ -44,18 +44,18 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     c_keys.remove('success')
     c_keys.remove('exception')
     c_keys.remove('param_unknown')
-    c_keys.remove('param_missing')
     if curr_api_cls.requisite:
+        c_keys.remove('param_missing')
         keys.append('param_missing')
-    keys.append('----')
     # 类型判断
+    type_keys = []
     for name in dir(parameter):
         cls = getattr(parameter, name)
         if hasattr(cls, 'code') and hasattr(cls, 'message') and getattr(cls, 'code') != '':
             code = getattr(cls, 'code')
             if code in c_keys:
                 c_keys.remove(code)
-                keys.append(code)
+                type_keys.append(code)
     for _name in dir(plugin):
         if _name[:2] != '__':
             obj = getattr(plugin, _name)
@@ -63,11 +63,16 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
                 for code in obj.codes:
                     if code in c_keys:
                         c_keys.remove(code)
-                        keys.append(code)
-    keys.append('----')
+                        type_keys.append(code)
+    if type_keys:
+        keys.append('----')
+        keys = keys + type_keys
     # 自定义
-    c_keys.sort()
-    for key in keys + c_keys:
+    if c_keys:
+        c_keys.sort()
+        keys.append('----')
+        keys = keys + c_keys
+    for key in keys:
         if key == '----':
             codes.append(('----', None, None))
         else:

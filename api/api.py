@@ -201,7 +201,7 @@ class Api(object):
     def log(self, code, data, exception):
         if self.process_log:
             self.process_log = '''
-Process Log: --------------------------------------------
+Process Flow: -------------------------------------------
 %s
 ---------------------------------------------------------''' % self.process_log
         debug_info = '''%s

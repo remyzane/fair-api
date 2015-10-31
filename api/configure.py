@@ -11,7 +11,8 @@ log = logging.getLogger(__name__)
 
 types = {
     'mysql': peewee.MySQLDatabase,
-    'pgsql': peewee.PostgresqlDatabase
+    'pgsql': peewee.PostgresqlDatabase,
+    'sqlite': peewee.SqliteDatabase
 }
 db = {}
 

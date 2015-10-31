@@ -7,13 +7,8 @@ import logging
 from argparse import ArgumentParser
 
 import api
-from api.utility import load_yaml, set_logging, CustomizeHelpFormatter
-from api.assist import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor
-from dev.profile import run_profile
-from dev.pyshell import start_ipython
-
-from api.utility import program_dir
-
+from api.utility import program_dir, load_yaml, set_logging, CustomizeHelpFormatter
+from api.assist import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor, run_profile, start_ipython
 
 log = logging.getLogger(__name__)
 

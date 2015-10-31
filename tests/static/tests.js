@@ -22,7 +22,7 @@ $(document).ready(function(){
         window.location.href = window.location.pathname +
             '?user=' + user + '&type=' + get_post_type() + '&api=' + $(this)[0].innerText;
     });
-    $('.body .ui.link.api.items').css({"margin-left": ($(window).width()-960)/2 + "px"});
+    $('.body .ui.link.api.items').css({"margin-left": ($(window).width()-800)/2 + "px"});
     $('.body .ui.link.api.items .item').on('click', function() {
         var uri = $(this)[0].children[0].children[0].innerText;
         window.location.href = window.location.pathname +
@@ -61,7 +61,7 @@ $(document).ready(function(){
     $(".green.ok.button").click(save_config);
 });
 
-var queryStringToJSON = function (url) {
+function url_to_json(url) {
     if (url === '')
         return '';
     var pairs = (url || location.search).slice(1).split('&');
@@ -195,7 +195,7 @@ function do_use_url(){
         params_str = params_str.substring(curr_api_path.length, params_str.length)
     }
     try {
-        var params = queryStringToJSON(params_str);
+        var params = url_to_json(params_str);
         // 检测是否有多余参数
         for (var item in params) {
             if ($("#" + item).length == 0) {

@@ -28,9 +28,15 @@ view_packages:
 databases:
   -
     key: default
+    type: sqlite
+    params:
+      database: work/test/sqlite.db
+
+  -
+    key: second
     type: mysql
     params:
-      host: 192.168.10.183
+      host: 192.168.1.2
       port: 3306
       database: xxx
       user: xxx
