@@ -22,7 +22,6 @@ def init(config):
     set_view(app, config['view_packages'])
 
 
-# TODO add customize_token demo
+# TODO check chinese comments  then translate
 # TODO DOC
-# TODO auto unit test for user case
-# TODO translate zh -> en
+# TODO The web test case's automation (in unit test)

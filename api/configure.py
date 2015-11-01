@@ -34,7 +34,7 @@ def set_flask(app, config):
         if name == 'PERMANENT_SESSION_LIFETIME':
             app.config[name] = datetime.timedelta(days=int(config[name]))
         else:
-            # other config
+            # system and biz config
             app.config[name] = config[name]
 
 
