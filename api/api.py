@@ -26,20 +26,20 @@ class RR(Exception):     # RaiseResponse
 
 # api公共父类（改写自flask.views.MethodView）
 class Api(object):
-    # 以下类成员请作为常量使用, 除了子类继承重载之外, 切勿在方法中重名
+    # 子类可重载以下定义 (请勿在类方法中定义同名变量)
     description = ''
-    auto_rollback = False       # 是否在错误(code != 'success')时自动回滚
     db = db.get('default')      # auto_rollback 为 True 时用
+    auto_rollback = True        # 是否在错误(code != 'success')时自动回滚
     parameters = {}             # 格式样例：{'Id': Int, ...}, 可用的类型有：Int, Float, Str, Mail、...
     requisite = []
-    json_p = None               # json_p名一般使用callback(如果有指定该参数则返回json_p, 否则返回标准json)
+    json_p = None               # 如果有指定该参数(一般使用callback)则返回jsonp
     codes = None
     plugins = None
     plugins_exclude = ()
 
     @classmethod
     def check_define(cls, view):
-        # 判断必要参数是否已经定义在参数列表中
+        # 判断必要参数的类型是否已定义
         for param in cls.requisite:
             if param not in cls.parameters:
                 raise Exception('Error define in %s: requisite parameter [%s] not defined in parameter list.' %
@@ -50,7 +50,7 @@ class Api(object):
             for _type in cls.parameters.values():
                 if isinstance(_type, List):
                     raise Exception('Error define in %s: GET method not support List parameter.' % cls.__name__)
-        # POST参数不支持jsonp
+        # POST请求不支持jsonp
         elif hasattr(cls, 'post'):
             view.methods = ['POST']
             if cls.json_p:
@@ -97,7 +97,7 @@ class Api(object):
     @classmethod
     def as_view(cls, name, *class_args, **class_kwargs):
         def view(*args, **kwargs):
-            # 线程安全, 每个请求都实例化一个对象进行处理(已验证)
+            # 实例化请求对象(api view), 线程安全
             self = view.view_class(*class_args, **class_kwargs)
             # 自动回滚支持
             if self.auto_rollback:
@@ -121,7 +121,7 @@ class Api(object):
         self.params = {}
         self.params_log = ''
         self.process_log = ''
-        self.post_json = False  # application/json为True,  get和post:application/x-www-form-urlencoded 为 False
+        self.post_json = False  # application/json -> True,  get 和 post:application/x-www-form-urlencoded -> False
 
     def dispatch_request(self, *args, **kwargs):
         try:
@@ -164,7 +164,7 @@ class Api(object):
             if not _type:
                 if self.json_p:
                     # jquery 为了避免服务器端缓存会自动加上 '_', '1_' 参数,
-                    # 然jquery不自动加'_'参数的方法: 设置jquery的ajax参数 cache: true
+                    # 让jquery不自动加'_'参数的方法: 设置jquery的ajax参数 cache: true
                     if param == self.json_p or param == '_' or param == '1_':
                         continue
                 raise RR(self.result('param_unknown', {'parameter': param, 'value': value}))

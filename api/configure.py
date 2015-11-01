@@ -22,11 +22,11 @@ def set_database(config):
     global db
     for database in config:
         db[database['key']] = types[database['type']](**config[0]['params'])
-    # model 不指定时database, 默认使用default或配置的第一个数据库
+    # model 不指定时database, 默认使用'default'或第一个数据库
     peewee.Model._meta.database = db.get('default') or db[0]
 
 
-# 设置Flask配置（app.config）通过mail.yml中的app配置段
+# 设置Flask配置（app.config）在api.yml中的app段配置
 def set_flask(app, config):
     # 配置系统
     for name in config:
@@ -35,7 +35,7 @@ def set_flask(app, config):
             app.config[name] = datetime.timedelta(days=int(config[name]))
         else:
             # 保存配置信息，由系统其它地方使用
-            app.config[name] = config[name]     # copy.deepcopy() 无需复制全新数据
+            app.config[name] = config[name]
 
 
 # 设置view
