@@ -22,7 +22,7 @@ def init(config):
     set_view(app, config['view_packages'])
 
 
+# TODO add customize_token demo
 # TODO DOC
 # TODO auto unit test for user case
-# TODO session support
 # TODO translate zh -> en
