@@ -109,3 +109,4 @@ if __name__ == '__main__':
         locals()[args.command](args.params)
     else:
         locals()[args.command]()
+from queue import Queue

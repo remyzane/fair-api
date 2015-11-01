@@ -4,15 +4,22 @@ web:
 
 # 该段（app）的配置会存放到 flask.current_app.config 中
 app:
-  # 登陆url，用户访问没有权限的action时会跳到该url
-  # login_url: '/user/login'
-  ## flask 配置
+
+  ## flask 配置 ----------
   DEBUG: true
 
-  # Session
-  #SECRET_KEY: 'xxxxxxxxxxxxxyyyyyyyyyyyyyyyyzzzzzzzzzzz'
-  #PERMANENT_SESSION_LIFETIME: 31  # 保留用户session几天（登陆页面用户选择以后免登陆时，系统保留登录状态的天数）
+  # Session 如果不需要session支持, 请注释掉SECRET_KEY (能提高性能)
+#  SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
 
+  # 保留用户session几天（登陆页面用户选择免登陆时，系统保留登录状态的天数）
+  # 需要在用户登录时设置 flask.session['remember'] = 'set', 或调用 flask_login.login_user 时设置remember=True
+  # PERMANENT_SESSION_LIFETIME: 31
+
+  # 登陆url，用户访问没有权限的action时会跳到该url
+  # 要开启该功能需要集成flask_login, 并设置 app.login_manager.login_view = app.config['login_url']
+  # login_url: '/xxx/login'
+
+  ## 其它配置 ----------
   plugins:
     - api.plugin.Token
 

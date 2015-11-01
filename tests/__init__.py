@@ -3,6 +3,7 @@
 import os
 import json
 import pkgutil
+from flask import session
 
 from api import parameter, plugin, app, request, render_template, Response, Api, JSON
 from api.utility import class_name_to_api_name, program_dir
@@ -109,8 +110,15 @@ def index():
     post_type = request.args.get('type', 'j')
     user = request.args.get('user', '')
     if user not in app.config['tests_access_keys']:
+
+        if app.config.get('SECRET_KEY'):
+            session.pop('user', None)
+
         message = '请输入正确的访问密钥' if request.args.get('user') else '请输入访问密钥'
         return render_template('tests/template/tests_auth.html', message=message)
+
+    if app.config.get('SECRET_KEY'):
+        session['user'] = user
 
     for package_name in app.view_packages:
         exec('import %s as package' % package_name)

@@ -4,7 +4,7 @@ import os
 import logging
 from peewee import CharField, Model
 
-from api import Api, Int, Str, Mob, Mail, Zipcode
+from api import app, session, Api, Int, Str, Mob, Mail, Zipcode
 from api.plugin import Token
 
 log = logging.getLogger(__name__)
@@ -83,6 +83,23 @@ class SetUser(Api):
         self.process_log += 'do job 2' + os.linesep
         self.process_log += 'do job 3'
         return self.result('success', {'id': 1})
+
+
+class Session(Api):
+    description = '''Session测试'''
+    plugins_exclude = (Token,)
+    codes = {
+        'not_configured': '系统未配置Session, 请启用api.yml中的SECRET_KEY',
+        'not_login': '未登录'
+    }
+
+    def get(self, params):
+        if not app.config.get('SECRET_KEY'):
+            return self.result('not_configured')
+        if not session.get('user'):
+            return self.result('not_login')
+
+        return self.result('success', {'key': session['user']})
 
 
 class User(Model):

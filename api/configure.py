@@ -50,10 +50,11 @@ def set_view(app, config):
                 exec('import %s.%s as package' % (package_name, modname))
                 views = locals()['package']
                 for item in dir(views):
-                    # 在这里对flask的request(werkzeug.local.LocalProxy)进行hasattr操作
+                    # 在这里对flask的request和session(werkzeug.local.LocalProxy)进行hasattr操作
                     # 会抛"RuntimeError: working outside of request context"异常
-                    if item == 'request' and getattr(views, item).__class__.__name__ == 'LocalProxy':
+                    if item in ['request', 'session'] and getattr(views, item).__class__.__name__ == 'LocalProxy':
                         continue
+
                     view = getattr(views, item)
                     if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != Api:
                         name = class_name_to_api_name(view.__name__)

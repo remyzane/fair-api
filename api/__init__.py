@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging
-from flask import Flask, request, render_template, Response     # 方便项目引用
+from flask import Flask, session, request, render_template, Response     # 方便项目引用
 
 from .api import Api, RR, JSON, JSON_P
 from .parameter import *
