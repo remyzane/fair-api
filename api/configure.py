@@ -17,25 +17,25 @@ types = {
 db = {}
 
 
-# 设置数据库(必须先于model导入之前调用)
+# configure database (execution of this config must preceded view and model import)
 def set_database(config):
     global db
     for database in config:
         db[database['key']] = types[database['type']](**config[0]['params'])
-    # model 不指定时database, 默认使用default或配置的第一个数据库
+    # set default db
     peewee.Model._meta.database = db.get('default') or db[0]
 
 
-# 设置Flask配置（app.config）通过mail.yml中的app配置段
+# configure flask (app.config) defined in app section at api.yml
 def set_flask(app, config):
-    # 配置系统
+    # config item
     for name in config:
-        # Flask内置设置，保留用户session几天（登陆页面用户选择以后免登陆时，系统保留登录状态的天数）
+        # set the expiration date of a permanent session.
         if name == 'PERMANENT_SESSION_LIFETIME':
             app.config[name] = datetime.timedelta(days=int(config[name]))
         else:
-            # 保存配置信息，由系统其它地方使用
-            app.config[name] = config[name]     # copy.deepcopy() 无需复制全新数据
+            # other config
+            app.config[name] = config[name]
 
 
 # 设置view

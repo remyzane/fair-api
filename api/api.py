@@ -24,33 +24,33 @@ class RR(Exception):     # RaiseResponse
         self.response = response
 
 
-# api公共父类（改写自flask.views.MethodView）
+# api base class（rewrite the flask.views.MethodView）
 class Api(object):
-    # 以下类成员请作为常量使用, 除了子类继承重载之外, 切勿在方法中重名
+    # Can be overload by subclasses
     description = ''
-    auto_rollback = False       # 是否在错误(code != 'success')时自动回滚
-    db = db.get('default')      # auto_rollback 为 True 时用
-    parameters = {}             # 格式样例：{'Id': Int, ...}, 可用的类型有：Int, Float, Str, Mail、...
+    auto_rollback = False       # auto rollback the current transaction while result code != success
+    db = db.get('default')      # used by auto_rollback
+    parameters = {}             # example：{'Id': Int, ...}, type has available：Int, Float, Str, Mail、...
     requisite = []
-    json_p = None               # json_p名一般使用callback(如果有指定该参数则返回json_p, 否则返回标准json)
+    json_p = None               # if defined api's return will using jsonp (accustomed to using 'callback')
     codes = None
     plugins = None
     plugins_exclude = ()
 
     @classmethod
     def check_define(cls, view):
-        # 判断必要参数是否已经定义在参数列表中
+        # check the necessary parameter's type is defined
         for param in cls.requisite:
             if param not in cls.parameters:
                 raise Exception('Error define in %s: requisite parameter [%s] not defined in parameter list.' %
                                 (cls.__name__, param))
-        # GET请求不支持List参数
+        # GET method not support List parameter
         if hasattr(cls, 'get'):
             view.methods = ['GET']
             for _type in cls.parameters.values():
                 if isinstance(_type, List):
                     raise Exception('Error define in %s: GET method not support List parameter.' % cls.__name__)
-        # POST参数不支持jsonp
+        # POST method not support jsonp
         elif hasattr(cls, 'post'):
             view.methods = ['POST']
             if cls.json_p:
@@ -58,14 +58,14 @@ class Api(object):
 
     @classmethod
     def set_codes(cls):
-        # 公共错误code
-        cls.codes['success'] = '成功'
-        cls.codes['exception'] = '未知异常'
-        cls.codes['param_unknown'] = '未知参数'
+        # common error code
+        cls.codes['success'] = 'Success'
+        cls.codes['exception'] = 'Unknown exception'
+        cls.codes['param_unknown'] = 'Unknown parameter'
         if cls.requisite:
-            cls.codes['param_missing'] = '缺少参数'
+            cls.codes['param_missing'] = 'Missing parameter'
 
-        # 参数类型判断错误code
+        # parameter type error code
         for _type in cls.parameters.values():
             if isinstance(_type, List):
                 cls.codes[_type.code] = _type.message % _type.type.__name__
@@ -73,7 +73,7 @@ class Api(object):
             elif _type != Pass:
                 cls.codes[_type.code] = _type.message
 
-        # 设置plugin的code
+        # plugins error code
         for _plugin in cls.plugins:
             cls.codes.update(_plugin.codes)
 
@@ -84,22 +84,22 @@ class Api(object):
         if cls.plugins is None:
             cls.plugins = []
 
-        # 设置公共plugin
+        # add common plugin
         from api import app
         for plugin_path in app.config.get('plugins'):
             exec('from %s import %s as plugin' % tuple(plugin_path.rsplit('.', 1)))
             if locals()['plugin'] not in cls.plugins_exclude:
                 cls.plugins.insert(0, locals()['plugin'])
 
-        # 设置code、message
+        # set error code and message
         cls.set_codes()
 
     @classmethod
     def as_view(cls, name, *class_args, **class_kwargs):
         def view(*args, **kwargs):
-            # 线程安全, 每个请求都实例化一个对象进行处理(已验证)
+            # instantiate view class, thread security
             self = view.view_class(*class_args, **class_kwargs)
-            # 自动回滚支持
+            # rollback the current transaction while result code != success
             if self.auto_rollback:
                 with self.db.transaction():
                     return self.dispatch_request(*args, **kwargs)
@@ -110,36 +110,36 @@ class Api(object):
         view.__name__ = name
         view.__module__ = cls.__module__
         view.__doc__ = cls.__doc__
-        # 检查类定义
+        # check api class define
         cls.check_define(view)
-        # 初始化类
+        # init api class
         cls.init()
         return view
 
     def __init__(self):
-        # 以下成员变量会根据每个请求进行设置
+        # the following variables is different in per request
         self.params = {}
         self.params_log = ''
         self.process_log = ''
-        self.post_json = False  # application/json为True,  get和post:application/x-www-form-urlencoded 为 False
+        self.post_json = False  # application/json -> True,  get and post:application/x-www-form-urlencoded -> False
 
     def dispatch_request(self, *args, **kwargs):
         try:
-            # 获取请求参数
+            # get request parameters
             self.get_request_params()
-            # 参数类型和格式检查
+            # check parameter's type and format
             self.check_parameters()
-            # 插件
+            # plugin
             for plugin in self.plugins:
                 plugin.do(self)
-            # 分发请求
+            # dispatch request
             return getattr(self, request.method.lower())(self.params, *args, **kwargs)
         except RR as e:
             return e.response
         except:
             return self.result('exception', exception=True)
 
-    # 获取请求数据
+    # get request parameters
     def get_request_params(self):
         if request.method == 'GET':
             self.params = request.args.copy()
@@ -152,52 +152,52 @@ class Api(object):
                 self.params = request.form.copy()
             self.params_log = _request_params_log % self.params
 
-    # 检查参数
+    # check parameter's type and format
     def check_parameters(self):
-        # 检查必要参数是否已经设置
+        # check the necessary parameter's value is sed
         for param in self.requisite:
-            if self.params.get(param, '') == '':       # 为0时可以通过
+            if self.params.get(param, '') == '':       # 0 is ok
                 raise RR(self.result('param_missing', {'parameter': param}))
-        # 参数类型转换&校样
+        # parameter's type of proof and conversion
         for param, value in self.params.items():
             _type = self.parameters.get(param)
             if not _type:
                 if self.json_p:
-                    # jquery 为了避免服务器端缓存会自动加上 '_', '1_' 参数,
-                    # 然jquery不自动加'_'参数的方法: 设置jquery的ajax参数 cache: true
+                    # jquery's cache management mechanism will add '_', '1_' parameter,
+                    # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
                     if param == self.json_p or param == '_' or param == '1_':
                         continue
                 raise RR(self.result('param_unknown', {'parameter': param, 'value': value}))
             if value is not None:
-                # 类型转换（application/json时不处理）（Str和其子类不处理）
+                # type conversion (application/json don't need) (Str and its subclasses don't need)
                 if not self.post_json and not issubclass(_type, Str):
                     try:
                         value = _type.conversion(value) if value else None
                         self.params[param] = value
                     except ValueError:
                         raise RR(self.result(_type.code, {'parameter': param, 'value': value}))
-                # 参数校样
+                # parameter check
                 error_code = _type.check(value)
                 if error_code:
                     raise RR(self.result(error_code, {'parameter': param, 'value': value}))
 
-    # 组合返回结果（HttpResponse）
+    # get result for return（HttpResponse）
     def result(self, code, data={}, status=None, exception=False):
-        # 异常时自动回滚
+        # rollback the current transaction
         if self.auto_rollback and code != 'success':
             self.db.rollback()
-        # 结果数据
+        # data of return
         ret = {'code': code, 'message': self.codes[code], 'data': data}
-        # 日志输出
+        # log output
         self.log(code, ret, exception)
-        # 结果返回
+        # return result
         json_p = self.params.get(self.json_p) if self.json_p else None
         if json_p:
             return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
         else:
             return Response(json.dumps(ret), content_type=JSON, status=status)
 
-    # 输出日志
+    # log output
     def log(self, code, data, exception):
         if self.process_log:
             self.process_log = '''
@@ -209,7 +209,7 @@ Return Data: --------------------------------------------
 %s
 ---------------------------------------------------------''' % (self.process_log, str(data))
         if code == 'success':
-            # 输出调试信息，加判断是为了提高性能
+            # different log output
             if log.parent.level == logging.DEBUG:
                 log.info('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
             else:
