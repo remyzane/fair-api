@@ -1,4 +1,6 @@
-web:
+
+# 简易服务器(开发用)
+simple_server:
   host: 0.0.0.0
   port: 8081
 

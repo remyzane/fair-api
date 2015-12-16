@@ -92,6 +92,7 @@ def _get_test_case(curr_api_uri, user, code):
                 use_cases += ', ' + line
             else:
                 use_cases += line
+        data_file.close()
     return '[%s]' % use_cases
 
 

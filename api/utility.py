@@ -100,7 +100,7 @@ class CustomizeLog(logging.Formatter):
 
 
 # 通过配置设置logging
-def set_logging(config, root_path):
+def set_logging(config, root_path=''):
     colour = config['class']['stream']['colour']        # 屏幕输出是否多彩显示(windows下会乱码)
     default_format = CustomizeLog(config['format'])
     stream_format = CustomizeLog(config['format'], width_color=True) if colour and POSIX else default_format
@@ -117,7 +117,7 @@ def set_logging(config, root_path):
         handler_params = config['class'][params['class']].copy()
         handler_params.update(params)
         # 创建日志目录
-        logfile = os.path.join(root_path, params['path'])
+        logfile = params['path'] if params['path'][:1] == '/' else os.path.join(root_path, params['path'])
         if not os.path.exists(os.path.dirname(logfile)):
             os.makedirs(os.path.dirname(logfile))
         # 创建handler

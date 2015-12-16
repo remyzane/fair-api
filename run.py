@@ -7,7 +7,7 @@ import logging
 from argparse import ArgumentParser
 
 import api
-from api.utility import program_dir, load_yaml, set_logging, CustomizeHelpFormatter
+from api.utility import program_dir, load_yaml, CustomizeHelpFormatter
 from api.assist import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor, run_profile, start_ipython
 
 log = logging.getLogger(__name__)
@@ -23,12 +23,12 @@ var_and_obj = dir()
 
 # 运行程序
 def run(params=None):
-    api.init(config)
+    # api.init(config)
     # 取得监听主机和端口配置
-    web_host, web_port = config['web']['host'], config['web']['port']
+    web_host, web_port = config['simple_server']['host'], config['simple_server']['port']
     if params:
         web_host, web_port = params.split(':')
-    # 运行web服务，禁用flask自带的代码修改后的重启功能(功能不符合业务需求)
+    # 运行web服务，禁用flask自带的代码修改后的重启功能(程序异常后会退出)
     api.app.run(web_host, int(web_port), use_reloader=False)
 
 
@@ -37,7 +37,7 @@ def code():
     from watchdog.observers import Observer
     # 可设置参数有 delay: 延迟启动时间(等待x秒之后再启动), brief: 是否常驻服务, network_port: 服务用到的端口
     start_commands = [{'cmd': 'rm -rf %s/*.log' % os.path.join(work_dir, 'log'), 'brief': True},
-                      {'cmd': './run.py run', 'network_port': (config['web']['port'],)}]
+                      {'cmd': './run.py run', 'network_port': (config['simple_server']['port'],)}]
     # 文件监控服务
     observer = Observer()
     # Python程序监控（程序变化时重启服务器），初始的时候也会自动启动
@@ -61,7 +61,6 @@ def code():
 
 # 进入项目环境的shell交互模式
 def shell():
-    api.init(config)
     # 启动shell（设置环境变量）
     start_ipython([
         ('app', api.app, 'flask app'),
@@ -101,12 +100,8 @@ if __name__ == '__main__':
         parser.print_help()
         exit()
 
-    # 设置日志
-    set_logging(config['logging'], work_dir)
-
     # 运行命令
     if args.params:
         locals()[args.command](args.params)
     else:
         locals()[args.command]()
-from queue import Queue

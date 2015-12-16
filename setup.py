@@ -3,7 +3,7 @@
 
 from setuptools import setup, find_packages
 
-install_requires = ['peewee', 'flask', 'gprof2dot', 'pycrypto']
+install_requires = ['flask', 'peewee', 'PyYAML', 'gprof2dot', 'pycrypto', 'watchdog', 'pytest']
 
 setup(name='Yourself Project Name',
       version='1.0',

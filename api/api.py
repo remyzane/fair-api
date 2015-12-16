@@ -10,6 +10,8 @@ from .parameter import Pass, Str, List
 
 log = logging.getLogger(__name__)
 
+from flask_peewee.db import Database
+
 JSON = 'application/json; charset=utf-8'
 JSON_P = 'application/javascript; charset=utf-8'
 
@@ -28,8 +30,9 @@ class RR(Exception):     # RaiseResponse
 class Api(object):
     # Can be overload by subclasses
     description = ''
-    auto_rollback = False       # auto rollback the current transaction while result code != success
-    db = db.get('default')      # used by auto_rollback
+    database = 'default'        # used by auto_rollback
+    db = None
+    auto_rollback = True       # auto rollback the current transaction while result code != success
     parameters = {}             # example：{'Id': Int, ...}, type has available：Int, Float, Str, Mail、...
     requisite = []
     json_p = None               # if defined api's return will using jsonp (accustomed to using 'callback')
@@ -83,6 +86,9 @@ class Api(object):
             cls.codes = {}
         if cls.plugins is None:
             cls.plugins = []
+
+        # setting database
+        cls.db = db.get(cls.database)
 
         # add common plugin
         from api import app
@@ -209,7 +215,7 @@ Return Data: --------------------------------------------
 %s
 ---------------------------------------------------------''' % (self.process_log, str(data))
         if code == 'success':
-            # different log output
+            # different log output for performance
             if log.parent.level == logging.DEBUG:
                 log.info('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
             else:

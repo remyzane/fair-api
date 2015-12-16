@@ -1,0 +1,7 @@
+flask
+peewee
+gprof2dot
+pycrypto
+PyYAML
+watchdog
+pytest
