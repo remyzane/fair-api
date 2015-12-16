@@ -14,13 +14,11 @@ from collections import OrderedDict
 from multiprocessing import Process
 from watchdog.events import PatternMatchingEventHandler
 
-
 from .utility import load_yaml, program_dir
 
 log = logging.getLogger(__name__)
 
 
-# 取得css js压缩命令
 def css_js_compressor():
     path = os.path.join(program_dir, 'work', 'tools', 'yuicompressor.jar')
     return 'java -jar %s' % path
