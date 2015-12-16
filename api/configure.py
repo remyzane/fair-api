@@ -28,14 +28,16 @@ def set_database(config):
 
 # configure flask (app.config) defined in app section at api.yml
 def set_flask(app, config):
-    # config item
-    for name in config:
+    # app config
+    for name in config['app']:
+        app.config[name] = config['app'][name]
+    # flask config
+    for name in config['flask']:
         # set the expiration date of a permanent session.
         if name == 'PERMANENT_SESSION_LIFETIME':
-            app.config[name] = datetime.timedelta(days=int(config[name]))
+            app.config[name] = datetime.timedelta(days=int(config['flask'][name]))
         else:
-            # system and biz config
-            app.config[name] = config[name]
+            app.config[name] = config['flask'][name]
 
 
 # 设置view

@@ -1,39 +1,41 @@
 
-# 简易服务器(开发用)
+# use in development and testting
 simple_server:
   host: 0.0.0.0
   port: 8081
 
-# 该段（app）的配置会存放到 flask.current_app.config 中
-app:
 
-  ## flask 配置 ----------
+flask:
   DEBUG: true
 
-  # Session 如果不需要session支持, 请注释掉SECRET_KEY (能提高性能)
-#  SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
+  # session secret key, in order to optimal performance comment it if need not
+  # SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
 
-  # 保留用户session几天（登陆页面用户选择免登陆时，系统保留登录状态的天数）
-  # 需要在用户登录时设置 flask.session['remember'] = 'set', 或调用 flask_login.login_user 时设置remember=True
+  # session lifetime (days)
+  # need set flask.session['remember'] = 'set', or set remember=True while call flask_login.login_user
   # PERMANENT_SESSION_LIFETIME: 31
 
-  # 登陆url，用户访问没有权限的action时会跳到该url
-  # 要开启该功能需要集成flask_login, 并设置 app.login_manager.login_view = app.config['login_url']
+  # login address, unauthorized access will redirect to this address
+  # need flask_login support, and set app.login_manager.login_view = app.config['login_url']
   # login_url: '/xxx/login'
 
-  ## 其它配置 ----------
+
+# saved in flask.current_app.config
+app:
   plugins:
     - api.plugin.Token
 
   tests_access_keys:
     - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
 
-# view 视图
+
+# View packages
 view_packages:
   - tests
   - demo
 
-# 数据库列表
+
+# Database list
 databases:
   -
     key: default
@@ -51,44 +53,47 @@ databases:
       user: xxx
       password: xxx
 
-# 日志输出
+
+# Logging
 logging:
 
-  # 默认格式／stream格式, 日志文件格式可在handler中自定义: docs.python.org/3/library/logging.html#logrecord-attributes
+  # default／stream format, file logging's format can define in handler
+  # docs.python.org/3/library/logging.html#logrecord-attributes
   format: '%(asctime)s %(levelname)s %(message)s'      # %(process)d  [%(name)s]
 
-  # 定义的模块日志是否同时在default中输出, 可在logger中自定义
+  # judge whether repeatedly output to default logger, you can redefine in each logger's configure
   propagate: False
 
-  # 参数可以在handler中自定义
+  # all parameter can redefine in each handler
   class:
-    # 屏幕输出
+    # screen output
     stream:
-      colour: True              # 不支持Windows
-    # 按文件固定大小输出文件日志
+      colour: True              # M$ windows not support
+
+    # which switches from one file to the next when the current file reaches a certain size.
     rotating_file:
-      max_size: 1024*1024*50    # 【默认值】日志文件最大限制（单位byte）
-      backup_count: 10          # 【默认值】保留的日志文件数
-    # 按固定时间输出文件日志
+      max_size: 1024*1024*50    # byte
+      backup_count: 10          # reserve log file count
+
+    # rotating the log file at certain timed intervals.
     time_rotating_file:
-      when: d                   # 【默认值】计时单位 s:秒 m:分 h:小时 d:天 w:星期
-      interval: 30              # 【默认值】多少时间（计时单位又上面的when定义）
-      backup_count: 10          # 【默认值】保留的日志文件数
+      when: d                   # timing unit   s:second   m:minute   h:hour   d:day    w:week
+      interval: 30
+      backup_count: 10          # reserve log file count
 
   handler:
     default:
       format: '%(asctime)s %(levelname)s [%(name)s] %(message)s'
       class: time_rotating_file
-      path: log/api.log       # 指定目录（启动脚本自行指定）的相对路径
+      path: log/api.log         # can use absolute or relative path, the latter use set_logging's parameter root_path
 
-  # stream必须放置在所有handler的最后面, 不然日志文件中会有乱码
   logger:
     default:
       level: debug
-      handler: default stream
+      handler: default stream   # stream must on the last, otherwise the output will be chaos
     api:
       level: debug
-      handler: default stream
+      handler: default stream   # stream must on the last, otherwise the output will be chaos
     peewee:
       level: info
-      handler: default stream
+      handler: default stream   # stream must on the last, otherwise the output will be chaos

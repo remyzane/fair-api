@@ -40,7 +40,7 @@ def _get_case_dir(curr_api_uri, user):
 def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     codes = []
     c_keys = list(curr_api_cls.codes)
-    # 通用
+    # common
     keys = ['success', 'exception', 'param_unknown']
     c_keys.remove('success')
     c_keys.remove('exception')
@@ -48,7 +48,7 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     if curr_api_cls.requisite:
         c_keys.remove('param_missing')
         keys.append('param_missing')
-    # 类型判断
+    # type matching
     type_keys = []
     for name in dir(parameter):
         cls = getattr(parameter, name)
@@ -68,7 +68,7 @@ def _get_sorted_code(curr_api_cls, user, curr_api_uri):
     if type_keys:
         keys.append('----')
         keys = keys + type_keys
-    # 自定义
+    # custom errors
     if c_keys:
         c_keys.sort()
         keys.append('----')
@@ -115,7 +115,7 @@ def index():
         if app.config.get('SECRET_KEY'):
             session.pop('user', None)
 
-        message = '请输入正确的访问密钥' if request.args.get('user') else '请输入访问密钥'
+        message = 'Please enter the correct access key.' if request.args.get('user') else 'Please enter the access key.'
         return render_template('tests/template/tests_auth.html', message=message)
 
     if app.config.get('SECRET_KEY'):
@@ -123,7 +123,7 @@ def index():
 
     for package_name in app.view_packages:
         exec('import %s as package' % package_name)
-        # 遍历包中的所有文件和子目录
+        # recursive traversal package
         for importer, modname, is_pkg in pkgutil.iter_modules(locals()['package'].__path__):
             if not is_pkg:
                 exec('import %s.%s as package' % (package_name, modname))
@@ -137,7 +137,7 @@ def index():
                         if uri == param_curr_uri:
                             curr_api_uri = uri
                             curr_api_cls = view
-    # 获取当前API详细信息
+    # get detail info of current api
     json_p = ''
     if curr_api_cls:
         json_p = curr_api_cls.json_p
@@ -198,7 +198,7 @@ def save_case():
         'param_mode': param_mode,
         'params': params
     }) + os.linesep
-    # 读取老记录
+    # read old record
     if os.path.exists(case_path):
         data_file = open(case_path, 'r')
         for line in data_file.readlines():
@@ -206,10 +206,10 @@ def save_case():
             if line_data['param_mode'] != param_mode or _params_not_equal(line_data['params'], params):
                 result.append(line)
         data_file.close()
-    # 增加新记录
+    # add new record
     result.append(new_data)
 
-    # 保存记录(最新10条)
+    # save the latest 10 record
     data_file = open(case_path, 'w')
     for line in result[-10:]:
         data_file.write(line)
@@ -227,7 +227,7 @@ def save_config():
     del data['user']
     del data['api_path']
 
-    # 保存配置
+    # save configure
     data_file = open(config_path, 'w')
     data_file.write(json.dumps(data))
     data_file.close()

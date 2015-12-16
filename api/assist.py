@@ -156,7 +156,7 @@ class ServerRestartProcessor(object):
         self._stop_services()
         self._start_services()
 
-    # 启动服务, 参数有 delay: 延迟启动时间(等待x秒之后再启动), brief: 是否常驻服务, network_port: 服务用到的端口
+    # 启动服务, 参数有 delay: 延迟启动时间(等待x秒之后再启动), is_daemon: 是否常驻服务, network_port: 服务用到的端口
     def _start_services(self, is_first=False):
         for start_cmd in self.start_commands:
             time.sleep(start_cmd.get('delay', 0))
@@ -169,7 +169,7 @@ class ServerRestartProcessor(object):
 
             service = subprocess.Popen(start_cmd['cmd'], shell=True)
             # 只记录常驻任务
-            if not start_cmd.get('brief'):
+            if start_cmd.get('is_daemon', True):
                 self.services.append(service)
 
         if not is_first:

@@ -5,6 +5,7 @@ import os
 import time
 import logging
 from argparse import ArgumentParser
+from watchdog.observers import Observer
 
 import api
 from api.utility import program_dir, load_yaml, CustomizeHelpFormatter
@@ -12,96 +13,83 @@ from api.assist import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProc
 
 log = logging.getLogger(__name__)
 
-# 取得环境配置
+# environment config
 work_dir = os.path.join(program_dir, 'work')
 config = load_yaml(os.path.join(work_dir, 'api.yml'))
 static = os.path.join(program_dir, 'www', 'static.yml')
 
-# 上面的变量和引用，记录下来方便后面过滤用
-var_and_obj = dir()
 
-
-# 运行程序
+# test mode
 def run(params=None):
-    # api.init(config)
-    # 取得监听主机和端口配置
-    web_host, web_port = config['simple_server']['host'], config['simple_server']['port']
     if params:
         web_host, web_port = params.split(':')
-    # 运行web服务，禁用flask自带的代码修改后的重启功能(程序异常后会退出)
+    else:
+        web_host, web_port = config['simple_server']['host'], config['simple_server']['port']
+    # run simple web server, don't use flask reloader (invalid when threw exception)
     api.app.run(web_host, int(web_port), use_reloader=False)
 
 
-# 开发模式
+# development mode
 def code():
-    from watchdog.observers import Observer
-    # 可设置参数有 delay: 延迟启动时间(等待x秒之后再启动), brief: 是否常驻服务, network_port: 服务用到的端口
-    start_commands = [{'cmd': 'rm -rf %s/*.log' % os.path.join(work_dir, 'log'), 'brief': True},
-                      {'cmd': './run.py run', 'network_port': (config['simple_server']['port'],)}]
-    # 文件监控服务
+    # file monitor server
     observer = Observer()
-    # Python程序监控（程序变化时重启服务器），初始的时候也会自动启动
-    patterns = ['*.py', '*api.yml']                # watchdog强制要求前面必须有*,不然无法匹配到
-    monitor = SourceCodeMonitor(ServerRestartProcessor(start_commands), patterns)
-    # import another_module
-    # observer.schedule(monitor, another_module.__path__[0], recursive=True)         # 其它模块
+
+    # py yml file monitor
+    patterns = ['*.py', '*api.yml']                # '*' is necessary, and must in the first.
+    restart_processor = ServerRestartProcessor([
+        {'cmd': 'rm -rf %s/*.log' % os.path.join(work_dir, 'log'), 'is_daemon': False},
+        {'cmd': './run.py run', 'network_port': (config['simple_server']['port'],)}
+    ])
+    monitor = SourceCodeMonitor(restart_processor, patterns)
     observer.schedule(monitor, program_dir, recursive=True)
-    # 重建css和js的min文件（如果css和js源文件发生变化）
-    patterns = ['*.css', '*.js', '*static.yml']     # watchdog强制要求前面必须有*,不然无法匹配到
+    # observer.schedule(monitor, another_module.__path__[0], recursive=True)         # another module
+
+    # rebuild css and js's min file while source file is change
+    patterns = ['*.css', '*.js', '*static.yml']     # '*' is necessary, and must in the first.
     monitor = SourceCodeMonitor(BuildCssJsProcessor(program_dir, static), patterns, None, 500)
     observer.schedule(monitor, program_dir, recursive=True)
-    # 启动文件监控
+
+    # start monitoring
     observer.start()
     try:
-        while True:
-            time.sleep(1)
+        time.sleep(31536000)    # one year
     except KeyboardInterrupt:
         observer.stop()
 
 
-# 进入项目环境的shell交互模式
+# shell interface
 def shell():
-    # 启动shell（设置环境变量）
+    # start shell using environment variable
     start_ipython([
         ('app', api.app, 'flask app'),
         ('rules', api.app.url_map._rules, 'url -> view rule')
     ])
 
 
-# 性能分析
+# performance analysis
 def profile(params=None):
     var_env = {'run': run, 'params': params}
     save_dir = os.path.join(work_dir, 'test')
     run_profile('run(params)', var_env, save_dir)
 
 
-# 上面的变量和引用还有定义好的方法
-var_and_obj_and_method = dir()
-
-# 主程序
+# main
 if __name__ == '__main__':
     usage = [
-        ' ------------------------------ 使用方法 ------------------------------',
-        ' -h                    显示该帮助页面',
-        ' run                   [启动]本服务',
-        ' code                  开始开发（代码自动Build、服务自动重启（代码修改后）',
-        ' shell                 进入本项目的shell交互界面',
-        ' profile               性能分析',
+        ' ------------------------------ help ------------------------------',
+        ' -h                    show help message',
+        ' run                   test mode (running only)',
+        ' code                  development mode (automatic reload and compilation)',
+        ' shell                 shell interface',
+        ' profile               performance analysis',
     ]
     parser = ArgumentParser(usage=os.linesep.join(usage), formatter_class=CustomizeHelpFormatter)
-    # 通过命令行参数取得要运行的命令
     parser.add_argument('command', type=str)
     parser.add_argument('-p', '--params', default=[])
-    # 取得命令参数
     args = parser.parse_args()
 
-    # 如果参数指定的方法不存在，或是上面引用的模块名或定义的变量名
-    if args.command not in var_and_obj_and_method or args.command in var_and_obj:
+    # run command
+    if args.command not in ['run', 'code', 'shell', 'profile']:
         parser.print_help()
-        exit()
-
-    # 运行命令
-    if args.params:
-        locals()[args.command](args.params)
     else:
-        locals()[args.command]()
+        locals()[args.command](*[] if not args.params else args.params)

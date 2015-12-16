@@ -24,8 +24,8 @@ app = application = Flask(__name__, static_folder='../www', static_url_path='/re
 # configure database (cannot import view and model before call this function)
 set_database(config['databases'])
 # configure flask
-set_flask(app, config['app'])
-    # configure view
+set_flask(app, config)
+# configure view
 set_view(app, config['view_packages'])
 
 

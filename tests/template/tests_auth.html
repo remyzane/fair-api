@@ -2,7 +2,7 @@
 <html lang="zh-cmn-Hans">
 <head>
     <meta charset="UTF-8">
-    <title>API 测试工具</title>
+    <title>API Test Interface</title>
     <script type="text/javascript" src="/res/libs/jquery.min.js"></script>
     <link rel="stylesheet" href="/res/fonts/lato.min.css"/>
     <link rel="stylesheet" href="/res/libs/semantic/semantic.min.css"/>
@@ -13,7 +13,7 @@
             window.location = '/tests/?user=' + $('#user')[0].value;
         }
         $(document).ready(function(){
-            var margin_top = ($(window).height() - 141) * (2/5);    // 居中偏上看着比较舒服
+            var margin_top = ($(window).height() - 141) * (2/5);    // slants on looking at more comfortable
             $(".ui.form").css({"margin": margin_top + "px auto 0 auto", "width": "600px"});
         });
     </script>
@@ -24,7 +24,7 @@
             <label>{{message}}</label>
             <input type="text" id="user" autofocus="autofocus">
         </div>
-        <div class="ui blue submit button" onclick="do_entry()">进入</div>
+        <div class="ui blue submit button" onclick="do_entry()">Enter</div>
     </form>
 </body>
 </html>
