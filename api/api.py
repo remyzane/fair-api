@@ -21,9 +21,11 @@ Request Params: -----------------------------------------
 ---------------------------------------------------------'''
 
 
-class RR(Exception):     # RaiseResponse
+class RaiseResponse(Exception):
     def __init__(self, response):
         self.response = response
+
+RR = RaiseResponse
 
 
 # api base class（rewrite the flask.views.MethodView）

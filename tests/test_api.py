@@ -3,6 +3,7 @@
 import time
 import pytest
 import base64
+from mock import MagicMock
 from Crypto.Cipher import AES
 
 from api.plugin import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN_TIME_OUT
@@ -10,7 +11,8 @@ from api.plugin import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN
 
 def test_token():
     identity = 'somebody'
-    Token._unit_test_key = b'p' * 16
+    Token.get_key = MagicMock()
+    Token.get_key.return_value = 'p' * 16
 
     pytest.raises(TokenInvalid, Token.create, 'plaintext', 'error timestamp')
 
@@ -29,10 +31,10 @@ def test_token():
     cipher_text = base64.b16encode(aes_obj.encrypt('error timestamp '))
     pytest.raises(TokenInvalid, Token.check, identity, cipher_text)
 
-    Token._unit_test_key = b't' * 16
+    Token.get_key.return_value = 't' * 16
     pytest.raises(TokenInvalid, Token.check, identity, cipher_text)
 
     # error key
-    Token._unit_test_key = b'p' * 13
+    Token.get_key.return_value = 'p' * 13
     pytest.raises(TokenKeyInvalid, Token.create, identity)
     pytest.raises(TokenKeyInvalid, Token.check, identity, cipher_text)

@@ -26,4 +26,10 @@ def encrypt():
     content = request.args.get('content')
     if not content:
         return ''
+    try:
+        encrypted = SimpleAes.decrypt(content)
+        if encrypted:
+            return content
+    except UnicodeDecodeError:
+        pass
     return SimpleAes.encrypt(content) or content

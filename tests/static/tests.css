@@ -108,3 +108,8 @@ div.param, div.param-url {
     height: 300px;
     border: #aaaaaa solid 1px;
 }
+
+.json-p-param {
+    height: 1.6em;
+    line-height: 1.6em;
+}

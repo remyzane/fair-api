@@ -20,11 +20,9 @@ setup(name='flask http api',
             'peewee',
             'PyYAML',
             'gprof2dot',
-            'pycrypto',
+            'Crypto',
             'watchdog',
             'pytest',
+            'mock',
       ]
       )
-
-# ./setup.py egg_info
-# pip3 install -r *.egg-info/requires.txt

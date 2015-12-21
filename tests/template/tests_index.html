@@ -29,7 +29,7 @@
     </a>
 
     <div class="ui dropdown item">
-        <i class="sidebar icon"></i>接口列表
+        <i class="sidebar icon"></i>Api List
         <div class="menu">
             {% for api_uri, description in api_list %}
             {% if api_uri == curr_api_uri %}
@@ -41,7 +41,7 @@
         </div>
     </div>
     <a class="item copy-button">
-        <i class="linkify icon"></i>拷贝地址
+        <i class="linkify icon"></i>Copy Address
     </a>
     <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
         <i class="setting icon"></i>
@@ -67,7 +67,7 @@
 <div class="body x">
     {% if curr_api_uri %}
     <div class="case">
-        <div class="title">接口&返回码说明</div>
+        <div class="title">Api & return code information</div>
         <div class="description">{{curr_api_description | safe}}</div>
         <div class="ui secondary vertical menu">
             {% for code, message, cases in curr_api_codes %}
@@ -84,10 +84,10 @@
     <div class="params">
         <table style="width:100%;border-spacing:0;">
             <tr>
-                <th style="width:8%;">类型</th>
+                <th style="width:8%;">Type</th>
                 <th style="width:3%;"></th>
-                <th style="width:25%;">参数名称</th>
-                <th>参数值</th>
+                <th style="width:25%;">Parameter Name</th>
+                <th>Parameter Value</th>
                 <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
             </tr>
             {% for name, type, requisite in curr_api_params %}
@@ -133,17 +133,19 @@
     {% endif %}
 </div>
 <div class="ui modal">
-    <div class="header">设置&nbsp;&nbsp;{{ curr_api_uri }}</div>
+    <div class="header">Setting&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="content">
         {% if json_p %}
         <label for="json_p">
-            <input type="checkbox" id="json_p"
-                   {% if api_config.get('json_p') %} checked="checked" {% endif %}>&nbsp;&nbsp;
-            使用JSONP，参数名：{{json_p}}（Api子类中定义）&nbsp;&nbsp;&nbsp; 参数值：一般由网络库生成如jQuery.ajax
+            <input type="checkbox" id="json_p" {% if api_config.get('json_p') %} checked="checked" {% endif %}>
+            &nbsp;&nbsp; <strong>Use JSONP mode, &nbsp;&nbsp; correlation parameter:</strong>
         </label>
+         </br>
+        <span class="json-p-param"><strong>Name</strong> [{{json_p}}] defined in API class, &nbsp;&nbsp;
+            <strong>Value</strong> Generate by network lib like jQuery.ajax</span>
         {% endif %}
         {% if curr_api_method == 'POST' %}
-        POST方式：&nbsp;&nbsp;&nbsp;
+        <strong>POST ContentType:</strong>&nbsp;&nbsp;&nbsp;
         <label for="post_type_j">
             <input type="radio" id="post_type_j" name="post_type" value="j"
                    {% if api_config.get('post_type')!='f'%} checked="checked" {% endif %}/>&nbsp;&nbsp;application/json
@@ -156,11 +158,11 @@
         <h4 class="ui dividing header"></h4>
         <table style="width:100%;border-spacing:0;">
             <tr>
-                <th style="width:8%;">类型</th>
+                <th style="width:8%;">Type</th>
                 <th style="width:3%;"></th>
-                <th style="width:19%;">参数名称</th>
-                <th style="width:18%;">参数值</th>
-                <th style="width:52%;">通过URL生成参数（请求时使用URL+用户填写值）</th>
+                <th style="width:19%;">Parameter Name</th>
+                <th style="width:18%;">Input Value</th>
+                <th style="width:52%;">Value Generator URL (append Input Value if need and inputted)</th>
             </tr>
             {% for name, type, requisite in curr_api_params %}
             <tr>
@@ -170,7 +172,7 @@
                 <td>
                     <label for="{{ name }}_pure_auto">
                         <input type="checkbox" id="{{ name }}_pure_auto"
-                                {% if params_config.get(name) and params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;无需填写
+                                {% if params_config.get(name) and params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
                     </label>
                 </td>
                 <td>
@@ -186,11 +188,11 @@
     <div class="actions">
         <div class="ui red cancel button">
             <i class="remove icon"></i>
-            取消
+            Cancel
         </div>
         <div class="ui green ok button">
             <i class="checkmark icon"></i>
-            设置
+            OK
         </div>
     </div>
 </div>

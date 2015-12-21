@@ -4,7 +4,7 @@ import os
 import logging
 from peewee import CharField, Model
 
-from api import app, session, Api, Int, Str, Mob, Mail, Zipcode, Username, Password
+from api import app, session, Api, Int, Str, Mail
 from api.plugin import Token
 from demo import SimpleAes
 
@@ -80,8 +80,8 @@ class GetUserForExternal(Api):
 
 class SetUser(Api):
     description = '''User setting'''
-    parameters = {'identity': Str, 'token': Str, 'username': Username, 'nickname': Str,
-                  'password': Password, 'email': Mail, 'address': Str, 'mobile': Mob, 'zipcode': Zipcode}
+    parameters = {'identity': Str, 'token': Str, 'username': Str, 'nickname': Str,
+                  'password': Str, 'email': Mail, 'address': Str, 'mobile': Str, 'zipcode': Str}
     requisite = ('identity', 'token', 'username', 'password', 'email')
     codes = {
         'mobile_existent': 'Mobile number already exists.',

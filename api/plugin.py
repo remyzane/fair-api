@@ -5,11 +5,29 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from .api import RR
+from .api import Api, RR
 
 
 class Plugin(object):
+    """API Plugin parent class.
+
+    :cvar codes: error code and message
+    :type codes: dict
+    """
     codes = {}
+
+    @classmethod
+    def do(cls, api):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param api: Api class instance
+        :type  api: object
+        :rtype: None
+        :raise NotImplementedError: Plugin must have [do] method
+        """
+        raise NotImplementedError('Plugin must have [do] method.')
 
 
 class TokenException(Exception):
@@ -34,35 +52,47 @@ TOKEN_TIME_OUT = 60             # 1 minute
 
 
 class Token(Plugin):
-    codes = {'token_invalid': 'Token校样无效'}
+    """Token check Plugin.
+
+    :cvar codes: error code and message
+    :type codes: dict
+    """
+    codes = {'token_invalid': 'Invalid Token'}
 
     @classmethod
     def do(cls, api):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param api: Api class instance for request
+        :type  api: Api
+        :rtype: None
+        :raise RR: RaiseResponse
+        """
+        # get token parameter
         token = api.params.get(PARAM_TOKEN)
         identity = api.params.get(PARAM_IDENTITY)
-        # 获取token参数
         if not token:
             raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN}))
         if not identity:
             raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
-        # 进行token校样
+        # check token
         try:
             cls.check(identity, token)
         except TokenException as e:
             raise RR(api.result('token_invalid', {'error': str(e)}))
 
-    # unit test use only
-    _unit_test_key = None
-
-    # 要求密钥长度使用16
     @classmethod
     def get_key(cls, identity):
-        if cls._unit_test_key:
-            key = cls._unit_test_key
-        else:
-            key = 'not implemented '    # TODO implement yourself
+        """
 
-        # 必须返回unicode字串
+        :param identity: 要求密钥长度使用16
+        :return:
+        :rtype: str
+        """
+        key = 'not implemented '    # TODO implement yourself
+
         return key.decode() if type(key) == bytes else key
 
     @classmethod

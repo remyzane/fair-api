@@ -84,7 +84,6 @@ function param_onchange(param){
     }
 }
 
-// 获取参数
 function get_params(auto_gen_param){
     var params = {};
     $("input[name='param']").each(function(){
@@ -96,23 +95,23 @@ function get_params(auto_gen_param){
             var gen_url = gen_url.split('[')[0] + $('#' + _name).val() + gen_url.split(']')[1];
         }
         var pure_auto = $("#" + this.id + "_pure_auto").is(':checked');
-        // 纯自动生成时(如果用户没输入则自动生成)
+        // pure-automatic generate (Input Value is not need)
         if(auto_gen_param && gen_url && pure_auto && !this.value){
             value = $.ajax({
                 url: gen_url,
                 async: false,
-                error: function(xhr, status, error) { alert('参数【' + id + '】生成失败【' + gen_url + '】');}
+                error: function(xhr, status, error) { alert('parameter [' + id + '] generate fail [' + gen_url + ']');}
             }).responseText;
         }
         if (value || $("#" + this.id + "_select").is(':checked')) {
             if (!value) {
-                // 半自动生成时(需要用户输入)
-                if(auto_gen_param && gen_url && !pure_auto){
+                // semi-automatic generate (Input Value is need)
+                if(!pure_auto && auto_gen_param && gen_url){
                     var tv = this.value;
                     value = $.ajax({
                         url: gen_url + this.value,
                         async: false,
-                        error: function(xhr, status, error) { alert('参数【' + id + '】生成失败【' + gen_url + tv + '】');}
+                        error: function(xhr, status, error) { alert('parameter [' + id + '] generator fail [' + gen_url + tv + ']');}
                     }).responseText;
                 } else {
                     value = this.value;
@@ -157,7 +156,7 @@ function do_use_json(){
     try{
         var params = JSON.parse(json_str);
     }catch(e){
-        // 转换 u（u'' -> "")
+        // convert u（u'' -> "")
         json_str = json_str.replace(new RegExp("u'", "g"), "\"");
         json_str = json_str.replace(new RegExp("'", "g"), "\"");
         try{
@@ -167,10 +166,9 @@ function do_use_json(){
             return;
         }
     }
-    // 检测是否有多余参数
     for (var item in params) {
         if ($("#" + item).length == 0) {
-            alert('未知参数【' + item + '】，该参数会引起接口［param_unknown］异常');
+            alert('Unknown parameter [' + item + '], This parameter will cause [param_unknown] abnormal.');
         }
     }
     $("input[name='param']").each(function(){
@@ -182,7 +180,6 @@ function do_use_json(){
 }
 
 function do_to_json(){
-    // 获取参数
     var params = get_params(false);
     if(params){
         $("#result")[0].value = JSON.stringify(params, null, 4);
@@ -196,10 +193,9 @@ function do_use_url(){
     }
     try {
         var params = url_to_json(params_str);
-        // 检测是否有多余参数
         for (var item in params) {
             if ($("#" + item).length == 0) {
-                alert('未知参数【' + item + '】，该参数会引起接口［param_unknown］异常');
+                alert('Unknown parameter [' + item + '], This parameter will cause [param_unknown] abnormal.');
             }
         }
     }catch(e){
@@ -215,7 +211,6 @@ function do_use_url(){
 }
 
 function do_to_url(){
-    // 获取参数
     var params = get_params(false);
     if(params){
         $("#result")[0].value = '?' + $.param(params);
@@ -223,7 +218,6 @@ function do_to_url(){
 }
 
 function do_test(){
-    // 获取参数
     var params = get_params(true);
     var params_str = $.param(params);
     if(!params){
@@ -242,12 +236,12 @@ function do_test(){
                     $("#result")[0].value = _data;
                 }
             },
-            error: function(xhr, status, error) { alert('接口【' + curr_api_path + '】无法访问'); }
+            error: function(xhr, status, error) { alert('Can not access API [' + curr_api_path + ']'); }
         };
         if ($('#json_p').is(':checked')){
             request.dataType = 'jsonp';
             request.jsonp = json_p;
-            request.cache = true;           // 避免jquery自动加上"_"参数(一个时间戳, 用户防止服务器端缓存)
+            request.cache = true;     // Let jquery not use "_" parameter (a timestamp, to prevent the server cache)
         }
         $.ajax(request);
     } else {
@@ -267,7 +261,7 @@ function do_test(){
                         $("#result")[0].value = _data;
                     }
                 },
-                error: function(xhr, status, error) { alert('接口【' + curr_api_path + '】无法访问');}
+                error: function(xhr, status, error) { alert('Can not access API [' + curr_api_path + ']'); }
             });
         } else {
             var is_json = true;
@@ -294,7 +288,7 @@ function do_test(){
                         $("#result")[0].value = _data;
                     }
                 },
-                error: function(xhr, status, error) { alert('接口【' + curr_api_path + '】无法访问');}
+                error: function(xhr, status, error) { alert('Can not access API [' + curr_api_path + ']'); }
             });
         }
     }
@@ -311,20 +305,21 @@ function init_test_case(){
     });
 }
 
-// old_params 和 new_params 属性可能是子集关系,所以需要两轮判断
 function params_not_equal(old_params, new_params){
+    // while old_params is a subset of new_params
     for (var param in old_params) {
-        // 加toString是为了判断能够兼容数组
+        // toString for list support
         var old_sign = typeof old_params[param] == 'undefined' ? old_params[param] : old_params[param].toString();
         var new_sign = typeof new_params[param] == 'undefined' ? new_params[param] : new_params[param].toString();
         if (old_sign != new_sign){
             return true;
         }
     }
+    // while new_params is a subset of old_params
     for (var param in new_params) {
         var old_sign = typeof old_params[param] == 'undefined' ? old_params[param] : old_params[param].toString();
         var new_sign = typeof new_params[param] == 'undefined' ? new_params[param] : new_params[param].toString();
-        // 加toString是为了判断能够兼容数组
+        // toString for list support
         if (old_sign != new_sign){
             return true;
         }
@@ -369,7 +364,7 @@ function save_case(code){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('接口【/tests/save_case/】无法访问');}
+        error: function(xhr, status, error) { alert('Can not access API [/tests/save_case/]'); }
     });
 }
 
@@ -401,7 +396,6 @@ function use_case(code){
     }
 }
 
-// 获取参数配置
 function get_params_config(){
     var params = {};
     $("input[name='param']").each(function(){
@@ -433,6 +427,6 @@ function save_config(){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('接口【/tests/save_config/】无法访问');}
+        error: function(xhr, status, error) { alert('Can not access API [/tests/save_config/]'); }
     });
 }
