@@ -38,7 +38,7 @@ class CView(object):
     json_p = None               # if defined api's return will using jsonp (accustomed to using 'callback')
     codes = None
     plugins = None
-    plugins_exclude = ()
+    exclude = ()
 
     @classmethod
     def check_define(cls, view):
@@ -93,7 +93,7 @@ class CView(object):
         # add common plugin
         for plugin_path in app.config.get('plugins'):
             exec('from %s import %s as plugin' % tuple(plugin_path.rsplit('.', 1)))
-            if locals()['plugin'] not in cls.plugins_exclude:
+            if locals()['plugin'] not in cls.exclude:
                 cls.plugins.insert(0, locals()['plugin'])
 
         # set error code and message
@@ -136,7 +136,7 @@ class CView(object):
             self.check_parameters()
             # plugin
             for plugin in self.plugins:
-                plugin.do(self)
+                plugin.before_request(self)
             # dispatch request
             return getattr(self, request.method.lower())(self.params, *args, **kwargs)
         except RR as e:

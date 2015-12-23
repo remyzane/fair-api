@@ -32,7 +32,7 @@ class Str(object):
     message = 'Type Error: Parameter must be String'
 
     @classmethod
-    def check(cls, value, wine):
+    def check(cls, value):
         if type(value) is not str:
             return cls.code
 

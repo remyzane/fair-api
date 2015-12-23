@@ -5,29 +5,8 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from .view import CView, RR
-
-
-class Plugin(object):
-    """API Plugin parent class.
-
-    :cvar codes: error code and message
-    :type codes: dict
-    """
-    codes = {}
-
-    @classmethod
-    def do(cls, api):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
-
-        :param api: Api class instance
-        :type  api: CView
-
-        :raise NotImplementedError: Plugin must have [do] method
-        """
-        raise NotImplementedError('Plugin must have [do] method.')
+from curd.plugin import Plugin
+from curd.view import RR, CView
 
 
 class TokenException(Exception):
@@ -58,44 +37,38 @@ TOKEN_TIME_OUT = 60             # 1 minute
 class Token(Plugin):
     """Token check Plugin.
 
-    :cvar codes: error code and message
-    :type codes: dict
+    :cvar dict codes: error code and message
     """
     codes = {'token_invalid': 'Invalid Token'}
 
     @classmethod
-    def do(cls, api):
+    def before_request(cls, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
-        :param api: Api class instance for request
-        :type  api: Api
-
+        :param CView view: Api class instance for request
         :raise RR: RaiseResponse
         """
         # get token parameter
-        token = api.params.get(PARAM_TOKEN)
-        identity = api.params.get(PARAM_IDENTITY)
+        token = view.params.get(PARAM_TOKEN)
+        identity = view.params.get(PARAM_IDENTITY)
         if not token:
-            raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN}))
+            raise RR(view.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN}))
         if not identity:
-            raise RR(api.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
+            raise RR(view.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
         # check token
         try:
             cls.check(identity, token)
         except TokenException as e:
-            raise RR(api.result('token_invalid', {'error': str(e)}))
+            raise RR(view.result('token_invalid', {'error': str(e)}))
 
     @classmethod
     def get_key(cls, identity):
         """Get secret key by identity.
 
-        :param identity: Username or App Id
-        :type  identity: str
-
-        :return: secret key, length must be 16
-        :rtype: str
+        :param str identity: Username or App Id
+        :return: str. secret key, length must be 16
         """
         key = 'not implemented '    # TODO implement yourself
 
@@ -105,13 +78,10 @@ class Token(Plugin):
     def create(cls, identity, timestamp=None):
         """Generate token use identity and timestamp.
 
-        :param identity: Username or App Id
-        :type  identity: str
-        :param timestamp: Current or specific timestamp
-        :type  timestamp: int
+        :param str identity: Username or App Id
+        :param int timestamp: Current or specific timestamp
 
-        :return: token
-        :rtype: str
+        :return: str. token
 
         :raise TokenTimestampInvalid: Token timestamp invalid, timestamp must be integer
         :raise TokenKeyInvalid: Key must be 16 bytes long
@@ -135,10 +105,9 @@ class Token(Plugin):
     def check(cls, identity, cipher_text):
         """Check Token is valid or invalid.
 
-        :param identity: Username or App Id
-        :param cipher_text: Token value
-        :return: Token Valid or Invalid
-        :rtype: bool
+        :param str identity: Username or App Id
+        :param str cipher_text: Token value
+        :return: bool. Token Valid or Invalid
 
         :raise TokenInvalid: Token invalid
         :raise TokenKeyInvalid: Key must be 16 bytes long

@@ -3,8 +3,6 @@
 import os
 import logging
 from flask import Flask
-
-
 from curd.utility import load_yaml, set_logging
 from curd.configure import set_database, set_app, set_view
 
@@ -13,11 +11,10 @@ from .utility import program_dir
 log = logging.getLogger(__name__)
 
 # load config file
-work_dir = os.path.join(program_dir, 'work')
-config = load_yaml(os.path.join(work_dir, 'api.yml'))
+config = load_yaml(os.path.join(program_dir, 'demo.yml'))
 
 # setting logging
-set_logging(config['logging'], work_dir)
+set_logging(config['logging'], os.path.join(program_dir, 'work'))
 
 # create application
 app = application = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')

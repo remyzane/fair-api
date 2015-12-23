@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from flask import request
-from curd.plugin import Token
+from curd.plugin.token import Token
 
 from demo import app
 from demo.utility import SimpleAes

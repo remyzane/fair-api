@@ -21,7 +21,7 @@ log = logging.getLogger(__name__)
 
 # environment config
 work_dir = os.path.join(program_dir, 'work')
-config = load_yaml(os.path.join(work_dir, 'api.yml'))
+config = load_yaml(os.path.join(program_dir, 'demo.yml'))
 static = os.path.join(program_dir, 'www', 'static.yml')
 
 
@@ -41,7 +41,7 @@ def code():
     observer = Observer()
 
     # py yml file monitor
-    patterns = ['*.py', '*api.yml']                # '*' is necessary, and must in the first.
+    patterns = ['*.py', '*demo.yml']                # '*' is necessary, and must in the first.
     restart_processor = ServerRestartProcessor([
         {'cmd': 'rm -rf %s/*.log' % os.path.join(work_dir, 'log'), 'is_daemon': False},
         {'cmd': './run.py run', 'network_port': (config['simple_server']['port'],)}

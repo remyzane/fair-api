@@ -33,7 +33,7 @@ def set_database(config):
     peewee.Model._meta.database = db.get('default') or db[0]
 
 
-# configure flask (app.config) defined in app section at api.yml
+# configure flask (app.config) defined in app section at project.yml
 def set_app(app, config):
     """Configure flask app.
 

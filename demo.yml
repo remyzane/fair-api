@@ -23,7 +23,10 @@ flask:
 # saved in flask.current_app.config
 app:
   plugins:
-    - curd.plugin.Token
+    curd.plugin.token.Token:
+
+    curd.plugin.jsonp.JsonP:
+      callback: callback
 
   tests_access_keys:
     - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D

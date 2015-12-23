@@ -5,7 +5,7 @@ import logging
 from flask import session
 from peewee import CharField, Model
 from curd import CView, Int, Str, Mail
-from curd.plugin import Token
+from curd.plugin.token import Token
 
 from demo import app
 from .utility import SimpleAes
@@ -18,7 +18,7 @@ class GetArea(CView):
     parameters = {'id': Int}
     requisite = ('id',)
     json_p = 'callback'
-    plugins_exclude = (Token,)
+    exclude = (Token,)
     codes = {
         'id_not_exist': 'Record does not exist.'
     }
@@ -56,7 +56,7 @@ class GetUserForExternal(CView):
     description = '''Get the user information through his/hers encrypted id.'''
     parameters = {'id': Str}
     requisite = ('id',)
-    plugins_exclude = (Token,)
+    exclude = (Token,)
     codes = {
         'id_invalid': 'Id is invalid.',
         'id_not_exist': 'Record does not exist.'
@@ -99,7 +99,7 @@ class SetUser(CView):
 
 class Session(CView):
     description = '''Session testing.'''
-    plugins_exclude = (Token,)
+    exclude = (Token,)
     codes = {
         'not_configured': 'Session is not configured, Please setting SECRET_KEY in CView.yml.',
         'not_login': 'Not logged in'
@@ -120,7 +120,7 @@ class User(Model):
 
 class Performance(CView):
     description = '''The performance test'''
-    plugins_exclude = (Token,)
+    exclude = (Token,)
 
     def get(self, params):
         for index in range(1, 100):
