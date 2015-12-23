@@ -16,6 +16,7 @@ setup(name='flask http api',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
+            'docutils',
             'flask',
             'peewee',
             'PyYAML',

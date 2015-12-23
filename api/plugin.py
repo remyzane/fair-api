@@ -24,13 +24,17 @@ class Plugin(object):
 
         :param api: Api class instance
         :type  api: object
-        :rtype: None
+
         :raise NotImplementedError: Plugin must have [do] method
         """
         raise NotImplementedError('Plugin must have [do] method.')
 
 
 class TokenException(Exception):
+    pass
+
+
+class TokenTimestampInvalid(TokenException):
     pass
 
 
@@ -67,7 +71,7 @@ class Token(Plugin):
 
         :param api: Api class instance for request
         :type  api: Api
-        :rtype: None
+
         :raise RR: RaiseResponse
         """
         # get token parameter
@@ -85,10 +89,12 @@ class Token(Plugin):
 
     @classmethod
     def get_key(cls, identity):
-        """
+        """Get secret key by identity.
 
-        :param identity: 要求密钥长度使用16
-        :return:
+        :param identity: Username or App Id
+        :type  identity: str
+
+        :return: secret key, length must be 16
         :rtype: str
         """
         key = 'not implemented '    # TODO implement yourself
@@ -97,12 +103,25 @@ class Token(Plugin):
 
     @classmethod
     def create(cls, identity, timestamp=None):
+        """Generate token use identity and timestamp.
+
+        :param identity: Username or App Id
+        :type  identity: str
+        :param timestamp: Current or specific timestamp
+        :type  timestamp: int
+
+        :return: token
+        :rtype: str
+
+        :raise TokenTimestampInvalid: Token timestamp invalid, timestamp must be integer
+        :raise TokenKeyInvalid: Key must be 16 bytes long
+        """
         key = cls.get_key(identity)
         try:
             plaintext = '%d%s' % (timestamp or int(time.time()), key)
         except TypeError:
-            raise TokenInvalid('Token invalid, timestamp must be integer')
-        # 加密算法要求数据长度必须是密钥长度的倍数
+            raise TokenTimestampInvalid('Token timestamp invalid, timestamp must be integer')
+        # plaintext must be a multiple of 16 in length
         fill_size = 16 - len(plaintext) % 16
         byte_text = plaintext.encode() + b'\x00' * (0 if fill_size == 16 else fill_size)
         try:
@@ -110,10 +129,21 @@ class Token(Plugin):
         except ValueError:
             raise TokenKeyInvalid('Key must be 16 bytes long')
         cipher_text = aes_obj.encrypt(byte_text)
-        return base64.b16encode(cipher_text)
+        return base64.b16encode(cipher_text).decode()
 
     @classmethod
     def check(cls, identity, cipher_text):
+        """Check Token is valid or invalid.
+
+        :param identity: Username or App Id
+        :param cipher_text: Token value
+        :return: Token Valid or Invalid
+        :rtype: bool
+
+        :raise TokenInvalid: Token invalid
+        :raise TokenKeyInvalid: Key must be 16 bytes long
+        :raise TokenTimeout: Token time out
+        """
         if len(cipher_text) % 16 != 0:
             raise TokenInvalid('Token must be a multiple of 16 in length')
         key = cls.get_key(identity)
@@ -127,7 +157,7 @@ class Token(Plugin):
         except binascii.Error:                      # base64 raise
             raise TokenInvalid('Token invalid')
         try:
-            # 检测有效时间
+            # check time
             if time.time() - int(plaintext) > TOKEN_TIME_OUT:
                 raise TokenTimeout('Token time out')
         except ValueError:

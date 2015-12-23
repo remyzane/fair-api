@@ -10,8 +10,6 @@ from .parameter import Pass, Str, List
 
 log = logging.getLogger(__name__)
 
-from flask_peewee.db import Database
-
 JSON = 'application/json; charset=utf-8'
 JSON_P = 'application/javascript; charset=utf-8'
 

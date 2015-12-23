@@ -7,7 +7,7 @@ from flask import Flask, session, request, render_template, Response     # for t
 from .api import Api, RR, JSON, JSON_P
 from .parameter import *
 from .utility import load_yaml, program_dir, set_logging
-from .configure import set_database, set_flask, set_view
+from .configure import set_database, set_app, set_view
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +23,8 @@ app = application = Flask(__name__, static_folder='../www', static_url_path='/re
 
 # configure database (cannot import view and model before call this function)
 set_database(config['databases'])
-# configure flask
-set_flask(app, config)
+# configure flask app
+set_app(app, config)
 # configure view
 set_view(app, config['view_packages'])
 
