@@ -6,7 +6,7 @@ import base64
 from mock import MagicMock
 from Crypto.Cipher import AES
 
-from api.plugin import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN_TIME_OUT
+from curd.plugin import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN_TIME_OUT
 
 
 def test_token():

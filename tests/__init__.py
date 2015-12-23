@@ -3,11 +3,12 @@
 import os
 import json
 import pkgutil
-from flask import session
+from flask import session, request, render_template, Response
+from curd import parameter, plugin, JSON, CView
+from curd.utility import class_name_to_api_name
 
-from api import parameter, plugin, app, request, render_template, Response, Api, JSON
-from api.utility import class_name_to_api_name, program_dir
-
+from demo import app
+from demo.utility import program_dir
 
 # run in command line:
 # py.test-3.x       # or
@@ -130,7 +131,7 @@ def index():
                 views = locals()['package']
                 for item in dir(views):
                     view = getattr(views, item)
-                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != Api:
+                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != CView:
                         name = class_name_to_api_name(view.__name__)
                         uri = '/%s/%s' % (package_name, name)
                         api_list.append((uri, _to_html(view.description)))

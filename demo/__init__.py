@@ -1,27 +1,35 @@
 # -*- coding: utf-8 -*-
 
-import base64
-from Crypto.Cipher import AES
+import os
+import logging
+from flask import Flask
 
 
-demo_key = b'p' * 16
-demo_iv = b'i' * 16
+from curd.utility import load_yaml, set_logging
+from curd.configure import set_database, set_app, set_view
+
+from .utility import program_dir
+
+log = logging.getLogger(__name__)
+
+# load config file
+work_dir = os.path.join(program_dir, 'work')
+config = load_yaml(os.path.join(work_dir, 'api.yml'))
+
+# setting logging
+set_logging(config['logging'], work_dir)
+
+# create application
+app = application = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
+
+# configure database (cannot import view and model before call this function)
+set_database(config['databases'])
+# configure flask app
+set_app(app, config)
+# configure view
+set_view(app, config['view_packages'])
 
 
-class SimpleAes(object):
-
-    @staticmethod
-    def encrypt(data, key=demo_key, iv=demo_iv):
-        fill_size = 16 - len(data) % 16
-        byte_text = data.encode() + b'\x00' * (0 if fill_size == 16 else fill_size)
-        aes_obj = AES.new(key, AES.MODE_CBC, iv)
-        cipher_text = aes_obj.encrypt(byte_text)
-        return base64.b16encode(cipher_text)
-
-    @staticmethod
-    def decrypt(data, key=demo_key, iv=demo_iv):
-        if len(data) % 16 != 0:
-            return None
-        aes_obj = AES.new(key, AES.MODE_CBC, iv)
-        bytes_data = aes_obj.decrypt(base64.b16decode(data, True)).rstrip(b'\x00')
-        return bytes_data.decode()
+# TODO check chinese comments  then translate
+# TODO DOC
+# TODO The web test case's automation (in unit test)

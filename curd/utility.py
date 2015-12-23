@@ -24,8 +24,6 @@ LEVEL_COLOR_MAPPING = {
 
 log = logging.getLogger(__name__)
 
-program_dir = os.path.realpath(os.path.join(__file__, '..', '..'))
-
 
 # 外部接口调用日志
 def call_log(api_name, api_url, call_params, return_data):

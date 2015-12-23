@@ -63,7 +63,7 @@ def set_view(app, config):
     :param config: view's config
     :type  config: dict
     """
-    from .api import Api
+    from .view import CView
     app.view_packages = config
     for package_name in app.view_packages:
         exec('import %s as package' % package_name)
@@ -77,8 +77,8 @@ def set_view(app, config):
                     if item in ['request', 'session'] and getattr(views, item).__class__.__name__ == 'LocalProxy':
                         continue
                     view = getattr(views, item)
-                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != Api:
+                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != CView:
                         name = class_name_to_api_name(view.__name__)
                         uri = '/%s/%s' % (package_name, name)
                         endpoint = '%s.%s' % (package_name, name)
-                        app.add_url_rule(uri, view_func=view.as_view(endpoint))
+                        app.add_url_rule(uri, view_func=view.as_view(endpoint, app))

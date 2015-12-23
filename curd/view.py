@@ -27,7 +27,7 @@ RR = RaiseResponse
 
 
 # api base class（rewrite the flask.views.MethodView）
-class Api(object):
+class CView(object):
     # Can be overload by subclasses
     description = ''
     database = 'default'        # used by auto_rollback
@@ -81,7 +81,7 @@ class Api(object):
             cls.codes.update(_plugin.codes)
 
     @classmethod
-    def init(cls):
+    def init(cls, app):
         if cls.codes is None:
             cls.codes = {}
         if cls.plugins is None:
@@ -91,7 +91,6 @@ class Api(object):
         cls.db = db.get(cls.database)
 
         # add common plugin
-        from api import app
         for plugin_path in app.config.get('plugins'):
             exec('from %s import %s as plugin' % tuple(plugin_path.rsplit('.', 1)))
             if locals()['plugin'] not in cls.plugins_exclude:
@@ -101,7 +100,7 @@ class Api(object):
         cls.set_codes()
 
     @classmethod
-    def as_view(cls, name, *class_args, **class_kwargs):
+    def as_view(cls, name, app, *class_args, **class_kwargs):
         def view(*args, **kwargs):
             # instantiate view class, thread security
             self = view.view_class(*class_args, **class_kwargs)
@@ -119,7 +118,7 @@ class Api(object):
         # check api class define
         cls.check_define(view)
         # init api class
-        cls.init()
+        cls.init(app)
         return view
 
     def __init__(self):

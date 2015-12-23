@@ -6,10 +6,16 @@ import time
 import logging
 from argparse import ArgumentParser
 from watchdog.observers import Observer
+from curd.utility import load_yaml, CustomizeHelpFormatter
+from curd.assist.coding import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor
+from curd.assist.profile import run_profile
+from curd.assist.pyshell import start_ipython
 
-import api
-from api.utility import program_dir, load_yaml, CustomizeHelpFormatter
-from api.assist import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor, run_profile, start_ipython
+from curd.assist.coding import css_js_compressor
+css_js_compressor()
+
+import demo
+from demo.utility import program_dir
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +32,7 @@ def run(params=None):
     else:
         web_host, web_port = config['simple_server']['host'], config['simple_server']['port']
     # run simple web server, don't use flask reloader (invalid when threw exception)
-    api.app.run(web_host, int(web_port), use_reloader=False)
+    demo.app.run(web_host, int(web_port), use_reloader=False)
 
 
 # development mode
@@ -61,8 +67,8 @@ def code():
 def shell():
     # start shell using environment variable
     start_ipython([
-        ('app', api.app, 'flask app'),
-        ('rules', api.app.url_map._rules, 'url -> view rule')
+        ('app', demo.app, 'flask app'),
+        ('rules', demo.app.url_map._rules, 'url -> view rule')
     ])
 
 

@@ -2,16 +2,18 @@
 
 import os
 import logging
+from flask import session
 from peewee import CharField, Model
+from curd import CView, Int, Str, Mail
+from curd.plugin import Token
 
-from api import app, session, Api, Int, Str, Mail
-from api.plugin import Token
-from demo import SimpleAes
+from demo import app
+from .utility import SimpleAes
 
 log = logging.getLogger(__name__)
 
 
-class GetArea(Api):
+class GetArea(CView):
     description = '''Get the area information through it's id.'''
     parameters = {'id': Int}
     requisite = ('id',)
@@ -31,7 +33,7 @@ class GetArea(Api):
                                            'superior': 0})
 
 
-class GetUser(Api):
+class GetUser(CView):
     description = '''Get the user information through his/hers id.'''
     parameters = {'identity': Str, 'token': Str, 'id': Int}
     requisite = ('identity', 'token', 'id',)
@@ -50,7 +52,7 @@ class GetUser(Api):
                                            'email': 'user_%s@yourself.com' % user_id})
 
 
-class GetUserForExternal(Api):
+class GetUserForExternal(CView):
     description = '''Get the user information through his/hers encrypted id.'''
     parameters = {'id': Str}
     requisite = ('id',)
@@ -78,7 +80,7 @@ class GetUserForExternal(Api):
                                            'email': 'user_%s@yourself.com' % user_id})
 
 
-class SetUser(Api):
+class SetUser(CView):
     description = '''User setting'''
     parameters = {'identity': Str, 'token': Str, 'username': Str, 'nickname': Str,
                   'password': Str, 'email': Mail, 'address': Str, 'mobile': Str, 'zipcode': Str}
@@ -95,11 +97,11 @@ class SetUser(Api):
         return self.result('success', {'id': 1})
 
 
-class Session(Api):
+class Session(CView):
     description = '''Session testing.'''
     plugins_exclude = (Token,)
     codes = {
-        'not_configured': 'Session is not configured, Please setting SECRET_KEY in api.yml.',
+        'not_configured': 'Session is not configured, Please setting SECRET_KEY in CView.yml.',
         'not_login': 'Not logged in'
     }
 
@@ -116,7 +118,7 @@ class User(Model):
     username = CharField()
 
 
-class Performance(Api):
+class Performance(CView):
     description = '''The performance test'''
     plugins_exclude = (Token,)
 

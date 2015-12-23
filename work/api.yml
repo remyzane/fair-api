@@ -23,7 +23,7 @@ flask:
 # saved in flask.current_app.config
 app:
   plugins:
-    - api.plugin.Token
+    - curd.plugin.Token
 
   tests_access_keys:
     - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D

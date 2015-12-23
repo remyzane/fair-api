@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from api import app, request
-from api.plugin import Token
-from demo import SimpleAes
+from flask import request
+from curd.plugin import Token
+
+from demo import app
+from demo.utility import SimpleAes
 
 
 @app.route('/parameter_generator/token/', endpoint='parameter_generator.token')

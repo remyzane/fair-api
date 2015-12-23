@@ -5,7 +5,7 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from .api import Api, RR
+from .view import CView, RR
 
 
 class Plugin(object):
@@ -23,7 +23,7 @@ class Plugin(object):
         Will be called each request after parameters checked.
 
         :param api: Api class instance
-        :type  api: object
+        :type  api: CView
 
         :raise NotImplementedError: Plugin must have [do] method
         """
