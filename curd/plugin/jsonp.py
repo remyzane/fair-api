@@ -12,7 +12,17 @@ class JsonP(Plugin):
     codes = {}
 
     @classmethod
-    def init(cls, view_class):
+    def reconstruct(cls, params):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param dict params: plug config parameters
+        """
+        pass
+
+    @classmethod
+    def init_view(cls, view_class):
         """Plugin main method.
 
         Will be called each request after parameters checked.

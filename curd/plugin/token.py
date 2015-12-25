@@ -38,8 +38,41 @@ class Token(Plugin):
     """Token check Plugin.
 
     :cvar dict codes: error code and message
+    :cvar function key_provider: provide token secret key by identity::
+
     """
     codes = {'token_invalid': 'Invalid Token'}
+
+    @staticmethod
+    def __key_provider(identity):
+        """Provide token secret key by identity.
+
+        :param str identity: Username or App Id
+        :return: str. secret key, length must be 16
+        """
+        key = 'not implemented '
+        return key.decode() if type(key) == bytes else key
+
+    @classmethod
+    def reconstruct(cls, params):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param dict params: plug config parameters
+        """
+        exec('from %s import %s as key_provider' % tuple(params['key_provider'].rsplit('.', 1)))
+        cls.__key_provider = locals()['key_provider']
+
+    @classmethod
+    def init_view(cls, view_class):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param CView view_class: view class
+        """
+        pass
 
     @classmethod
     def before_request(cls, view):
@@ -64,17 +97,6 @@ class Token(Plugin):
             raise RR(view.result('token_invalid', {'error': str(e)}))
 
     @classmethod
-    def get_key(cls, identity):
-        """Get secret key by identity.
-
-        :param str identity: Username or App Id
-        :return: str. secret key, length must be 16
-        """
-        key = 'not implemented '    # TODO implement yourself
-
-        return key.decode() if type(key) == bytes else key
-
-    @classmethod
     def create(cls, identity, timestamp=None):
         """Generate token use identity and timestamp.
 
@@ -86,7 +108,7 @@ class Token(Plugin):
         :raise TokenTimestampInvalid: Token timestamp invalid, timestamp must be integer
         :raise TokenKeyInvalid: Key must be 16 bytes long
         """
-        key = cls.get_key(identity)
+        key = cls.__key_provider(identity)
         try:
             plaintext = '%d%s' % (timestamp or int(time.time()), key)
         except TypeError:
@@ -115,7 +137,7 @@ class Token(Plugin):
         """
         if len(cipher_text) % 16 != 0:
             raise TokenInvalid('Token must be a multiple of 16 in length')
-        key = cls.get_key(identity)
+        key = cls.__key_provider(identity)
         try:
             aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + 'x')
         except ValueError:

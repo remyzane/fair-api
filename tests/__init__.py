@@ -131,13 +131,16 @@ def index():
                 views = locals()['package']
                 for item in dir(views):
                     view = getattr(views, item)
-                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != CView:
-                        name = class_name_to_api_name(view.__name__)
-                        uri = '/%s/%s' % (package_name, name)
-                        api_list.append((uri, _to_html(view.description)))
-                        if uri == param_curr_uri:
-                            curr_api_uri = uri
-                            curr_api_cls = view
+                    try:
+                        if issubclass(view, CView) and view != CView:   # sometime issubclass throw TypeError
+                            name = class_name_to_api_name(view.__name__)
+                            uri = '/%s/%s' % (package_name, name)
+                            api_list.append((uri, _to_html(view.description)))
+                            if uri == param_curr_uri:
+                                curr_api_uri = uri
+                                curr_api_cls = view
+                    except TypeError:
+                        pass
     # get detail info of current api
     json_p = ''
     if curr_api_cls:

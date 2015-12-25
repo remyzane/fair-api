@@ -9,6 +9,17 @@ from .utility import class_name_to_api_name
 
 log = logging.getLogger(__name__)
 
+
+def curd_setup(app, config):
+    if config.get('databases'):
+        setup_database(config['databases'])
+
+    # configure flask app
+    setup_app(app, config)
+    # configure view
+    setup_view(app, config['view_packages'])
+
+
 db_classes = {
     'mysql': peewee.MySQLDatabase,
     'pgsql': peewee.PostgresqlDatabase,
@@ -17,8 +28,7 @@ db_classes = {
 db = {}
 
 
-# configure database (execution of this config must preceded view and model import)
-def set_database(config):
+def setup_database(config):
     """Configure database.
 
      cannot import view and model before call this function
@@ -34,27 +44,37 @@ def set_database(config):
 
 
 # configure flask (app.config) defined in app section at project.yml
-def set_app(app, config):
+def setup_app(app, config):
     """Configure flask app.
 
     :param app: Flask app object
     :param config: api's config
     :type  config: dict
     """
-    # app config
-    for name in config['app']:
-        app.config[name] = config['app'][name]
-    # flask config
-    for name in config['flask']:
+
+    flask_config = config.get('flask') or {}
+    for key, value in flask_config.items():
         # set the expiration date of a permanent session.
-        if name == 'PERMANENT_SESSION_LIFETIME':
-            app.config[name] = datetime.timedelta(days=int(config['flask'][name]))
+        if key == 'PERMANENT_SESSION_LIFETIME':
+            app.config[key] = datetime.timedelta(days=int(value))
         else:
-            app.config[name] = config['flask'][name]
+            app.config[key] = value
+
+    app_config = config.get('app') or {}
+    for key, value in app_config.items():
+        app.config[key] = value
+
+    app.config['plugins'] = app.config.get('plugins') or {}
+    for name, config in app.config['plugins'].items():
+        class_path = config.pop('class')
+        exec('from %s import %s as plugin' % tuple(class_path.rsplit('.', 1)))
+        plugin_class = locals()['plugin']
+        plugin_class.reconstruct(config)
+        app.config['plugins'][name]['class'] = plugin_class
 
 
 # 设置view
-def set_view(app, config):
+def setup_view(app, config):
     """Configure view
 
     url route configure.

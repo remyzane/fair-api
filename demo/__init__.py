@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
 import os
+import json
 import logging
 from flask import Flask
 from curd.utility import load_yaml, set_logging
-from curd.configure import set_database, set_app, set_view
+from curd.configure import curd_setup
 
 from .utility import program_dir
 
@@ -15,16 +16,11 @@ config = load_yaml(os.path.join(program_dir, 'demo.yml'))
 
 # setting logging
 set_logging(config['logging'], os.path.join(program_dir, 'work'))
+log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
 # create application
 app = application = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
-
-# configure database (cannot import view and model before call this function)
-set_database(config['databases'])
-# configure flask app
-set_app(app, config)
-# configure view
-set_view(app, config['view_packages'])
+curd_setup(app, config)
 
 
 # TODO check chinese comments  then translate

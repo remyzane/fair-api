@@ -26,22 +26,29 @@ class RaiseResponse(Exception):
 RR = RaiseResponse
 
 
-# api base class（rewrite the flask.views.MethodView）
+# view base class（rewrite the flask.views.MethodView）
 class CView(object):
-    # Can be overload by subclasses
-    description = ''
-    database = 'default'        # used by auto_rollback
-    db = None
-    auto_rollback = True       # auto rollback the current transaction while result code != success
-    parameters = {}             # example：{'Id': Int, ...}, type has available：Int, Float, Str, Mail、...
-    requisite = []
-    json_p = None               # if defined api's return will using jsonp (accustomed to using 'callback')
-    codes = None
-    plugins = None
-    exclude = ()
+    # # Can be overload by subclasses
+    # database = 'default'        # used by auto_rollback
+    # db = None
+    # auto_rollback = True       # auto rollback the current transaction while result code != success
+    # parameters = {}             # example：{'Id': Int, ...}, type has available：Int, Float, Str, Mail、...
+    # requisite = []
+    # json_p = None               # if defined view's return will using jsonp (accustomed to using 'callback')
+    # codes = None
+    # plugins = None
+    # exclude = ()
 
     @classmethod
-    def check_define(cls, view):
+    def __request_methods(cls):
+        methods = []
+        for method in ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']:
+            if hasattr(cls, method):
+                methods.append(getattr(cls, method))
+        return methods
+
+    @classmethod
+    def __check(cls, view):
         # check the necessary parameter's type is defined
         for param in cls.requisite:
             if param not in cls.parameters:
@@ -60,7 +67,7 @@ class CView(object):
                 raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
 
     @classmethod
-    def set_codes(cls):
+    def __codes(cls):
         # common error code
         cls.codes['success'] = 'Success'
         cls.codes['exception'] = 'Unknown exception'
@@ -81,7 +88,10 @@ class CView(object):
             cls.codes.update(_plugin.codes)
 
     @classmethod
-    def init(cls, app):
+    def __reconstruct(cls, app):
+
+        # ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']
+
         if cls.codes is None:
             cls.codes = {}
         if cls.plugins is None:
@@ -91,19 +101,19 @@ class CView(object):
         cls.db = db.get(cls.database)
 
         # add common plugin
-        for plugin_path in app.config.get('plugins'):
-            exec('from %s import %s as plugin' % tuple(plugin_path.rsplit('.', 1)))
-            if locals()['plugin'] not in cls.exclude:
-                cls.plugins.insert(0, locals()['plugin'])
+        for plugin_name in app.config['plugins']:
+            plugin_class = app.config['plugins'][plugin_name]['class']
+            if plugin_class not in cls.exclude:
+                cls.plugins.insert(0, plugin_class)
 
         # set error code and message
-        cls.set_codes()
+        cls.__codes()
 
     @classmethod
     def as_view(cls, name, app, *class_args, **class_kwargs):
-        def view(*args, **kwargs):
+        def view_wrapper(*args, **kwargs):
             # instantiate view class, thread security
-            self = view.view_class(*class_args, **class_kwargs)
+            self = view_wrapper.view_class(*class_args, **class_kwargs)
             # rollback the current transaction while result code != success
             if self.auto_rollback:
                 with self.db.transaction():
@@ -111,15 +121,15 @@ class CView(object):
             else:
                 return self.dispatch_request(*args, **kwargs)
 
-        view.view_class = cls
-        view.__name__ = name
-        view.__module__ = cls.__module__
-        view.__doc__ = cls.__doc__
+        view_wrapper.view_class = cls
+        view_wrapper.__name__ = name
+        view_wrapper.__module__ = cls.__module__
+        view_wrapper.__doc__ = cls.__doc__
         # check api class define
-        cls.check_define(view)
-        # init api class
-        cls.init(app)
-        return view
+        cls.__check(view_wrapper)
+        # reconstruct view class
+        cls.__reconstruct(app)
+        return view_wrapper
 
     def __init__(self):
         # the following variables is different in per request

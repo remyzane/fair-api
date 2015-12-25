@@ -6,7 +6,7 @@ simple_server:
 
 
 flask:
-  DEBUG: true
+#  DEBUG: true
 
   # session secret key, in order to optimal performance comment it if need not
   # SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
@@ -22,15 +22,18 @@ flask:
 
 # saved in flask.current_app.config
 app:
-  plugins:
-    curd.plugin.token.Token:
-
-    curd.plugin.jsonp.JsonP:
-      callback: callback
-
   tests_access_keys:
     - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
 
+  plugins:
+    token:
+      class: curd.plugin.token.Token
+      key_provider: demo.token.get_token_key
+#
+#    json_p:
+#      class: curd.plugin.jsonp.JsonP
+#      callback: callback
+#
 
 # View packages
 view_packages:
