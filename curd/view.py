@@ -8,7 +8,8 @@ from flask.views import request
 from flask import Response
 
 from .configure import db
-from .parameter import Pass, Str, List
+from .parameter import Param, Str, List
+from .utility import rst_to_html
 
 log = logging.getLogger(__name__)
 
@@ -50,21 +51,54 @@ class CView(object):
         view_wrapper.methods = cls.request_methods.keys()
 
     @classmethod
-    def __check(cls):
-        # check the necessary parameter's type is defined
-        for param in cls.requisite:
-            if param not in cls.parameters:
-                raise Exception('Error define in %s: requisite parameter [%s] not defined in parameter list.' %
-                                (cls.__name__, param))
-        # GET method not support List parameter
-        if hasattr(cls, 'get'):
-            for _type in cls.parameters.values():
-                if isinstance(_type, List):
-                    raise Exception('Error define in %s: GET method not support List parameter.' % cls.__name__)
-        # POST method not support jsonp
-        elif hasattr(cls, 'post'):
-            if cls.json_p:
-                raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
+    def __parse_doc_field(cls, method, app, state, doc_field):
+        name = doc_field.children[0].astext()
+        content = rst_to_html(doc_field.children[1].rawsource)
+        if name == 'plugin':
+            state['plugin'] = content.split()
+        elif name[:6] == 'raise ':
+            state['raise'][name[6:]] = content
+        elif name[:6] == 'param ':
+            items = name[6:].split()
+            param_type = app.parameter_types.get(items[0])
+            if not param_type:
+                raise Exception('%s.%s use undefined parameter type %s' % (cls.__name__, method.__name__, items[0]))
+            if method.__name__.upper() not in param_type.support:
+                raise Exception('%s.%s use parameter %s type that not support %s method.' %
+                                (cls.__name__, method.__name__, items[0], method.__name__.upper()))
+            param = {
+                'type': param_type,
+                'requisite': True if len(items) > 2 and items[1] == '*' else False,
+                'description': content
+            }
+            state['param'][items[-1]] = param
+        else:
+            state[name] = content
+
+    @classmethod
+    def __parse_doc_tree(cls, method, app, state, doc_tree):
+        if type(doc_tree) == docutils.nodes.paragraph:
+            if not state:
+                state['title'] = rst_to_html(doc_tree.rawsource)
+            else:
+                state['description'] = state.get('description', '') + rst_to_html(doc_tree.rawsource)
+            return
+
+        if type(doc_tree) == docutils.nodes.field:
+            cls.__parse_doc_field(method, app, state, doc_tree)
+            return
+
+        for item in doc_tree.children:
+            cls.__parse_doc_tree(method, app, state, item)
+
+
+    # @classmethod
+    # def __check(cls, method):
+    #     # POST method not support jsonp
+    #     elif hasattr(cls, 'post'):
+    #         if cls.json_p:
+    #             raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
+
 
     @classmethod
     def __codes(cls):
@@ -80,7 +114,7 @@ class CView(object):
             if isinstance(_type, List):
                 cls.codes[_type.code] = _type.message % _type.type.__name__
                 cls.codes[_type.type.code] = _type.type.message
-            elif _type != Pass:
+            elif _type != Param:
                 cls.codes[_type.code] = _type.message
 
         # plugins error code
@@ -88,69 +122,18 @@ class CView(object):
             cls.codes.update(_plugin.codes)
 
     @classmethod
-    def __parse_doc_field(cls, state, doc_field):
-        pass
-
-
-    '''
-    param Int cccccccccccccccccccc
-    <class 'docutils.nodes.field_body'>
-    <class 'docutils.nodes.field'>
-    <class 'docutils.nodes.field_name'>
-    <class 'docutils.nodes.Text'>
-    param Int area_id
-    <class 'docutils.nodes.field_body'>
-    <class 'docutils.nodes.paragraph'>
-    <class 'docutils.nodes.emphasis'>
-    <class 'docutils.nodes.Text'>
-    area id
-    <class 'docutils.nodes.field'>
-    <class 'docutils.nodes.field_name'>
-    <class 'docutils.nodes.Text'>
-    param Int area_id
-    <class 'docutils.nodes.field_body'>
-    <class 'docutils.nodes.paragraph'>
-    <class 'docutils.nodes.emphasis'>
-    <class 'docutils.nodes.Text'>
-    area id         aaa
-    <class 'docutils.nodes.field'>
-    <class 'docutils.nodes.field_name'>
-    <class 'docutils.nodes.Text'>
-    param Int area_id
-    '''
-
-    @classmethod
-    def __parse_doc_tree(cls, state, doc_tree):
-        if type(doc_tree) == docutils.nodes.Text:
-            # print(doc_tree.astext())
-            return
-            if not state:
-                state['title'] = doc_tree.astext()
-            else:
-                state['description'] = state.get('description', '') + doc_tree.astext()
-            return
-        # if type(doc_tree) == docutils.nodes.field:
-        #     cls.__parse_doc_field(state, doc_tree)
-        #     return
-        # print(type(doc_tree))
-        for item in doc_tree.children:
-            cls.__parse_doc_tree(state, item)
-
-    @classmethod
     def __reconstruct(cls, app, view_wrapper):
 
         cls.__request_methods(view_wrapper)
+
         for method in cls.request_methods.values():
-            state = {}
+            state = {'param': {}, 'raise': {}}
+            cls.__parse_doc_tree(method, app, state, publish_doctree(method.__doc__))
+            method.state = state
 
-            cls.__parse_doc_tree(state, publish_doctree(method.__doc__))
-
-            print(state)
-
+            print(method.state)
 
         return
-        cls.__check()
-        # ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']
 
         for method in cls.request_methods.values():
             source = method.__doc__

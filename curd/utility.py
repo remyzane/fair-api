@@ -7,6 +7,8 @@ import string
 import logging
 from argparse import HelpFormatter
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+from docutils.core import publish_string
+from docutils.writers.html4css1 import Writer, HTMLTranslator
 
 POSIX = os.name != 'nt'
 # 命令行不同的日志显示不同的颜色
@@ -144,3 +146,29 @@ def set_logging(config, root_path=''):
         for handler_name in handler_names:
             logger.addHandler(handlers[handler_name])
         logger.setLevel(level)
+
+
+class HTMLFragmentTranslator(HTMLTranslator):
+
+    def __init__( self, document):
+        HTMLTranslator.__init__(self, document)
+        self.head_prefix = ['', '', '', '', '']
+        self.body_prefix = []
+        self.body_suffix = []
+        self.stylesheet = []
+
+    def unimplemented_visit(self, node):
+        pass
+
+html_fragment_writer = Writer()
+html_fragment_writer.translator_class = HTMLFragmentTranslator
+
+
+def rst_to_html(source):
+    html = publish_string(source, writer=html_fragment_writer)
+    html = html.split(b'<div class="document">\n\n\n')[1][:-8]     # len('\n</div>\n') == 8
+    if html[:3] == b'<p>':
+        html = html[3:]
+    if html[-4:] == b'</p>':
+        html = html[:-4]
+    return html.decode()

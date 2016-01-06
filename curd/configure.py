@@ -5,6 +5,7 @@ import logging
 import pkgutil
 import datetime
 
+from .parameter import Param
 from .utility import class_name_to_api_name
 
 log = logging.getLogger(__name__)
@@ -16,8 +17,12 @@ def curd_setup(app, config):
 
     # configure flask app
     setup_app(app, config)
+
+    # parameter types
+    parameter_types(app, config['app']['parameter_types'])
+
     # configure view
-    setup_view(app, config['view_packages'])
+    setup_view(app, config['app']['view_packages'])
 
 
 db_classes = {
@@ -71,6 +76,28 @@ def setup_app(app, config):
         plugin_class = locals()['plugin']
         plugin_class.reconstruct(config)
         app.config['plugins'][name]['class'] = plugin_class
+
+
+__parameter_types = {}
+
+
+def parameter_types(app, config):
+    app.parameter_types = {}
+    for package_name in config:
+        exec('import %s as package' % package_name)
+        parameter_package = locals()['package']
+        for item in dir(parameter_package):
+            # flask's request and session(werkzeug.local.LocalProxy) raise RuntimeError
+            if item in ['request', 'session']:
+                continue
+            parameter = getattr(parameter_package, item)
+            try:
+                if issubclass(parameter, Param):
+                    if parameter.__name__ not in app.parameter_types:
+                        app.parameter_types[parameter.__name__] = parameter
+
+            except TypeError:
+                pass    # Some object throw TypeError in issubclass
 
 
 # 设置view

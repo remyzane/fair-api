@@ -35,10 +35,15 @@ app:
 #      callback: callback
 #
 
-# View packages
-view_packages:
-  - tests
-  - demo
+  # Parameter types
+  parameter_types:
+    - curd.parameter
+
+
+  # View packages
+  view_packages:
+    - tests
+    - demo
 
 
 # Database list

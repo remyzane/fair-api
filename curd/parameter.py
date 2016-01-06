@@ -3,7 +3,7 @@
 import re
 
 
-class Pass(object):
+class Param(object):
     """Parameter that don't need to conversion.
 
     :cvar str code:     error code
@@ -11,6 +11,7 @@ class Pass(object):
     """
     code = ''
     message = ''
+    support = ['GET', 'POST', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'TRACE', 'PATCH']
 
     @classmethod
     def conversion(cls, value):
@@ -22,7 +23,7 @@ class Pass(object):
         return value
 
 
-class Str(object):
+class Str(Param):
     """Str and it's sub class don't need [conversion] function
 
     :cvar str code:     error code
@@ -37,7 +38,7 @@ class Str(object):
             return cls.code
 
 
-class Bool(object):
+class Bool(Param):
     """Boolean type parameter
 
     :cvar str code:     error code
@@ -51,7 +52,7 @@ class Bool(object):
         return int(value)
 
 
-class Int(object):
+class Int(Param):
     """Int type parameter
 
     :cvar str code:     error code
@@ -71,7 +72,7 @@ class Int(object):
         return int(value)
 
 
-class Float(object):
+class Float(Param):
     """Float type parameter
 
     :cvar str code:     error code
@@ -91,7 +92,7 @@ class Float(object):
         return cls.code
 
 
-class List(object):
+class List(Param):
     """List type parameter
 
     POST（application/json）only, so don't need [conversion] function
@@ -101,6 +102,7 @@ class List(object):
     """
     code = 'type_error_list'
     message = 'Type Error: Parameter must be List[%s]'
+    support = ['POST']
 
     def __init__(self, _type=None):
         self.type = _type
@@ -117,7 +119,7 @@ class List(object):
                         return error_code
 
 
-class Mail(Str):
+class Mail(Param):
     """Parameter that is Email address
 
     :cvar str code:     error code
