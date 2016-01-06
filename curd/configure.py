@@ -78,11 +78,8 @@ def setup_app(app, config):
         app.config['plugins'][name]['class'] = plugin_class
 
 
-__parameter_types = {}
-
-
 def parameter_types(app, config):
-    app.parameter_types = {}
+    types = {}
     for package_name in config:
         exec('import %s as package' % package_name)
         parameter_package = locals()['package']
@@ -93,11 +90,12 @@ def parameter_types(app, config):
             parameter = getattr(parameter_package, item)
             try:
                 if issubclass(parameter, Param):
-                    if parameter.__name__ not in app.parameter_types:
-                        app.parameter_types[parameter.__name__] = parameter
+                    if parameter.__name__ not in types:
+                        types[parameter.__name__] = parameter
 
             except TypeError:
                 pass    # Some object throw TypeError in issubclass
+    app.config['parameter_types'] = types
 
 
 # 设置view

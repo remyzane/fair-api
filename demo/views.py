@@ -28,8 +28,9 @@ class GetArea(CView):
 
         aaaaaabbbbbbbbbbbbccccccccc aaaaccc
         ddddffffsssssssssssssssssss ddddfff
+        plugin json_p
 
-        :plugin: json_p
+        :plugin: token
         :param  Int  cccccccccccccccccccc:
         :param Int * area_id: area idaaddd
         :param Int * area_id_2: *area* id \

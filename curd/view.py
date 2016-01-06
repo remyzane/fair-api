@@ -55,12 +55,18 @@ class CView(object):
         name = doc_field.children[0].astext()
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'plugin':
-            state['plugin'] = content.split()
+            state['plugin'] = []
+            for item in content.split():
+                plugin = app.config['plugins'].get(item)
+                if not plugin:
+                    raise Exception('%s.%s use undefined plugin %s' % (cls.__name__, method.__name__, item))
+                state['plugin'].append(plugin)
+
         elif name[:6] == 'raise ':
             state['raise'][name[6:]] = content
         elif name[:6] == 'param ':
             items = name[6:].split()
-            param_type = app.parameter_types.get(items[0])
+            param_type = app.config['parameter_types'].get(items[0])
             if not param_type:
                 raise Exception('%s.%s use undefined parameter type %s' % (cls.__name__, method.__name__, items[0]))
             if method.__name__.upper() not in param_type.support:
@@ -130,32 +136,15 @@ class CView(object):
             state = {'param': {}, 'raise': {}}
             cls.__parse_doc_tree(method, app, state, publish_doctree(method.__doc__))
             method.state = state
+            # cls.__codes()
 
             print(method.state)
 
-        return
-
-        for method in cls.request_methods.values():
-            source = method.__doc__
-            print(source)
-
-
-        if cls.codes is None:
-            cls.codes = {}
-        if cls.plugins is None:
-            cls.plugins = []
-
         # setting database
-        cls.db = db.get(cls.database)
-
-        # add common plugin
-        for plugin_name in app.config['plugins']:
-            plugin_class = app.config['plugins'][plugin_name]['class']
-            if plugin_class not in cls.exclude:
-                cls.plugins.insert(0, plugin_class)
-
-        # set error code and message
-        cls.__codes()
+        # cls.db = db.get(cls.database)
+        #
+        # # set error code and message
+        # cls.__codes()
 
     @classmethod
     def as_view(cls, name, app, *class_args, **class_kwargs):
