@@ -2,6 +2,8 @@
 
 import json
 import logging
+import docutils
+from docutils.core import publish_doctree
 from flask.views import request
 from flask import Response
 
@@ -28,6 +30,7 @@ RR = RaiseResponse
 
 # view base class（rewrite the flask.views.MethodView）
 class CView(object):
+    request_methods = {}
     # # Can be overload by subclasses
     # database = 'default'        # used by auto_rollback
     # db = None
@@ -40,15 +43,14 @@ class CView(object):
     # exclude = ()
 
     @classmethod
-    def __request_methods(cls):
-        methods = []
+    def __request_methods(cls, view_wrapper):
         for method in ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']:
             if hasattr(cls, method):
-                methods.append(getattr(cls, method))
-        return methods
+                cls.request_methods[method.upper()] = getattr(cls, method)
+        view_wrapper.methods = cls.request_methods.keys()
 
     @classmethod
-    def __check(cls, view):
+    def __check(cls):
         # check the necessary parameter's type is defined
         for param in cls.requisite:
             if param not in cls.parameters:
@@ -56,13 +58,11 @@ class CView(object):
                                 (cls.__name__, param))
         # GET method not support List parameter
         if hasattr(cls, 'get'):
-            view.methods = ['GET']
             for _type in cls.parameters.values():
                 if isinstance(_type, List):
                     raise Exception('Error define in %s: GET method not support List parameter.' % cls.__name__)
         # POST method not support jsonp
         elif hasattr(cls, 'post'):
-            view.methods = ['POST']
             if cls.json_p:
                 raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
 
@@ -88,9 +88,74 @@ class CView(object):
             cls.codes.update(_plugin.codes)
 
     @classmethod
-    def __reconstruct(cls, app):
+    def __parse_doc_field(cls, state, doc_field):
+        pass
 
+
+    '''
+    param Int cccccccccccccccccccc
+    <class 'docutils.nodes.field_body'>
+    <class 'docutils.nodes.field'>
+    <class 'docutils.nodes.field_name'>
+    <class 'docutils.nodes.Text'>
+    param Int area_id
+    <class 'docutils.nodes.field_body'>
+    <class 'docutils.nodes.paragraph'>
+    <class 'docutils.nodes.emphasis'>
+    <class 'docutils.nodes.Text'>
+    area id
+    <class 'docutils.nodes.field'>
+    <class 'docutils.nodes.field_name'>
+    <class 'docutils.nodes.Text'>
+    param Int area_id
+    <class 'docutils.nodes.field_body'>
+    <class 'docutils.nodes.paragraph'>
+    <class 'docutils.nodes.emphasis'>
+    <class 'docutils.nodes.Text'>
+    area id         aaa
+    <class 'docutils.nodes.field'>
+    <class 'docutils.nodes.field_name'>
+    <class 'docutils.nodes.Text'>
+    param Int area_id
+    '''
+
+    @classmethod
+    def __parse_doc_tree(cls, state, doc_tree):
+        if type(doc_tree) == docutils.nodes.Text:
+            # print(doc_tree.astext())
+            return
+            if not state:
+                state['title'] = doc_tree.astext()
+            else:
+                state['description'] = state.get('description', '') + doc_tree.astext()
+            return
+        # if type(doc_tree) == docutils.nodes.field:
+        #     cls.__parse_doc_field(state, doc_tree)
+        #     return
+        # print(type(doc_tree))
+        for item in doc_tree.children:
+            cls.__parse_doc_tree(state, item)
+
+    @classmethod
+    def __reconstruct(cls, app, view_wrapper):
+
+        cls.__request_methods(view_wrapper)
+        for method in cls.request_methods.values():
+            state = {}
+
+            cls.__parse_doc_tree(state, publish_doctree(method.__doc__))
+
+            print(state)
+
+
+        return
+        cls.__check()
         # ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']
+
+        for method in cls.request_methods.values():
+            source = method.__doc__
+            print(source)
+
 
         if cls.codes is None:
             cls.codes = {}
@@ -125,10 +190,8 @@ class CView(object):
         view_wrapper.__name__ = name
         view_wrapper.__module__ = cls.__module__
         view_wrapper.__doc__ = cls.__doc__
-        # check api class define
-        cls.__check(view_wrapper)
         # reconstruct view class
-        cls.__reconstruct(app)
+        cls.__reconstruct(app, view_wrapper)
         return view_wrapper
 
     def __init__(self):

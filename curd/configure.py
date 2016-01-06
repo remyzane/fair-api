@@ -92,13 +92,15 @@ def setup_view(app, config):
                 exec('import %s.%s as package' % (package_name, modname))
                 views = locals()['package']
                 for item in dir(views):
-                    # call [hasattr] function of flask's request and session(werkzeug.local.LocalProxy),
-                    # will be raise "RuntimeError: working outside of request context".
-                    if item in ['request', 'session'] and getattr(views, item).__class__.__name__ == 'LocalProxy':
+                    # flask's request and session(werkzeug.local.LocalProxy) raise RuntimeError
+                    if item in ['request', 'session']:
                         continue
                     view = getattr(views, item)
-                    if hasattr(view, 'parameters') and hasattr(view, 'requisite') and view != CView:
-                        name = class_name_to_api_name(view.__name__)
-                        uri = '/%s/%s' % (package_name, name)
-                        endpoint = '%s.%s' % (package_name, name)
-                        app.add_url_rule(uri, view_func=view.as_view(endpoint, app))
+                    try:
+                        if issubclass(view, CView) and view != CView:
+                            name = class_name_to_api_name(view.__name__)
+                            uri = '/%s/%s' % (package_name, name)
+                            endpoint = '%s.%s' % (package_name, name)
+                            app.add_url_rule(uri, view_func=view.as_view(endpoint, app))
+                    except TypeError:
+                        pass    # Some object throw TypeError in issubclass

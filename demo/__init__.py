@@ -16,7 +16,7 @@ config = load_yaml(os.path.join(program_dir, 'demo.yml'))
 
 # setting logging
 set_logging(config['logging'], os.path.join(program_dir, 'work'))
-log.debug('app config: %s', json.dumps(config['app'], indent=4))
+# log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
 # create application
 app = application = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
