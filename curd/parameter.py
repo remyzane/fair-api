@@ -6,11 +6,11 @@ import re
 class Param(object):
     """Parameter that don't need to conversion.
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = ''
-    message = ''
+    error_code = '__error_code_not_define__'
+    requirement = ''
     support = ['GET', 'POST', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'TRACE', 'PATCH']
 
     @classmethod
@@ -26,11 +26,11 @@ class Param(object):
 class Str(Param):
     """Str and it's sub class don't need [conversion] function
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_str'
-    message = 'Type Error: Parameter must be String'
+    error_code = 'param_type_error_str'
+    requirement = 'Parameter must be String'
 
     @classmethod
     def check(cls, value):
@@ -41,11 +41,11 @@ class Str(Param):
 class Bool(Param):
     """Boolean type parameter
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_bool'
-    message = 'Type Error: Parameter must be Boolean'
+    error_code = 'param_type_error_bool'
+    requirement = 'Parameter must be Boolean'
 
     @classmethod
     def conversion(cls, value):
@@ -55,11 +55,11 @@ class Bool(Param):
 class Int(Param):
     """Int type parameter
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_int'
-    message = 'Type Error: Parameter must be Integer'
+    error_code = 'param_type_error_int'
+    requirement = 'Parameter must be Integer'
 
     @classmethod
     def conversion(cls, value):
@@ -75,11 +75,11 @@ class Int(Param):
 class Float(Param):
     """Float type parameter
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_float'
-    message = 'Type Error: Parameter must be Float'
+    error_code = 'param_type_error_float'
+    requirement = 'Parameter must be Float'
 
     @staticmethod
     def conversion(value):
@@ -97,11 +97,11 @@ class List(Param):
 
     POST（application/json）only, so don't need [conversion] function
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_list'
-    message = 'Type Error: Parameter must be List[%s]'
+    error_code = 'param_type_error_list'
+    requirement = 'Parameter must be List[%s]'
     support = ['POST']
 
     def __init__(self, _type=None):
@@ -122,11 +122,11 @@ class List(Param):
 class Mail(Param):
     """Parameter that is Email address
 
-    :cvar str code:     error code
-    :cvar str message:  error message
+    :cvar str error_code: Error code
+    :cvar str requirement: Parameter requirement
     """
-    code = 'type_error_email'
-    message = 'Type Error: Parameter must be email address'
+    error_code = 'param_type_error_email'
+    requirement = 'Parameter must be email address'
 
     @classmethod
     def check(cls, value):

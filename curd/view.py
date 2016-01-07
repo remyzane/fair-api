@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import os
 import json
 import logging
 import docutils
@@ -51,19 +52,19 @@ class CView(object):
         view_wrapper.methods = cls.request_methods.keys()
 
     @classmethod
-    def __parse_doc_field(cls, method, app, state, doc_field):
+    def __parse_doc_field(cls, app, method, element, doc_field):
         name = doc_field.children[0].astext()
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'plugin':
-            state['plugin'] = []
+            element['plugin'] = []
             for item in content.split():
                 plugin = app.config['plugins'].get(item)
                 if not plugin:
                     raise Exception('%s.%s use undefined plugin %s' % (cls.__name__, method.__name__, item))
-                state['plugin'].append(plugin)
+                element['plugin'].append(plugin)
 
         elif name[:6] == 'raise ':
-            state['raise'][name[6:]] = content
+            element['raise'][name[6:]] = content
         elif name[:6] == 'param ':
             items = name[6:].split()
             param_type = app.config['parameter_types'].get(items[0])
@@ -72,30 +73,36 @@ class CView(object):
             if method.__name__.upper() not in param_type.support:
                 raise Exception('%s.%s use parameter %s type that not support %s method.' %
                                 (cls.__name__, method.__name__, items[0], method.__name__.upper()))
-            param = {
-                'type': param_type,
-                'requisite': True if len(items) > 2 and items[1] == '*' else False,
-                'description': content
-            }
-            state['param'][items[-1]] = param
+            param = {'type': param_type, 'requisite': False, 'description': content}
+            if len(items) > 2 and items[1] == '*':
+                param['requisite'] = True
+                element['essential_parameter'] = True
+            element['param'][items[-1]] = param
         else:
-            state[name] = content
+            element[name] = content
 
     @classmethod
-    def __parse_doc_tree(cls, method, app, state, doc_tree):
+    def __parse_doc_tree(cls, app, method, element, doc_tree):
+        if type(doc_tree) == docutils.nodes.term:
+            element['title'] = rst_to_html(doc_tree.rawsource)
+            return
+
         if type(doc_tree) == docutils.nodes.paragraph:
-            if not state:
-                state['title'] = rst_to_html(doc_tree.rawsource)
+            if 'description' not in element:
+                element['title'] = element.get('title', '') + rst_to_html(doc_tree.rawsource)
+                element['description'] = ''
+            elif element['description'] == '':
+                element['description'] = rst_to_html(doc_tree.rawsource)
             else:
-                state['description'] = state.get('description', '') + rst_to_html(doc_tree.rawsource)
+                element['description'] = element['description'] + os.linesep*2 + rst_to_html(doc_tree.rawsource)
             return
 
         if type(doc_tree) == docutils.nodes.field:
-            cls.__parse_doc_field(method, app, state, doc_tree)
+            cls.__parse_doc_field(app, method, element, doc_tree)
             return
 
         for item in doc_tree.children:
-            cls.__parse_doc_tree(method, app, state, item)
+            cls.__parse_doc_tree(app, method, element, item)
 
 
     # @classmethod
@@ -107,25 +114,29 @@ class CView(object):
 
 
     @classmethod
-    def __codes(cls):
+    def __codes(cls, method):
+        method.codes = dict()
         # common error code
-        cls.codes['success'] = 'Success'
-        cls.codes['exception'] = 'Unknown exception'
-        cls.codes['param_unknown'] = 'Unknown parameter'
-        if cls.requisite:
-            cls.codes['param_missing'] = 'Missing parameter'
+        method.codes['success'] = 'Success'
+        method.codes['exception'] = 'Unknown exception'
+        method.codes['param_unknown'] = 'Unknown parameter'
+        if method.element['essential_parameter']:
+            method.codes['param_missing'] = 'Missing parameter'
 
         # parameter type error code
-        for _type in cls.parameters.values():
+        for param in method.element['param'].values():
+            _type = param['type']
             if isinstance(_type, List):
-                cls.codes[_type.code] = _type.message % _type.type.__name__
-                cls.codes[_type.type.code] = _type.type.message
+                method.codes[_type.error_code] = _type.requirement % _type.type.__name__
+                method.codes[_type.type.error_code] = _type.type.requirement
             elif _type != Param:
-                cls.codes[_type.code] = _type.message
+                method.codes[_type.error_code] = _type.requirement
 
         # plugins error code
-        for _plugin in cls.plugins:
-            cls.codes.update(_plugin.codes)
+        for _plugin in method.element['plugin']:
+            method.codes.update(_plugin.error_codes)
+
+        method.codes.update(method.element['raise'])
 
     @classmethod
     def __reconstruct(cls, app, view_wrapper):
@@ -133,18 +144,13 @@ class CView(object):
         cls.__request_methods(view_wrapper)
 
         for method in cls.request_methods.values():
-            state = {'param': {}, 'raise': {}}
-            cls.__parse_doc_tree(method, app, state, publish_doctree(method.__doc__))
-            method.state = state
-            # cls.__codes()
-
-            print(method.state)
+            method.element = {'param': {}, 'essential_parameter': False, 'raise': {}}
+            cls.__parse_doc_tree(app, method, method.element, publish_doctree(method.__doc__))
+            # set error code and message
+            cls.__codes(method)
 
         # setting database
         # cls.db = db.get(cls.database)
-        #
-        # # set error code and message
-        # cls.__codes()
 
     @classmethod
     def as_view(cls, name, app, *class_args, **class_kwargs):

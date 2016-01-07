@@ -75,7 +75,7 @@ def setup_app(app, config):
         exec('from %s import %s as plugin' % tuple(class_path.rsplit('.', 1)))
         plugin_class = locals()['plugin']
         plugin_class.reconstruct(config)
-        app.config['plugins'][name]['class'] = plugin_class
+        app.config['plugins'][name] = plugin_class
 
 
 def parameter_types(app, config):

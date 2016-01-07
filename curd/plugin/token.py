@@ -37,11 +37,11 @@ TOKEN_TIME_OUT = 60             # 1 minute
 class Token(Plugin):
     """Token check Plugin.
 
-    :cvar dict codes: error code and message
+    :cvar dict error_codes: error code and message
     :cvar function key_provider: provide token secret key by identity::
 
     """
-    codes = {'token_invalid': 'Invalid Token'}
+    error_codes = {'token_invalid': 'Invalid Token'}
 
     @staticmethod
     def __key_provider(identity):

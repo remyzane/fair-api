@@ -22,8 +22,8 @@ def _to_html(text):
     text = text.replace('&', '&#38;')
     text = text.replace(' ', '&nbsp;')
     text = text.replace(' ', '&#160;')
-    text = text.replace('<', '&#60;')
-    text = text.replace('>', '&#62;')
+    # text = text.replace('<', '&#60;')
+    # text = text.replace('>', '&#62;')
     text = text.replace('"', '&#34;')
     text = text.replace('\'', '&#39;')
     text = text.replace(os.linesep, '</br>')
@@ -134,11 +134,13 @@ def index():
                     try:
                         if issubclass(view, CView) and view != CView:   # sometime issubclass throw TypeError
                             name = class_name_to_api_name(view.__name__)
-                            uri = '/%s/%s' % (package_name, name)
-                            api_list.append((uri, _to_html(view.description)))
-                            if uri == param_curr_uri:
-                                curr_api_uri = uri
-                                curr_api_cls = view
+                            for method_name, method in  view.request_methods.items():
+                                uri = '/%s/%s' % (package_name, name)
+                                api_list.append((uri, method_name, _to_html(method.element['title'])))
+                                if uri == param_curr_uri:
+                                    curr_api_uri = uri
+                                    curr_api_cls = view
+                                    curr_api_method = method_name
                     except TypeError:
                         pass
     # get detail info of current api

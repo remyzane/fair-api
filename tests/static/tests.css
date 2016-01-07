@@ -27,8 +27,12 @@
 .body .ui.link.api.items .item {
     margin-top: 5px;
 }
-.body .ui.link.api.items .item .header {
-    width: 100%;
+.body .ui.link.api.items .item .method {
+    width: 30px;
+}
+.body .ui.link.api.items .item .uri {
+    margin-left: 50px;
+    width: 80%;
     font-weight: normal;
     font-size: 1.2em;
 }
