@@ -49,7 +49,7 @@ class GetArea(CView):
                                            'superior': 0})
 
     def post(self, area_id):
-        """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa *Post the area information through it's id.*
+        """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaa   aaa *Post the area information through it's id.*
 
         aaaaaabbbbbbbbbbbbccccccccc aaaaccc
         ddddffffsssssssssssssssssss ddddfff

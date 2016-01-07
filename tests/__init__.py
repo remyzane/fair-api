@@ -102,13 +102,13 @@ def index():
     api_list = []
     curr_api_cls = None
     curr_api_uri = None
-    curr_api_method = None
     curr_api_params = []
     curr_api_codes = []
     api_config = {}
     params_config = {}
     curr_api_description = None
-    param_curr_uri = request.args.get('api', '')
+    request_uri = request.args.get('api', '')
+    request_method = request.args.get('method', '')
     post_type = request.args.get('type', 'j')
     user = request.args.get('user', '')
     if user not in app.config['tests_access_keys']:
@@ -134,20 +134,18 @@ def index():
                     try:
                         if issubclass(view, CView) and view != CView:   # sometime issubclass throw TypeError
                             name = class_name_to_api_name(view.__name__)
-                            for method_name, method in  view.request_methods.items():
+                            for method_name, method in view.request_methods.items():
                                 uri = '/%s/%s' % (package_name, name)
                                 api_list.append((uri, method_name, _to_html(method.element['title'])))
-                                if uri == param_curr_uri:
+                                if uri == request_uri:
                                     curr_api_uri = uri
                                     curr_api_cls = view
-                                    curr_api_method = method_name
                     except TypeError:
                         pass
     # get detail info of current api
     json_p = ''
     if curr_api_cls:
-        json_p = curr_api_cls.json_p
-        curr_api_method = 'GET' if hasattr(curr_api_cls, 'get') else 'POST'
+        # json_p = curr_api_cls.json_p
         parameters, requisite = curr_api_cls.parameters, curr_api_cls.requisite
         for param in requisite:
             param_type = parameters.get(param)
@@ -169,7 +167,7 @@ def index():
                'api_list': api_list,
                'curr_api_uri': curr_api_uri,
                'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
-               'curr_api_method': curr_api_method,
+               'curr_api_method': request_method,
                'curr_api_params': curr_api_params,
                'curr_api_codes': curr_api_codes,
                'api_config': api_config,

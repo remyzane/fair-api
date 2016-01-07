@@ -22,11 +22,11 @@ $(document).ready(function(){
         window.location.href = window.location.pathname +
             '?user=' + user + '&type=' + get_post_type() + '&api=' + $(this)[0].innerText;
     });
-    $('.body .ui.link.api.items').css({"margin-left": ($(window).width()-800)/2 + "px"});
     $('.body .ui.link.api.items .item').on('click', function() {
-        var uri = $(this)[0].children[0].children[0].innerText;
+        var method = $(this)[0].children[0].children[0].innerText;
+        var uri = $(this)[0].children[0].children[1].innerText;
         window.location.href = window.location.pathname +
-            '?user=' + user + '&type=' + get_post_type() + '&api=' + uri;
+            '?user=' + user + '&type=' + get_post_type() + '&method=' + method + '&api=' + uri;
     });
     init_test_case();
     $('.param-mode').change(function(){

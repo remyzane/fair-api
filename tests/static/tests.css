@@ -1,5 +1,9 @@
 @charset "UTF-8";
 
+body {
+    height: auto;
+}
+
 .menu .property {
     line-height: 40px;
 }
@@ -19,25 +23,27 @@
 }
 
 .body .ui.link.api.items {
-    margin-top: 20px !important;
-    margin-left: auto;
-    margin-right: auto;
-    width: 800px;
+    margin: 0 auto;
+    width: 1024px;
+    float: inherit;
 }
 .body .ui.link.api.items .item {
-    margin-top: 5px;
+    margin: 15px 0 0 0;
 }
 .body .ui.link.api.items .item .method {
-    width: 30px;
+    width: 50px;
+    color: #aaaaaa;
+    font-size: 1em;
 }
 .body .ui.link.api.items .item .uri {
-    margin-left: 50px;
-    width: 80%;
+    width: 270px;
     font-weight: normal;
     font-size: 1.2em;
 }
-.body .ui.link.api.items .item .description {
-    margin: -20px 0 0 250px;
+.body .ui.link.api.items .item .title {
+    width: 704px;
+    word-wrap: break-word;
+    word-break: normal;
     font-size: 1.1em;
 }
 

@@ -119,14 +119,12 @@
     </div>
     {% else %}
     <div class="ui link api items">
-        {% for api_uri, method_name, description in api_list %}
+        {% for api_uri, method_name, title in api_list %}
         <div class="item">
             <div class="content">
                 <div class="method">{{ method_name }}</div>
                 <div class="uri">{{ api_uri }}</div>
-                <div class="description">
-                    <p>{{ description | safe }}</p>
-                </div>
+                <div class="title">{{ title | safe }}</div>
             </div>
         </div>
         {% endfor %}
