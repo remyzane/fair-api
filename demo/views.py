@@ -55,6 +55,8 @@ class GetArea(CView):
         ddddffffsssssssssssssssssss ddddfff
 
         :plugin: token
+        :param  Int  bb:
+        :param  Int  aa:
         :param  Int  cccccccccccccccccccc:
         :param Int * area_id: area idaaddd
         :param Param * area_id_2: *area* id \

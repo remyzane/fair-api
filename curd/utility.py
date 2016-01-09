@@ -117,7 +117,7 @@ def set_logging(config, root_path=''):
         handler_params = config['class'][params['class']].copy()
         handler_params.update(params)
         # 创建日志目录
-        logfile = params['path'] if params['path'][:1] == '/' else os.path.join(root_path, params['path'])
+        logfile = params['path'] if params['path'].startswith('/') else os.path.join(root_path, params['path'])
         if not os.path.exists(os.path.dirname(logfile)):
             os.makedirs(os.path.dirname(logfile))
         # 创建handler
@@ -167,8 +167,8 @@ html_fragment_writer.translator_class = HTMLFragmentTranslator
 def rst_to_html(source):
     html = publish_string(source, writer=html_fragment_writer)
     html = html.split(b'<div class="document">\n\n\n')[1][:-8]     # len('\n</div>\n') == 8
-    if html[:3] == b'<p>':
+    if html.startswith(b'<p>'):
         html = html[3:]
-    if html[-4:] == b'</p>':
+    if html.endswith(b'</p>'):
         html = html[:-4]
     return html.decode()

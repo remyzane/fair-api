@@ -118,7 +118,7 @@ def css_js_compressor():
 # 合并（压缩）css js文件
 def build_css_js(sup_path, source_files, target_file, compress=True):
     target_file = os.path.join(sup_path, target_file)
-    file_type = 'js' if target_file[-3:] == '.js' else 'css'
+    file_type = 'js' if target_file.endswith('.js') else 'css'
     all_source = ''
     for source in source_files:
         all_source = '%s "%s"' % (all_source, os.path.join(sup_path, source))

@@ -30,61 +30,36 @@ def _to_html(text):
     return text
 
 
-def _get_case_dir(curr_api_uri, user):
+def _get_case_dir(user, curr_api_uri, method_name):
     api_path = '_'.join(curr_api_uri[1:].split('/'))
-    case_dir = os.path.realpath(os.path.join(program_dir, 'work', 'test', 'case', user, api_path))
+    case_dir = os.path.realpath(os.path.join(program_dir, 'work', 'test', 'case', user, api_path, method_name))
     if not os.path.exists(case_dir):
         os.makedirs(case_dir)
     return case_dir
 
 
-def _get_sorted_code(curr_api_cls, user, curr_api_uri):
+def _get_sorted_code(method_name, element, user, curr_api_uri):
     codes = []
-    c_keys = list(curr_api_cls.codes)
-    # common
-    keys = ['success', 'exception', 'param_unknown']
-    c_keys.remove('success')
-    c_keys.remove('exception')
-    c_keys.remove('param_unknown')
-    if curr_api_cls.requisite:
-        c_keys.remove('param_missing')
-        keys.append('param_missing')
-    # type matching
-    type_keys = []
-    for name in dir(parameter):
-        cls = getattr(parameter, name)
-        if hasattr(cls, 'code') and hasattr(cls, 'message') and getattr(cls, 'code') != '':
-            code = getattr(cls, 'code')
-            if code in c_keys:
-                c_keys.remove(code)
-                type_keys.append(code)
-    for _name in dir(plugin):
-        if _name[:2] != '__':
-            obj = getattr(plugin, _name)
-            if type(obj) == type(object) and issubclass(obj, plugin.Plugin) and obj is not plugin.Plugin:
-                for code in obj.codes:
-                    if code in c_keys:
-                        c_keys.remove(code)
-                        type_keys.append(code)
-    if type_keys:
-        keys.append('----')
-        keys = keys + type_keys
-    # custom errors
-    if c_keys:
-        c_keys.sort()
-        keys.append('----')
-        keys = keys + c_keys
-    for key in keys:
-        if key == '----':
+    is_param_type = False
+    for error_code in element['code_index']:
+        error_message = element['code_dict'][error_code]
+
+        if error_code.startswith('param_type_error_') and not is_param_type:
             codes.append(('----', None, None))
-        else:
-            codes.append((key, _to_html(curr_api_cls.codes[key]), _get_test_case(curr_api_uri, user, key)))
+            is_param_type = True
+
+        if is_param_type and not error_code.startswith('param_type_error_'):
+            codes.append(('----', None, None))
+            is_param_type = False
+
+        codes.append((error_code, _to_html(error_message), _get_test_case(user, curr_api_uri, method_name, error_code)))
+
     return codes
 
 
-def _get_test_case(curr_api_uri, user, code):
+def _get_test_case(user, curr_api_uri, method_name, code):
     use_cases = ''
-    case_path = os.path.join(_get_case_dir(curr_api_uri, user), code)
+    case_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), code)
     if os.path.exists(case_path):
         data_file = open(case_path, 'r')
         for line in data_file.readlines():
@@ -100,7 +75,7 @@ def _get_test_case(curr_api_uri, user, code):
 @app.route('/tests/', endpoint='tests.index')
 def index():
     api_list = []
-    curr_api_cls = None
+    element = None
     curr_api_uri = None
     curr_api_params = []
     curr_api_codes = []
@@ -108,7 +83,7 @@ def index():
     params_config = {}
     curr_api_description = None
     request_uri = request.args.get('api', '')
-    request_method = request.args.get('method', '')
+    method_name = request.args.get('method', '')
     post_type = request.args.get('type', 'j')
     user = request.args.get('user', '')
     if user not in app.config['tests_access_keys']:
@@ -139,36 +114,26 @@ def index():
                                 api_list.append((uri, method_name, _to_html(method.element['title'])))
                                 if uri == request_uri:
                                     curr_api_uri = uri
-                                    curr_api_cls = view
+                                    element = method.element
                     except TypeError:
                         pass
     # get detail info of current api
     json_p = ''
-    if curr_api_cls:
+    if element:
         # json_p = curr_api_cls.json_p
-        parameters, requisite = curr_api_cls.parameters, curr_api_cls.requisite
-        for param in requisite:
-            param_type = parameters.get(param)
-            curr_api_params.append((param, param_type.__name__ if param_type else 'Str', True))
-        param_keys = list(parameters.keys())
-        param_keys.sort()
-        for param in param_keys:
-            if param not in requisite:
-                param_type = parameters.get(param)
-                curr_api_params.append((param, param_type.__name__ if param_type else 'Str', False))
-        curr_api_codes = _get_sorted_code(curr_api_cls, user, curr_api_uri)
-        api_config_path = os.path.join(_get_case_dir(curr_api_uri, user), '__config__')
+        curr_api_codes = _get_sorted_code(method_name, element, user, curr_api_uri)
+        api_config_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), '__config__')
         if os.path.exists(api_config_path):
             with open(api_config_path, 'r') as config:
                 api_config = json.load(config)
                 params_config = api_config['params']
-        curr_api_description = _to_html(curr_api_cls.description)
+        curr_api_description = _to_html(element['description'])
     context = {'user': user,
                'api_list': api_list,
                'curr_api_uri': curr_api_uri,
                'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
-               'curr_api_method': request_method,
-               'curr_api_params': curr_api_params,
+               'curr_api_method': method_name,
+               'curr_api_params': element['param_list'],
                'curr_api_codes': curr_api_codes,
                'api_config': api_config,
                'params_config': params_config,
@@ -197,7 +162,7 @@ def save_case():
     code = request.json['code']
 
     result = []
-    case_path = os.path.join(_get_case_dir(request.json['api_path'], user), code)
+    case_path = os.path.join(_get_case_dir(user, request.json['api_path'], method_name), code)
     new_data = json.dumps({
         'param_mode': param_mode,
         'params': params
@@ -225,7 +190,7 @@ def save_case():
 @app.route('/tests/save_config/', endpoint='tests.save_config', methods=['POST'])
 def save_config():
     user = request.json['user']
-    config_path = os.path.join(_get_case_dir(request.json['api_path'], user), '__config__')
+    config_path = os.path.join(_get_case_dir(user, request.json['api_path'], method_name), '__config__')
 
     data = request.json.copy()
     del data['user']
