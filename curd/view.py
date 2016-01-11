@@ -137,12 +137,18 @@ class CView(object):
             cls.__element_code_set(element, name[6:], content)
         elif name.startswith('param '):
             items = name[6:].split()
-            param_type = app.config['parameter_types'].get(items[0])
+            param_type = items[0]
+            if param_type.endswith(']'):
+                sub_type = app.config['parameter_types'].get(param_type.split('[')[1][:-1])
+                param_type = app.config['parameter_types'].get(param_type.split('[')[0])
+                param_type = param_type(sub_type)
+            else:
+                param_type = app.config['parameter_types'].get(param_type)
             if not param_type:
                 raise Exception('%s.%s use undefined parameter type %s' % (cls.__name__, method.__name__, items[0]))
             if method.__name__.upper() not in param_type.support:
                 raise Exception('%s.%s use parameter %s type that not support %s method.' %
-                                (cls.__name__, method.__name__, items[0], method.__name__.upper()))
+                                (cls.__name__, method.__name__, param_type.__name__, method.__name__.upper()))
             param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
             if len(items) > 2 and items[1] == '*':
                 param['requisite'] = True
@@ -210,11 +216,12 @@ class CView(object):
             # instantiate view class, thread security
             self = view_wrapper.view_class(*class_args, **class_kwargs)
             # rollback the current transaction while result code != success
-            if self.auto_rollback:
-                with self.db.transaction():
-                    return self.dispatch_request(*args, **kwargs)
-            else:
-                return self.dispatch_request(*args, **kwargs)
+            # if self.auto_rollback:
+            #     with self.db.transaction():
+            #         return self.dispatch_request(*args, **kwargs)
+            # else:
+            #     return self.dispatch_request(*args, **kwargs)
+            return self.dispatch_request(*args, **kwargs)
 
         view_wrapper.view_class = cls
         view_wrapper.__name__ = name
@@ -233,6 +240,8 @@ class CView(object):
 
     def dispatch_request(self, *args, **kwargs):
         try:
+            request.element = self.request_methods[request.method].element
+            request.codes = request.element['code_dict']
             # get request parameters
             self.get_request_params()
             # check parameter's type and format
@@ -263,20 +272,23 @@ class CView(object):
     # check parameter's type and format
     def check_parameters(self):
         # check the necessary parameter's value is sed
-        for param in self.requisite:
+        for param in request.element['param_not_null']:
             if self.params.get(param, '') == '':       # 0 is ok
                 raise RR(self.result('param_missing', {'parameter': param}))
         # parameter's type of proof and conversion
         for param, value in self.params.items():
-            _type = self.parameters.get(param)
-            if not _type:
-                if self.json_p:
-                    # jquery's cache management mechanism will add '_', '1_' parameter,
-                    # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
-                    if param == self.json_p or param == '_' or param == '1_':
-                        continue
+            print(param)
+            print(request.element['param_index'])
+            if param not in request.element['param_index']:
+                # if self.json_p:
+                #     # jquery's cache management mechanism will add '_', '1_' parameter,
+                #     # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
+                #     if param == self.json_p or param == '_' or param == '1_':
+                #         continue
                 raise RR(self.result('param_unknown', {'parameter': param, 'value': value}))
+
             if value is not None:
+                _type = request.element['param_dict'][param]['type']
                 # type conversion (application/json don't need) (Str and its subclasses don't need)
                 if not self.post_json and not issubclass(_type, Str):
                     try:
@@ -292,18 +304,19 @@ class CView(object):
     # get result for return（HttpResponse）
     def result(self, code, data={}, status=None, exception=False):
         # rollback the current transaction
-        if self.auto_rollback and code != 'success':
-            self.db.rollback()
+        # if self.auto_rollback and code != 'success':
+        #     self.db.rollback()
         # data of return
-        ret = {'code': code, 'message': self.codes[code], 'data': data}
+        ret = {'code': code, 'message': request.codes[code], 'data': data}
         # log output
         self.log(code, ret, exception)
         # return result
-        json_p = self.params.get(self.json_p) if self.json_p else None
-        if json_p:
-            return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
-        else:
-            return Response(json.dumps(ret), content_type=JSON, status=status)
+        # json_p = self.params.get(self.json_p) if self.json_p else None
+        # if json_p:
+        #     return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
+        # else:
+        #     return Response(json.dumps(ret), content_type=JSON, status=status)
+        return Response(json.dumps(ret), content_type=JSON, status=status)
 
     # log output
     def log(self, code, data, exception):
@@ -319,11 +332,11 @@ Return Data: --------------------------------------------
         if code == 'success':
             # different log output for performance
             if log.parent.level == logging.DEBUG:
-                log.info('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+                log.info('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)
             else:
-                log.info('%s %s %s', request.path, self.codes[code], self.params_log)
+                log.info('%s %s %s', request.path, request.codes[code], self.params_log)
         else:
             if exception:
-                log.exception('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+                log.exception('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)
             else:
-                log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+                log.error('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)

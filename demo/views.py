@@ -23,30 +23,30 @@ class GetArea(CView):
     #     'id_not_exist': 'Record does not exist.'
     # }
 
-    def get(self, area_id):
-        """Get the area *information through it's id.* ccc111112222aaa
-        aaaaaaaa
-        bbbbbbbb *bbbbbbb* bbbbbbbb
-        cccc
-
-        aaaaaabbbbbbbbbbbbccccccccc aaaaccc
-        ddddffffsssssssssssssssssss ddddfff
-
-        :plugin: token
-        :param  Int  cccccccccccccccccccc:
-        :param Int * area_id: area idaaddd
-        :param Param * area_id_2: *area* id \
-        *aaa*
-        :param Str area_id_3: area id \
-        aaa
-        :raise id_not_exist: Record does not exist.
-        """
-        if area_id > 100:
-            return self.result('id_not_exist')
-        else:
-            return self.result('success', {'id': area_id,
-                                           'name': 'area_%d' % area_id,
-                                           'superior': 0})
+    # def get(self, area_id):
+    #     """Get the area *information through it's id.* ccc111112222aaa
+    #     aaaaaaaa
+    #     bbbbbbbb *bbbbbbb* bbbbbbbb
+    #     cccc
+    #
+    #     aaaaaabbbbbbbbbbbbccccccccc aaaaccc
+    #     ddddffffsssssssssssssssssss ddddfff
+    #
+    #     :plugin: token
+    #     :param  Int  cccccccccccccccccccc:
+    #     :param Int * area_id: area idaaddd
+    #     :param Param * area_id_2: *area* id \
+    #     *aaa*
+    #     :param Str area_id_3: area id \
+    #     aaa
+    #     :raise id_not_exist: Record does not exist.
+    #     """
+    #     if area_id > 100:
+    #         return self.result('id_not_exist')
+    #     else:
+    #         return self.result('success', {'id': area_id,
+    #                                        'name': 'area_%d' % area_id,
+    #                                        'superior': 0})
 
     def post(self, area_id):
         """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaa   aaa *Post the area information through it's id.*
@@ -56,7 +56,7 @@ class GetArea(CView):
 
         :plugin: token
         :param  Int  bb:
-        :param  Int  aa:
+        :param  List[Int]  aa:
         :param  Int  cccccccccccccccccccc:
         :param Int * area_id: area idaaddd
         :param Param * area_id_2: *area* id \

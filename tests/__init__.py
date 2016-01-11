@@ -159,6 +159,7 @@ def save_case():
     user = request.json['user']
     params = request.json['params']
     param_mode = request.json['param_mode']
+    method_name = request.json['method']
     code = request.json['code']
 
     result = []
@@ -190,6 +191,7 @@ def save_case():
 @app.route('/tests/save_config/', endpoint='tests.save_config', methods=['POST'])
 def save_config():
     user = request.json['user']
+    method_name = request.json['method']
     config_path = os.path.join(_get_case_dir(user, request.json['api_path'], method_name), '__config__')
 
     data = request.json.copy()

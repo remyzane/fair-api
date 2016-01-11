@@ -38,8 +38,7 @@ class Token(Plugin):
     """Token check Plugin.
 
     :cvar dict error_codes: error code and message
-    :cvar function key_provider: provide token secret key by identity::
-
+    :cvar function __key_provider: provide token secret key by identity
     """
     error_codes = {'token_invalid': 'Invalid Token'}
 
@@ -74,15 +73,26 @@ class Token(Plugin):
         """
         pass
 
+    def aaa(self, i):
+        """Get index
+
+        :param i: index
+        :return: index
+        """
+
+        return i
+
     @classmethod
-    def before_request(cls, view):
+    def before_request_aa(cls, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
         :param CView view: Api class instance for request
+        :return:
         :raise RR: RaiseResponse
         """
+
         # get token parameter
         token = view.params.get(PARAM_TOKEN)
         identity = view.params.get(PARAM_IDENTITY)

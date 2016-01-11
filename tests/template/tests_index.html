@@ -31,8 +31,8 @@
     <div class="ui dropdown item">
         <i class="sidebar icon"></i>Api List
         <div class="menu">
-            {% for api_uri, description in api_list %}
-            {% if api_uri == curr_api_uri %}
+            {% for api_uri, method_name, description in api_list %}
+            {% if api_uri == curr_api_uri and method_name == curr_api_method %}
             <div class="uri item active">{{ api_uri }}</div>
             {% else %}
             <div class="uri item">{{ api_uri }}</div>
@@ -90,20 +90,27 @@
                 <th>Parameter Value</th>
                 <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
             </tr>
-            {% for name, type, requisite in curr_api_params %}
+            {% for param in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">{{ type }}</td>
-                <td style="text-align:center;">{% if requisite %}●{% endif %}</td>
-                <td class="param-name">{{ name }}</td>
+                <td style="font-size:.8em;">
+                {% if param['type'].has_sub_type %}
+                    <span title="{{ param['type'].requirement }}">{{ param['type'].__name__ }}</span>[
+                    <span title="{{ param['type'].type.requirement }}">{{ param['type'].type.__name__ }}</span>]
+                {% else %}
+                    <span title="{{ param['type'].requirement }}">{{ param['type'].__name__ }}</span>
+                {% endif %}
+                </td>
+                <td style="text-align:center;">{% if param['requisite'] %}●{% endif %}</td>
+                <td class="param-name">{{ param['name'] }}</td>
                 <td>
                     <div class="ui transparent input param">
-                        <input type="text" id="{{ name }}" name="param" onchange="param_onchange(this);">
+                        <input type="text" id="{{ param['name'] }}" name="param" onchange="param_onchange(this);">
                     </div>
                 </td>
                 <td>
-                    <input type="checkbox" id="{{ name }}_select" name="param_select" style="float:right">
+                    <input type="checkbox" id="{{ param['name'] }}_select" name="param_select" style="float:right">
                 </td>
-                <input type="hidden" id="{{ name }}_type" name="param_type" value="{{ type }}">
+                <input type="hidden" id="{{ param['name'] }}_type" name="param_type" value="{{ param['type'] }}">
             </tr>
             {% endfor %}
         </table>
@@ -163,21 +170,21 @@
                 <th style="width:18%;">Input Value</th>
                 <th style="width:52%;">Value Generator URL (append Input Value if need and inputted)</th>
             </tr>
-            {% for name, type, requisite in curr_api_params %}
+            {% for param in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">{{ type }}</td>
-                <td style="text-align:center;">{% if requisite %}●{% endif %}</td>
-                <td>{{ name }}</td>
+                <td style="font-size:.8em;">{{ param['type'] }}</td>
+                <td style="text-align:center;">{% if param['requisite'] %}●{% endif %}</td>
+                <td>{{ param['name'] }}</td>
                 <td>
-                    <label for="{{ name }}_pure_auto">
-                        <input type="checkbox" id="{{ name }}_pure_auto"
-                                {% if params_config.get(name) and params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
+                    <label for="{{ param['name'] }}_pure_auto">
+                        <input type="checkbox" id="{{ param['name'] }}_pure_auto"
+                                {% if params_config.get(param['name']) and params_config[param['name']]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
                     </label>
                 </td>
                 <td>
                     <div class="ui transparent input param-url">
-                        <input type="text" id="{{ name }}_url" name="param_url"
-                                value="{% if params_config.get(name) %}{{ params_config[name]['url']}}{% endif %}">
+                        <input type="text" id="{{ param['name'] }}_url" name="param_url"
+                                value="{% if params_config.get(name) %}{{ params_config[param['name']]['url']}}{% endif %}">
                     </div>
                 </td>
             </tr>

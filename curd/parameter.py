@@ -10,8 +10,9 @@ class Param(object):
     :cvar str requirement: Parameter requirement
     """
     error_code = '__error_code_not_define__'
-    requirement = ''
+    requirement = 'Parameter does not limit'
     support = ['GET', 'POST', 'HEAD', 'OPTIONS', 'DELETE', 'PUT', 'TRACE', 'PATCH']
+    has_sub_type = False
 
     @classmethod
     def conversion(cls, value):
@@ -103,14 +104,16 @@ class List(Param):
     error_code = 'param_type_error_list'
     requirement = 'Parameter must be List[%s]'
     support = ['POST']
+    has_sub_type = True
 
     def __init__(self, _type=None):
         self.type = _type
-        self.__name__ = 'List[%s]' % _type.__name__
+        # self.__name__ = 'List[%s]' % _type.__name__
+        self.__name__ = List.__name__
 
     def check(self, value):
         if type(value) is not list:
-            return self.code
+            return self.error_code
         if self.type:
             for item in value:
                 if item:

@@ -334,7 +334,8 @@ function save_case(code){
         "api_path": curr_api_uri,
         "params": get_params(false),
         "param_mode": param_mode,
-        "code": code,
+        "method": curr_api_method,
+        "code": code
     };
     $.ajax({
         url: '/tests/save_case/',
@@ -413,6 +414,7 @@ function save_config(){
         "api_path": curr_api_uri,
         "post_type": get_post_type(),
         "json_p": $('#json_p').is(':checked'),
+        "method": curr_api_method,
         "params": get_params_config()
     };
     $.ajax({

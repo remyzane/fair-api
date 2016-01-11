@@ -7,3 +7,8 @@ Welcome to Falsk http api's documentation!
 ==========================================
 
 .. include:: contents.rst.inc
+
+.. module:: demo.views
+
+.. autoclass:: GetArea
+    :members:

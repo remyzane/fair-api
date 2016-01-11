@@ -6,11 +6,6 @@ Installation
     ./setup.py egg_info
     pip3 install -r *.egg-info/requires.txt
 
-.. module:: demo.views
-
-.. autoclass:: GetArea
-    :members:
-
 .. module:: curd.plugin.token
 
 .. autoclass:: Token
@@ -18,7 +13,7 @@ Installation
 
 .. module:: curd.parameter
 
-.. autoclass:: Pass
+.. autoclass:: Param
     :members:
 
 .. autoclass:: Str
