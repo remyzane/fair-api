@@ -277,8 +277,6 @@ class CView(object):
                 raise RR(self.result('param_missing', {'parameter': param}))
         # parameter's type of proof and conversion
         for param, value in self.params.items():
-            print(param)
-            print(request.element['param_index'])
             if param not in request.element['param_index']:
                 # if self.json_p:
                 #     # jquery's cache management mechanism will add '_', '1_' parameter,
