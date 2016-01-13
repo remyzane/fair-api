@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import re
+from .exception import RR
 
 
 class Param(object):
@@ -15,9 +16,10 @@ class Param(object):
     has_sub_type = False
 
     @classmethod
-    def conversion(cls, value):
+    def structure(cls, view, value):
         """Check and conversion value
 
+        :param view:
         :param value:
         :return:
         """
@@ -34,9 +36,10 @@ class Str(Param):
     requirement = 'Parameter must be String'
 
     @classmethod
-    def check(cls, value):
-        if type(value) is not str:
-            return cls.code
+    def structure(cls, view, value):
+        if view.application_json and type(value) is not str:
+            raise RR()
+        return value
 
 
 class Bool(Param):
@@ -49,7 +52,7 @@ class Bool(Param):
     requirement = 'Parameter must be Boolean'
 
     @classmethod
-    def conversion(cls, value):
+    def structure(cls, view, value):
         return int(value)
 
 
@@ -63,7 +66,7 @@ class Int(Param):
     requirement = 'Parameter must be Integer'
 
     @classmethod
-    def conversion(cls, value):
+    def structure(cls, view, value):
         """conversion value to int
 
         :param value:   parameter value
@@ -82,12 +85,9 @@ class Float(Param):
     error_code = 'param_type_error_float'
     requirement = 'Parameter must be Float'
 
-    @staticmethod
-    def conversion(value):
-        return float(value)
-
     @classmethod
-    def check(cls, value):
+    def structure(cls, view, value):
+        return float(value)
         if type(value) in [int, float]:
             return
         return cls.code
@@ -111,13 +111,14 @@ class List(Param):
         # self.__name__ = 'List[%s]' % _type.__name__
         self.__name__ = List.__name__
 
-    def check(self, value):
+    def structure(self, view, value):
+
         if type(value) is not list:
             return self.error_code
         if self.type:
             for item in value:
                 if item:
-                    error_code = self.type.check(item)
+                    error_code = self.type.structure(item)
                     if error_code:
                         return error_code
 
@@ -132,7 +133,7 @@ class Mail(Param):
     requirement = 'Parameter must be email address'
 
     @classmethod
-    def check(cls, value):
+    def structure(cls, view, value):
         if type(value) is not str:
             return cls.code
         if value and not re.match("([^@|\s]+@[^@]+\.[^@|\s]+)", value):

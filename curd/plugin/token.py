@@ -5,8 +5,7 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from curd.plugin import Plugin
-from curd.view import RR, CView
+from curd import Plugin, CView, JsonResponse
 
 
 class TokenException(Exception):
@@ -62,6 +61,8 @@ class Token(Plugin):
         """
         exec('from %s import %s as key_provider' % tuple(params['key_provider'].rsplit('.', 1)))
         cls.__key_provider = locals()['key_provider']
+        exec('from %s import %s as exception_class' % tuple(params['exception_class'].rsplit('.', 1)))
+        cls.__exception_class = locals()['exception_class']
 
     @classmethod
     def init_view(cls, view_class):
@@ -83,7 +84,7 @@ class Token(Plugin):
         return i
 
     @classmethod
-    def before_request_aa(cls, view):
+    def before_request(cls, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -97,14 +98,14 @@ class Token(Plugin):
         token = view.params.get(PARAM_TOKEN)
         identity = view.params.get(PARAM_IDENTITY)
         if not token:
-            raise RR(view.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN}))
+            raise cls.__exception_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN})
         if not identity:
-            raise RR(view.result('token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY}))
+            raise cls.__exception_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY})
         # check token
         try:
             cls.check(identity, token)
         except TokenException as e:
-            raise RR(view.result('token_invalid', {'error': str(e)}))
+            raise cls.__exception_class(view, 'token_invalid', {'error': str(e)})
 
     @classmethod
     def create(cls, identity, timestamp=None):

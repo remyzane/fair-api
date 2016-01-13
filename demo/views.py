@@ -2,7 +2,7 @@
 
 import os
 import logging
-# from flask import session
+from flask import session, request
 from peewee import CharField, Model
 from curd import CView, Int, Str, Mail
 from curd.plugin.token import Token
@@ -56,7 +56,6 @@ class GetArea(CView):
 
         :plugin: token
         :param  Int  bb:
-        :param  List[Int]  aa:
         :param  Int  cccccccccccccccccccc:
         :param Int * area_id: area idaaddd
         :param Param * area_id_2: *area* id \
@@ -64,7 +63,9 @@ class GetArea(CView):
         :param Str area_id_3: area id \
         aaa
         :raise id_not_exist: Record does not exist.
+        :response: json
         """
+
         if area_id > 100:
             return self.result('id_not_exist')
         else:
@@ -73,6 +74,7 @@ class GetArea(CView):
                                            'superior': 0})
 
 #
+        # :param  List[Int]  aa:
 # class GetUser(CView):
 #     description = '''Get the user information through his/hers id.'''
 #     parameters = {'identity': Str, 'token': Str, 'id': Int}

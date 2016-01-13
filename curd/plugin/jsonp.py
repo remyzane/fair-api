@@ -39,6 +39,12 @@ class JsonP(Plugin):
 
         :param CView view: view class instance
         """
+                        # if self.json_p:
+                #     # jquery's cache management mechanism will add '_', '1_' parameter,
+                #     # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
+                #     if param == self.json_p or param == '_' or param == '1_':
+                #         continue
+
         pass
 
     @classmethod

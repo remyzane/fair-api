@@ -118,6 +118,7 @@ function get_params(auto_gen_param){
                 }
             }
             var type = $("#" + this.id + "_type").val();
+            console.log(type);
             if (type == 'Int' || type == 'Float') {
                 if (value) {
                     var _value = new Number(value);

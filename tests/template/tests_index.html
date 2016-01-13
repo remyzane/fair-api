@@ -110,7 +110,13 @@
                 <td>
                     <input type="checkbox" id="{{ param['name'] }}_select" name="param_select" style="float:right">
                 </td>
-                <input type="hidden" id="{{ param['name'] }}_type" name="param_type" value="{{ param['type'] }}">
+                <input type="hidden" id="{{ param['name'] }}_type" name="param_type"
+                       {% if param['type'].has_sub_type %}
+                       value="{{ '%s[%s]' % (param['type'].__name__, param['type'].type.__name__) }}">
+                {% else %}
+                value="{{ param['type'].__name__ }}">
+                {% endif %}
+
             </tr>
             {% endfor %}
         </table>

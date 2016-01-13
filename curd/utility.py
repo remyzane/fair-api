@@ -172,3 +172,13 @@ def rst_to_html(source):
     if html.endswith(b'</p>'):
         html = html[:-4]
     return html.decode()
+
+
+def get_request_params(request):
+    if request.method == 'GET':
+        return request.args.copy().to_dict()
+    else:
+        if request.json is None:
+            return request.form.copy().to_dict()    # Content-Type: application/x-www-form-urlencoded
+        else:
+            return request.json.copy()              # Content-Type: application/json

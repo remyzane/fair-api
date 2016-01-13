@@ -9,8 +9,9 @@ from flask.views import request
 from flask import Response
 
 from .configure import db
+from .response import BaseResponse, JsonResponse
 from .parameter import Param, Str, List
-from .utility import rst_to_html
+from .utility import rst_to_html, get_request_params
 
 log = logging.getLogger(__name__)
 
@@ -21,13 +22,6 @@ _request_params_log = '''
 Request Params: -----------------------------------------
 %s
 ---------------------------------------------------------'''
-
-
-class RaiseResponse(Exception):
-    def __init__(self, response):
-        self.response = response
-
-RR = RaiseResponse
 
 
 class CView(object):
@@ -94,6 +88,7 @@ class CView(object):
             'param_index': [],
             'param_not_null': [],
             'param_allow_null': [],
+            'param_types': {},
             'code_index': ['success', 'exception', 'param_unknown', 'param_missing'],
             'code_dict': {
                 'success': 'Success',
@@ -155,8 +150,9 @@ class CView(object):
                 element['param_not_null'].append(items[-1])
             else:
                 element['param_allow_null'].append(items[-1])
-            element['param_dict'][items[-1]] = param
             element['param_list'].append(param)
+            element['param_dict'][items[-1]] = param
+            element['param_types'][items[-1]] = param_type
             if isinstance(param['type'], List):
                 cls.__element_code_set(element, param_type.type.error_code, param_type.type.requirement)
                 cls.__element_code_set(element, param_type.error_code, param_type.requirement % param_type.type.__name__)
@@ -221,7 +217,7 @@ class CView(object):
             #         return self.dispatch_request(*args, **kwargs)
             # else:
             #     return self.dispatch_request(*args, **kwargs)
-            return self.dispatch_request(*args, **kwargs)
+            return self.__response(*args, **kwargs)
 
         view_wrapper.view_class = cls
         view_wrapper.__name__ = name
@@ -233,108 +229,62 @@ class CView(object):
 
     def __init__(self):
         # the following variables is different in per request
+        self.request = request
+        self.application_json = False if request.json is None else True     # Content-Type: application/json
+        self.method = self.request_methods[request.method]
+        self.element = self.method.element
+        self.types = self.element['param_types']
+        self.codes = self.element['code_dict']
         self.params = {}
         self.params_log = ''
         self.process_log = ''
-        self.post_json = False  # application/json -> True,  get and post:application/x-www-form-urlencoded -> False
 
-    def dispatch_request(self, *args, **kwargs):
+    def __response(self, *args, **kwargs):
         try:
-            request.element = self.request_methods[request.method].element
-            request.codes = request.element['code_dict']
             # get request parameters
-            self.get_request_params()
-            # check parameter's type and format
-            self.check_parameters()
+            self.params = get_request_params(request)
+            print(self.params)
             # plugin
-            for plugin in self.plugins:
+            for plugin in self.element['plugin']:
                 plugin.before_request(self)
+
+            # structure parameters
+            self.__structure_params()
+
             # dispatch request
-            return getattr(self, request.method.lower())(self.params, *args, **kwargs)
-        except RR as e:
-            return e.response
+            # return getattr(self, request.method.lower())(self.params, *args, **kwargs)
+            return self.method(self.params, *args, **kwargs)
+        except BaseResponse as base_response:
+            return base_response.response()
         except:
             return self.result('exception', exception=True)
 
     # get request parameters
-    def get_request_params(self):
-        if request.method == 'GET':
-            self.params = request.args.copy()
-            self.params_log = _request_params_log % self.params.to_dict()    # request.query_string
-        else:
-            if request.json:                            # Content-Type: application/json
-                self.post_json = True
-                self.params = request.json.copy()
-            else:                                       # Content-Type: application/x-www-form-urlencoded
-                self.params = request.form.copy()
-            self.params_log = _request_params_log % self.params
+    def __structure_params(self):
 
-    # check parameter's type and format
-    def check_parameters(self):
+        self.params_log = _request_params_log % self.params
+
         # check the necessary parameter's value is sed
-        for param in request.element['param_not_null']:
+        for param in self.element['param_not_null']:
             if self.params.get(param, '') == '':       # 0 is ok
-                raise RR(self.result('param_missing', {'parameter': param}))
+                raise JsonResponse(self, 'param_missing', {'parameter': param})
         # parameter's type of proof and conversion
         for param, value in self.params.items():
-            if param not in request.element['param_index']:
-                # if self.json_p:
-                #     # jquery's cache management mechanism will add '_', '1_' parameter,
-                #     # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
-                #     if param == self.json_p or param == '_' or param == '1_':
-                #         continue
-                raise RR(self.result('param_unknown', {'parameter': param, 'value': value}))
+            if param not in self.element['param_index']:
+                raise JsonResponse(self, 'param_unknown', {'parameter': param, 'value': value})
 
             if value is not None:
-                _type = request.element['param_dict'][param]['type']
-                # type conversion (application/json don't need) (Str and its subclasses don't need)
-                if not self.post_json and not issubclass(_type, Str):
-                    try:
-                        value = _type.conversion(value) if value else None
-                        self.params[param] = value
-                    except ValueError:
-                        raise RR(self.result(_type.code, {'parameter': param, 'value': value}))
-                # parameter check
-                error_code = _type.check(value)
-                if error_code:
-                    raise RR(self.result(error_code, {'parameter': param, 'value': value}))
+                self.params[param] = self.types[param].structure(self, value)
 
-    # get result for return（HttpResponse）
-    def result(self, code, data={}, status=None, exception=False):
-        # rollback the current transaction
-        # if self.auto_rollback and code != 'success':
-        #     self.db.rollback()
-        # data of return
-        ret = {'code': code, 'message': request.codes[code], 'data': data}
-        # log output
-        self.log(code, ret, exception)
-        # return result
-        # json_p = self.params.get(self.json_p) if self.json_p else None
-        # if json_p:
-        #     return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
-        # else:
-        #     return Response(json.dumps(ret), content_type=JSON, status=status)
-        return Response(json.dumps(ret), content_type=JSON, status=status)
-
-    # log output
-    def log(self, code, data, exception):
-        if self.process_log:
-            self.process_log = '''
-Process Flow: -------------------------------------------
-%s
----------------------------------------------------------''' % self.process_log
-        debug_info = '''%s
-Return Data: --------------------------------------------
-%s
----------------------------------------------------------''' % (self.process_log, str(data))
-        if code == 'success':
-            # different log output for performance
-            if log.parent.level == logging.DEBUG:
-                log.info('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)
-            else:
-                log.info('%s %s %s', request.path, request.codes[code], self.params_log)
-        else:
-            if exception:
-                log.exception('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)
-            else:
-                log.error('%s %s %s %s', request.path, request.codes[code], self.params_log, debug_info)
+                #
+                # # type conversion (application/json don't need) (Str and its subclasses don't need)
+                # if not issubclass(_type, Str):
+                #     try:
+                #         value = _type.conversion(value) if value else None
+                #         self.params[param] = value
+                #     except ValueError:
+                #         raise RR(self.result(_type.code, {'parameter': param, 'value': value}))
+                # # parameter check
+                # error_code = _type.check(value)
+                # if error_code:
+                #     raise RR(self.result(error_code, {'parameter': param, 'value': value}))
