@@ -5,48 +5,6 @@ simple_server:
   port: 8081
 
 
-flask:
-#  DEBUG: true
-
-  # session secret key, in order to optimal performance comment it if need not
-  # SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
-
-  # session lifetime (days)
-  # need set flask.session['remember'] = 'set', or set remember=True while call flask_login.login_user
-  # PERMANENT_SESSION_LIFETIME: 31
-
-  # login address, unauthorized access will redirect to this address
-  # need flask_login support, and set app.login_manager.login_view = app.config['login_url']
-  # login_url: '/xxx/login'
-
-
-# saved in flask.current_app.config
-app:
-  tests_access_keys:
-    - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
-
-  plugins:
-    token:
-      class: curd.plugin.token.Token
-      key_provider: demo.token.get_token_key
-      exception_class: curd.response.JsonResponse
-#
-#    json_p:
-#      class: curd.plugin.jsonp.JsonP
-#      callback: callback
-#
-
-  # Parameter types
-  parameter_types:
-    - curd.parameter
-
-
-  # View packages
-  view_packages:
-    - tests
-    - demo
-
-
 # Database list
 databases:
   -
@@ -64,6 +22,49 @@ databases:
       database: xxx
       user: xxx
       password: xxx
+
+# saved in flask.current_app.config
+app:
+  tests_access_keys:
+    - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
+
+  plugins:
+    token:
+      class: curd.plugin.token.Token
+      key_provider: demo.token.get_token_key
+      exception_class: curd.response.JsonResponse
+#
+#    json_p:
+#      class: curd.plugin.jsonp.JsonP
+#      callback: callback
+
+  # View packages
+  view_packages:
+    - tests
+    - demo
+
+  # Parameter types
+  parameter_types:
+    - curd.parameter
+
+  responses:
+    json: curd.response.JsonResponse
+    html: curd.response.HtmlResponse
+    default: json
+
+flask:
+#  DEBUG: true
+
+  # session secret key, in order to optimal performance comment it if need not
+  # SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
+
+  # session lifetime (days)
+  # need set flask.session['remember'] = 'set', or set remember=True while call flask_login.login_user
+  # PERMANENT_SESSION_LIFETIME: 31
+
+  # login address, unauthorized access will redirect to this address
+  # need flask_login support, and set app.login_manager.login_view = app.config['login_url']
+  # login_url: '/xxx/login'
 
 
 # Logging

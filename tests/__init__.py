@@ -140,7 +140,6 @@ def index():
                'curr_api_description': curr_api_description,
                'post_type': post_type,
                'json_p': json_p}
-
     return render_template('tests/template/tests_index.html', **context)
 
 

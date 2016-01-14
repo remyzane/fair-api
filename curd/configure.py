@@ -6,7 +6,7 @@ import pkgutil
 import datetime
 
 from .parameter import Param
-from .utility import class_name_to_api_name
+from .utility import class_name_to_api_name, get_cls_with_path
 
 log = logging.getLogger(__name__)
 
@@ -71,9 +71,7 @@ def setup_app(app, config):
 
     app.config['plugins'] = app.config.get('plugins') or {}
     for name, config in app.config['plugins'].items():
-        class_path = config.pop('class')
-        exec('from %s import %s as plugin' % tuple(class_path.rsplit('.', 1)))
-        plugin_class = locals()['plugin']
+        plugin_class = get_cls_with_path(config.pop('class'))
         plugin_class.reconstruct(config)
         app.config['plugins'][name] = plugin_class
 

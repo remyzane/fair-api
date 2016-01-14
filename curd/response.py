@@ -5,7 +5,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class BaseResponse(Exception):
+class ResponseRaise(Exception):
     def __init__(self, content):
         self.content = content
 
@@ -13,7 +13,7 @@ class BaseResponse(Exception):
         return self.content
 
 
-class JsonResponse(BaseResponse):
+class JsonRaise(ResponseRaise):
     def __init__(self, code, data={}, status=None, exception=False):
         self.code = code
         self.data = data
@@ -26,7 +26,7 @@ class JsonResponse(BaseResponse):
         # if self.auto_rollback and code != 'success':
         #     self.db.rollback()
         # data of return
-        ret = {'code': code, 'message': self.codes[code], 'data': data}
+        ret = {'code': self.code, 'message': self.codes[self.code], 'data': self.data}
         # log output
         self.log(code, ret, exception)
         # return result

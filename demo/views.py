@@ -65,6 +65,8 @@ class GetArea(CView):
         :raise id_not_exist: Record does not exist.
         :response: json
         """
+        from flask import jsonify
+        print(jsonify(aa=1, bb=2))
 
         if area_id > 100:
             return self.result('id_not_exist')

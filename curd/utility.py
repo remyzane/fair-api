@@ -5,6 +5,7 @@ import sys
 import yaml
 import string
 import logging
+from importlib import import_module
 from argparse import HelpFormatter
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
 from docutils.core import publish_string
@@ -182,3 +183,11 @@ def get_request_params(request):
             return request.form.copy().to_dict()    # Content-Type: application/x-www-form-urlencoded
         else:
             return request.json.copy()              # Content-Type: application/json
+
+
+def get_cls_with_path(cls):
+    module_name, class_name = cls.rsplit(".", 1)
+    module = import_module(module_name)
+    return getattr(module, class_name)
+
+
