@@ -49,6 +49,7 @@ app:
 
   responses:
     json: curd.response.JsonRaise
+    jsonp: curd.response.JsonPRaise
     default: json
 
 flask:

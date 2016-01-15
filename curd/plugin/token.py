@@ -91,7 +91,7 @@ class Token(Plugin):
 
         :param CView view: Api class instance for request
         :return:
-        :raise RR: RaiseResponse
+        :raise raise_class:
         """
 
         # get token parameter

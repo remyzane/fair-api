@@ -27,7 +27,7 @@ class CView(object):
     element: {
         title: 'xxxxx',
         description: 'xxxxxx',
-        response: response_class,
+        response: response,
         plugin: (class_A, class_B),
         param_not_null: ('xx', 'yy'),
         param_allow_null: ('zz',),
@@ -107,7 +107,7 @@ class CView(object):
         element['param_allow_null'] = tuple(element['param_allow_null'])
         element['param_index'] = element['param_not_null'] + element['param_allow_null']
         element['code_index'] = tuple(element['code_index'])
-        element['response_class'] = element['response_class'] or app.config['responses']['default']
+        element['response'] = element.get('response', app.config['responses']['default'])
 
     @classmethod
     def __element_code_set(cls, element, error_code, error_message):
@@ -234,9 +234,9 @@ class CView(object):
         self.application_json = False if request.json is None else True     # Content-Type: application/json
         self.method = self.request_methods[request.method]
         self.element = self.method.element
+        self.raise_response = self.element['response']
         self.types = self.element['param_types']
         self.codes = self.element['code_dict']
-        self.response_class = self.element['response_class']
         self.params = {}
         self.params_log = ''
         self.process_log = ''
@@ -259,7 +259,7 @@ class CView(object):
         except ResponseRaise as response_raise:
             return response_raise.response()
         except:
-            return self.result('exception', exception=True)
+            return self.r('exception', exception=True)
 
     # get request parameters
     def __structure_params(self):
@@ -285,8 +285,19 @@ class CView(object):
                 #         value = _type.conversion(value) if value else None
                 #         self.params[param] = value
                 #     except ValueError:
-                #         raise RR(self.result(_type.code, {'parameter': param, 'value': value}))
+                #         raise RR(self.response(_type.code, {'parameter': param, 'value': value}))
                 # # parameter check
                 # error_code = _type.check(value)
                 # if error_code:
-                #     raise RR(self.result(error_code, {'parameter': param, 'value': value}))
+                #     raise RR(self.response(error_code, {'parameter': param, 'value': value}))
+
+    def r(self, code, data=None, status=None, exception=False):
+        rr = self.raise_response(self, code, data, status, exception)
+        return rr.response()
+
+    def rr(self, code, data=None, status=None, exception=False):
+        """Raise response
+
+        :return:
+        """
+        return self.raise_response(self, code, data, status, exception)

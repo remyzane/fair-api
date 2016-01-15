@@ -78,10 +78,11 @@ def setup_app(app, config):
     app.config['responses'] = app.config.get('responses') or {}
     for name, class_path in app.config['responses'].items():
         if name == 'default':
-            app.config['responses'][name] = app.config['responses'][class_path]
+            default_class_sign = class_path
         else:
             response_class = get_cls_with_path(class_path)
             app.config['responses'][name] = response_class
+    app.config['responses']['default'] = app.config['responses'][default_class_sign]
 
 
 def parameter_types(app, config):

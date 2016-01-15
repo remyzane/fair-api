@@ -37,7 +37,7 @@ class Str(Param):
     @classmethod
     def structure(cls, view, value):
         if view.application_json and type(value) is not str:
-            raise RR()
+            raise view.rr('')
         return value
 
 

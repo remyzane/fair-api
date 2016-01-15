@@ -13,7 +13,7 @@ from .utility import SimpleAes
 log = logging.getLogger(__name__)
 
 
-class GetArea(CView):
+class Area(CView):
     # description = '''Get the area information through it's id.'''
     # parameters = {'id': Int}
     # requisite = ('id',)
@@ -42,20 +42,24 @@ class GetArea(CView):
     #     :raise id_not_exist: Record does not exist.
     #     """
     #     if area_id > 100:
-    #         return self.result('id_not_exist')
+    #         return self.r('id_not_exist')
     #     else:
-    #         return self.result('success', {'id': area_id,
+    #         return self.r('success', {'id': area_id,
     #                                        'name': 'area_%d' % area_id,
     #                                        'superior': 0})
 
+    def aaa(self):
+        self.raise_response()
+        raise self.rr('')
+
     def post(self, area_id):
+        return 'aaa'
         """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaa   aaa *Post the area information through it's id.*
 
         aaaaaabbbbbbbbbbbbccccccccc aaaaccc
         ddddffffsssssssssssssssssss ddddfff
 
-        :response: json
-        :plugin: token
+        :response: jsonp
         :param  Int  bb:
         :param  Int  cccccccccccccccccccc:
         :param Int * area_id: area idaaddd
@@ -69,9 +73,9 @@ class GetArea(CView):
         print(jsonify(aa=1, bb=2))
 
         if area_id > 100:
-            return self.result('id_not_exist')
+            return self.r('id_not_exist')
         else:
-            return self.result('success', {'id': area_id,
+            return self.r('success', {'id': area_id,
                                            'name': 'area_%d' % area_id,
                                            'superior': 0})
 
@@ -90,9 +94,9 @@ class GetArea(CView):
 #
 #         user_id = params['id']
 #         if user_id > 100:
-#             return self.result('id_not_exist')
+#             return self.r('id_not_exist')
 #         else:
-#             return self.result('success', {'id': user_id,
+#             return self.r('success', {'id': user_id,
 #                                            'name': 'user_%d' % user_id,
 #                                            'email': 'user_%s@yourself.com' % user_id})
 #
@@ -111,16 +115,16 @@ class GetArea(CView):
 #         user_id = params['id']
 #         user_id = SimpleAes.decrypt(user_id)
 #         if not user_id:
-#             return self.result('id_invalid', {'error': 'Unable to decrypt'})
+#             return self.r('id_invalid', {'error': 'Unable to decrypt'})
 #         try:
 #             user_id = int(user_id)
 #         except ValueError:
-#             return self.result('id_invalid', {'error': 'id must be integer', 'id': user_id})
+#             return self.r('id_invalid', {'error': 'id must be integer', 'id': user_id})
 #
 #         if user_id > 100:
-#             return self.result('id_not_exist')
+#             return self.r('id_not_exist')
 #         else:
-#             return self.result('success', {'id': user_id,
+#             return self.r('success', {'id': user_id,
 #                                            'name': 'user_%d' % user_id,
 #                                            'email': 'user_%s@yourself.com' % user_id})
 #
@@ -139,7 +143,7 @@ class GetArea(CView):
 #         self.process_log += 'do job 1' + os.linesep
 #         self.process_log += 'do job 2' + os.linesep
 #         self.process_log += 'do job 3'
-#         return self.result('success', {'id': 1})
+#         return self.r('success', {'id': 1})
 #
 #
 # class Session(CView):
@@ -152,11 +156,11 @@ class GetArea(CView):
 #
 #     def get(self, params):
 #         if not app.config.get('SECRET_KEY'):
-#             return self.result('not_configured')
+#             return self.r('not_configured')
 #         if not session.get('user'):
-#             return self.result('not_login')
+#             return self.r('not_login')
 #
-#         return self.result('success', {'key': session['user']})
+#         return self.r('success', {'key': session['user']})
 #
 #
 # class User(Model):
@@ -171,4 +175,4 @@ class GetArea(CView):
 #         for index in range(1, 100):
 #             id = index % 100 or 1
 #             username = User.get(User.id == id).username
-#         return self.result('success')
+#         return self.r('success')

@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
 import logging
+from flask import Response
 
 log = logging.getLogger(__name__)
 
@@ -10,7 +12,8 @@ JSON_P = 'application/javascript; charset=utf-8'
 
 class ResponseRaise(Exception):
 
-    def __init__(self, code, data=None, status=None, exception=False):
+    def __init__(self, view, code, data=None, status=None, exception=False):
+        self.view = view
         self.code = code
         self.data = data
         self.status = status
@@ -28,16 +31,16 @@ class JsonRaise(ResponseRaise):
         # if self.auto_rollback and code != 'success':
         #     self.db.rollback()
         # data of return
-        ret = {'code': self.code, 'message': self.codes[self.code], 'data': self.data}
+        ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
         # log output
-        self.log(code, ret, exception)
+        # self.log(code, ret, exception)
         # return result
         # json_p = self.params.get(self.json_p) if self.json_p else None
         # if json_p:
         #     return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
         # else:
         #     return Response(json.dumps(ret), content_type=JSON, status=status)
-        return Response(json.dumps(ret), content_type=JSON, status=status)
+        return Response(json.dumps(ret), content_type=JSON, status=self.status)
 
     # log output
     def log(self, code, data, exception):
@@ -62,3 +65,8 @@ Return Data: --------------------------------------------
             else:
                 log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
 
+
+class JsonPRaise(ResponseRaise):
+
+    def response(self):
+        pass
