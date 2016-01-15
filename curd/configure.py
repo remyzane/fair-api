@@ -75,6 +75,14 @@ def setup_app(app, config):
         plugin_class.reconstruct(config)
         app.config['plugins'][name] = plugin_class
 
+    app.config['responses'] = app.config.get('responses') or {}
+    for name, class_path in app.config['responses'].items():
+        if name == 'default':
+            app.config['responses'][name] = app.config['responses'][class_path]
+        else:
+            response_class = get_cls_with_path(class_path)
+            app.config['responses'][name] = response_class
+
 
 def parameter_types(app, config):
     types = {}

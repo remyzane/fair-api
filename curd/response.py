@@ -4,21 +4,23 @@ import logging
 
 log = logging.getLogger(__name__)
 
+JSON = 'application/json; charset=utf-8'
+JSON_P = 'application/javascript; charset=utf-8'
+
 
 class ResponseRaise(Exception):
-    def __init__(self, content):
-        self.content = content
+
+    def __init__(self, code, data=None, status=None, exception=False):
+        self.code = code
+        self.data = data
+        self.status = status
+        self.exception = exception
 
     def response(self):
         return self.content
 
 
 class JsonRaise(ResponseRaise):
-    def __init__(self, code, data={}, status=None, exception=False):
-        self.code = code
-        self.data = data
-        self.status = status
-        self.exception = exception
 
     def response(self):
 

@@ -32,7 +32,7 @@ app:
     token:
       class: curd.plugin.token.Token
       key_provider: demo.token.get_token_key
-      exception_class: curd.response.JsonResponse
+      raise_class: curd.response.JsonRaise
 #
 #    json_p:
 #      class: curd.plugin.jsonp.JsonP
@@ -48,8 +48,7 @@ app:
     - curd.parameter
 
   responses:
-    json: curd.response.JsonResponse
-    html: curd.response.HtmlResponse
+    json: curd.response.JsonRaise
     default: json
 
 flask:

@@ -9,14 +9,11 @@ from flask.views import request
 from flask import Response
 
 from .configure import db
-from .response import BaseResponse, JsonResponse
+from .response import ResponseRaise, JsonRaise
 from .parameter import Param, Str, List
 from .utility import rst_to_html, get_request_params
 
 log = logging.getLogger(__name__)
-
-JSON = 'application/json; charset=utf-8'
-JSON_P = 'application/javascript; charset=utf-8'
 
 _request_params_log = '''
 Request Params: -----------------------------------------
@@ -30,6 +27,7 @@ class CView(object):
     element: {
         title: 'xxxxx',
         description: 'xxxxxx',
+        response: response_class,
         plugin: (class_A, class_B),
         param_not_null: ('xx', 'yy'),
         param_allow_null: ('zz',),
@@ -99,7 +97,7 @@ class CView(object):
         }
 
     @classmethod
-    def __element_clear_up(cls, element):
+    def __element_clear_up(cls, app, element):
         if not element['param_not_null']:
             element['code_index'].remove('param_missing')
             del element['code_dict']['param_missing']
@@ -109,6 +107,7 @@ class CView(object):
         element['param_allow_null'] = tuple(element['param_allow_null'])
         element['param_index'] = element['param_not_null'] + element['param_allow_null']
         element['code_index'] = tuple(element['code_index'])
+        element['response_class'] = element['response_class'] or app.config['responses']['default']
 
     @classmethod
     def __element_code_set(cls, element, error_code, error_message):
@@ -120,7 +119,9 @@ class CView(object):
     def __parse_doc_field(cls, app, method, element, doc_field):
         name = doc_field.children[0].astext()
         content = rst_to_html(doc_field.children[1].rawsource)
-        if name == 'plugin':
+        if name == 'response':
+            element['response'] = app.config['responses'][content]
+        elif name == 'plugin':
             for item in content.split():
                 plugin = app.config['plugins'].get(item)
                 if not plugin:
@@ -200,7 +201,7 @@ class CView(object):
         for method in cls.request_methods.values():
             cls.__element_init(method)
             cls.__parse_doc_tree(app, method, method.element, publish_doctree(method.__doc__))
-            cls.__element_clear_up(method.element)
+            cls.__element_clear_up(app, method.element)
             # print(method.element)
 
         # setting database
@@ -235,6 +236,7 @@ class CView(object):
         self.element = self.method.element
         self.types = self.element['param_types']
         self.codes = self.element['code_dict']
+        self.response_class = self.element['response_class']
         self.params = {}
         self.params_log = ''
         self.process_log = ''
@@ -254,8 +256,8 @@ class CView(object):
             # dispatch request
             # return getattr(self, request.method.lower())(self.params, *args, **kwargs)
             return self.method(self.params, *args, **kwargs)
-        except BaseResponse as base_response:
-            return base_response.response()
+        except ResponseRaise as response_raise:
+            return response_raise.response()
         except:
             return self.result('exception', exception=True)
 
@@ -267,11 +269,11 @@ class CView(object):
         # check the necessary parameter's value is sed
         for param in self.element['param_not_null']:
             if self.params.get(param, '') == '':       # 0 is ok
-                raise JsonResponse(self, 'param_missing', {'parameter': param})
+                raise JsonRaise(self, 'param_missing', {'parameter': param})
         # parameter's type of proof and conversion
         for param, value in self.params.items():
             if param not in self.element['param_index']:
-                raise JsonResponse(self, 'param_unknown', {'parameter': param, 'value': value})
+                raise JsonRaise(self, 'param_unknown', {'parameter': param, 'value': value})
 
             if value is not None:
                 self.params[param] = self.types[param].structure(self, value)

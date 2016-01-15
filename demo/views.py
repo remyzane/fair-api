@@ -54,6 +54,7 @@ class GetArea(CView):
         aaaaaabbbbbbbbbbbbccccccccc aaaaccc
         ddddffffsssssssssssssssssss ddddfff
 
+        :response: json
         :plugin: token
         :param  Int  bb:
         :param  Int  cccccccccccccccccccc:
@@ -63,7 +64,6 @@ class GetArea(CView):
         :param Str area_id_3: area id \
         aaa
         :raise id_not_exist: Record does not exist.
-        :response: json
         """
         from flask import jsonify
         print(jsonify(aa=1, bb=2))
