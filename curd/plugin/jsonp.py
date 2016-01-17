@@ -9,7 +9,7 @@ class JsonP(Plugin):
 
     :cvar dict codes: error code and message
     """
-    codes = {}
+    error_codes = {}
 
     @classmethod
     def reconstruct(cls, params):
@@ -19,17 +19,27 @@ class JsonP(Plugin):
 
         :param dict params: plug config parameters
         """
+
+    # @classmethod
+    # def __check(cls, method):
+    #     # POST method not support jsonp
+    #     elif hasattr(cls, 'post'):
+    #         if cls.json_p:
+    #             raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
+
         pass
 
     @classmethod
-    def init_view(cls, view_class):
+    def init_view(cls, view_class, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
         :param CView view_class: view class
         """
-        pass
+        if method.__name__ is not 'get':
+            raise Exception('Error define in %s.%s: json_p plugin only support GET method.' %
+                            (view_class.__name__, method.__name__))
 
     @classmethod
     def before_request(cls, view):

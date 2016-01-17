@@ -20,13 +20,14 @@ class ResponseRaise(Exception):
         self.exception = exception
 
     def response(self):
-        return self.content
+        print('aabbccd112233')
+        return 'aa'
+        return self.data
 
 
 class JsonRaise(ResponseRaise):
 
     def response(self):
-
         # rollback the current transaction
         # if self.auto_rollback and code != 'success':
         #     self.db.rollback()
@@ -69,4 +70,4 @@ Return Data: --------------------------------------------
 class JsonPRaise(ResponseRaise):
 
     def response(self):
-        pass
+        return '5555'

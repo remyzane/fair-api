@@ -33,10 +33,10 @@ app:
       class: curd.plugin.token.Token
       key_provider: demo.token.get_token_key
       raise_class: curd.response.JsonRaise
-#
-#    json_p:
-#      class: curd.plugin.jsonp.JsonP
-#      callback: callback
+
+    json_p:
+      class: curd.plugin.jsonp.JsonP
+      callback: callback
 
   # View packages
   view_packages:
@@ -49,7 +49,7 @@ app:
 
   responses:
     json: curd.response.JsonRaise
-    jsonp: curd.response.JsonPRaise
+    json_p: curd.response.JsonPRaise
     default: json
 
 flask:

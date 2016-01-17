@@ -21,7 +21,7 @@ class Plugin(object):
         pass
 
     @classmethod
-    def init_view(cls, view_class):
+    def init_view(cls, view_class, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.

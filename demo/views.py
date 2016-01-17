@@ -33,7 +33,7 @@ class Area(CView):
     #     ddddffffsssssssssssssssssss ddddfff
     #
     #     :plugin: token
-    #     :param  Int  cccccccccccccccccccc:
+    #     :param  Int  ccccc:
     #     :param Int * area_id: area idaaddd
     #     :param Param * area_id_2: *area* id \
     #     *aaa*
@@ -52,16 +52,15 @@ class Area(CView):
         self.raise_response()
         raise self.rr('')
 
-    def post(self, area_id):
-        return 'aaa'
+    def post(self, bb, cc, area_id, area_id_2, area_id_3):
         """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaa   aaa *Post the area information through it's id.*
 
         aaaaaabbbbbbbbbbbbccccccccc aaaaccc
         ddddffffsssssssssssssssssss ddddfff
 
-        :response: jsonp
+        :response: json
         :param  Int  bb:
-        :param  Int  cccccccccccccccccccc:
+        :param  Int  cc:
         :param Int * area_id: area idaaddd
         :param Param * area_id_2: *area* id \
         *aaa*
@@ -69,9 +68,6 @@ class Area(CView):
         aaa
         :raise id_not_exist: Record does not exist.
         """
-        from flask import jsonify
-        print(jsonify(aa=1, bb=2))
-
         if area_id > 100:
             return self.r('id_not_exist')
         else:

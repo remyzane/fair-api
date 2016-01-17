@@ -50,6 +50,11 @@ class CView(object):
             },
             ...
         },
+        param_default: {
+            'xx': None,
+            'yy': None,
+            'zz': None
+        }
         code_index: ('xx', 'yy', 'zz'),
         code_dict: {
             'xx': 'xxxxxxx',
@@ -84,6 +89,7 @@ class CView(object):
             'param_list': [],
             'param_dict': {},
             'param_index': [],
+            'param_default': {},
             'param_not_null': [],
             'param_allow_null': [],
             'param_types': {},
@@ -153,6 +159,7 @@ class CView(object):
                 element['param_allow_null'].append(items[-1])
             element['param_list'].append(param)
             element['param_dict'][items[-1]] = param
+            element['param_default'][items[-1]] = None
             element['param_types'][items[-1]] = param_type
             if isinstance(param['type'], List):
                 cls.__element_code_set(element, param_type.type.error_code, param_type.type.requirement)
@@ -185,24 +192,21 @@ class CView(object):
         for item in doc_tree.children:
             cls.__parse_doc_tree(app, method, element, item)
 
-
-    # @classmethod
-    # def __check(cls, method):
-    #     # POST method not support jsonp
-    #     elif hasattr(cls, 'post'):
-    #         if cls.json_p:
-    #             raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
-
     @classmethod
     def __reconstruct(cls, app, view_wrapper):
 
         cls.__request_methods(view_wrapper)
 
         for method in cls.request_methods.values():
+            if not method.__doc__:
+                raise Exception('%s.%s doc not undefined' % (cls.__name__, method.__name__))
             cls.__element_init(method)
             cls.__parse_doc_tree(app, method, method.element, publish_doctree(method.__doc__))
             cls.__element_clear_up(app, method.element)
             # print(method.element)
+
+            for plugin in method.element['plugin']:
+                plugin.init_view(cls, method)
 
         # setting database
         # cls.db = db.get(cls.database)
@@ -218,7 +222,9 @@ class CView(object):
             #         return self.dispatch_request(*args, **kwargs)
             # else:
             #     return self.dispatch_request(*args, **kwargs)
-            return self.__response(*args, **kwargs)
+            ret = self.__response(*args, **kwargs)
+            print(ret)
+            return ret
 
         view_wrapper.view_class = cls
         view_wrapper.__name__ = name
@@ -238,6 +244,7 @@ class CView(object):
         self.types = self.element['param_types']
         self.codes = self.element['code_dict']
         self.params = {}
+        self.params_proto = {}
         self.params_log = ''
         self.process_log = ''
 
@@ -245,20 +252,19 @@ class CView(object):
         try:
             # get request parameters
             self.params = get_request_params(request)
-            print(self.params)
+            self.params_proto = self.params.copy()
+
             # plugin
             for plugin in self.element['plugin']:
                 plugin.before_request(self)
 
             # structure parameters
             self.__structure_params()
-
-            # dispatch request
-            # return getattr(self, request.method.lower())(self.params, *args, **kwargs)
-            return self.method(self.params, *args, **kwargs)
+            return self.method(self, **self.params)
         except ResponseRaise as response_raise:
             return response_raise.response()
         except:
+            log.exception('aaa')
             return self.r('exception', exception=True)
 
     # get request parameters
@@ -270,14 +276,16 @@ class CView(object):
         for param in self.element['param_not_null']:
             if self.params.get(param, '') == '':       # 0 is ok
                 raise JsonRaise(self, 'param_missing', {'parameter': param})
+
+        params = self.element['param_default'].copy()
+
         # parameter's type of proof and conversion
         for param, value in self.params.items():
             if param not in self.element['param_index']:
                 raise JsonRaise(self, 'param_unknown', {'parameter': param, 'value': value})
 
             if value is not None:
-                self.params[param] = self.types[param].structure(self, value)
-
+                params[param] = self.types[param].structure(self, value)
                 #
                 # # type conversion (application/json don't need) (Str and its subclasses don't need)
                 # if not issubclass(_type, Str):
@@ -290,6 +298,7 @@ class CView(object):
                 # error_code = _type.check(value)
                 # if error_code:
                 #     raise RR(self.response(error_code, {'parameter': param, 'value': value}))
+        self.params = params
 
     def r(self, code, data=None, status=None, exception=False):
         rr = self.raise_response(self, code, data, status, exception)
