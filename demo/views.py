@@ -14,70 +14,26 @@ log = logging.getLogger(__name__)
 
 
 class Area(CView):
-    # description = '''Get the area information through it's id.'''
-    # parameters = {'id': Int}
-    # requisite = ('id',)
-    # json_p = 'callback'
-    # exclude = (Token,)
-    # codes = {
-    #     'id_not_exist': 'Record does not exist.'
-    # }
 
-    # def get(self, area_id):
-    #     """Get the area *information through it's id.* ccc111112222aaa
-    #     aaaaaaaa
-    #     bbbbbbbb *bbbbbbb* bbbbbbbb
-    #     cccc
-    #
-    #     aaaaaabbbbbbbbbbbbccccccccc aaaaccc
-    #     ddddffffsssssssssssssssssss ddddfff
-    #
-    #     :plugin: token
-    #     :param  Int  ccccc:
-    #     :param Int * area_id: area idaaddd
-    #     :param Param * area_id_2: *area* id \
-    #     *aaa*
-    #     :param Str area_id_3: area id \
-    #     aaa
-    #     :raise id_not_exist: Record does not exist.
-    #     """
-    #     if area_id > 100:
-    #         return self.r('id_not_exist')
-    #     else:
-    #         return self.r('success', {'id': area_id,
-    #                                        'name': 'area_%d' % area_id,
-    #                                        'superior': 0})
+    def get(self, area_id):
+        """Get the area information through it's id.
 
-    def aaa(self):
-        self.raise_response()
-        raise self.rr('')
-
-    def post(self, bb, cc, area_id, area_id_2, area_id_3):
-        """aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa aaaaaa   aaa *Post the area information through it's id.*
-
-        aaaaaabbbbbbbbbbbbccccccccc aaaaccc
-        ddddffffsssssssssssssssssss ddddfff
-
-        :response: json
-        :param  Int  bb:
-        :param  Int  cc:
-        :param Int * area_id: area idaaddd
-        :param Param * area_id_2: *area* id \
-        *aaa*
-        :param Str area_id_3: area id \
-        aaa
+        :plugin: json_p
+        :param Int * area_id: area id
         :raise id_not_exist: Record does not exist.
         """
         if area_id > 100:
             return self.r('id_not_exist')
         else:
-            return self.r('success', {'id': area_id,
-                                           'name': 'area_%d' % area_id,
-                                           'superior': 0})
+            return self.r('success', {'id': area_id, 'name': 'area_%d' % area_id, 'superior': 0})
 
-#
-        # :param  List[Int]  aa:
-# class GetUser(CView):
+
+
+
+
+
+
+# class User(CView):
 #     description = '''Get the user information through his/hers id.'''
 #     parameters = {'identity': Str, 'token': Str, 'id': Int}
 #     requisite = ('identity', 'token', 'id',)

@@ -256,7 +256,7 @@ class CView(object):
 
             # plugin
             for plugin in self.element['plugin']:
-                plugin.before_request(self)
+                plugin.before_request(self, self.method)
 
             # structure parameters
             self.__structure_params()

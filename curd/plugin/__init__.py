@@ -10,42 +10,32 @@ class Plugin(object):
     """
     codes = {}
 
-    @classmethod
-    def reconstruct(cls, params):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
+    def __init__(self, params):
+        """Plugin init
 
         :param dict params: plug config parameters
         """
-        pass
 
-    @classmethod
-    def init_view(cls, view_class, method):
+    def init_view(self, view_class, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
         :param CView view_class: view class
         """
-        pass
 
-    @classmethod
-    def before_request(cls, view):
+    def before_request(self, view, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
         :param CView view: view class instance
         """
-        pass
 
-    @classmethod
-    def after_request(cls, view):
+    def after_request(self, view, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
         :param CView view: view class instance
         """
-        pass

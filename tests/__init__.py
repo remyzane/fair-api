@@ -6,6 +6,7 @@ import pkgutil
 from flask import session, request, render_template, Response
 from curd import parameter, plugin, JSON, CView
 from curd.utility import class_name_to_api_name
+from curd.plugin.jsonp import JsonP
 
 from demo import app
 from demo.utility import program_dir
@@ -118,9 +119,8 @@ def index():
                     except TypeError:
                         pass
     # get detail info of current api
-    json_p = ''
+    json_p = None
     if element:
-        # json_p = curr_api_cls.json_p
         curr_api_codes = _get_sorted_code(method_name, element, user, curr_api_uri)
         api_config_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), '__config__')
         if os.path.exists(api_config_path):
@@ -128,6 +128,9 @@ def index():
                 api_config = json.load(config)
                 params_config = api_config['params']
         curr_api_description = _to_html(element['description'])
+        for plugin in element['plugin']:
+            if isinstance(plugin, JsonP):
+                json_p = plugin.callback_field_name
     context = {'user': user,
                'api_list': api_list,
                'curr_api_uri': curr_api_uri,

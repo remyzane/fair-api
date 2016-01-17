@@ -36,7 +36,7 @@ app:
 
     json_p:
       class: curd.plugin.jsonp.JsonP
-      callback: callback
+      callback_field_name: callback
 
   # View packages
   view_packages:

@@ -11,26 +11,14 @@ class JsonP(Plugin):
     """
     error_codes = {}
 
-    @classmethod
-    def reconstruct(cls, params):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
+    def __init__(self, params):
+        """Plugin init
 
         :param dict params: plug config parameters
         """
+        self.callback_field_name = params['callback_field_name']
 
-    # @classmethod
-    # def __check(cls, method):
-    #     # POST method not support jsonp
-    #     elif hasattr(cls, 'post'):
-    #         if cls.json_p:
-    #             raise Exception('Error define in %s: POST method not support jsonp.' % cls.__name__)
-
-        pass
-
-    @classmethod
-    def init_view(cls, view_class, method):
+    def init_view(self, view_class, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -41,8 +29,7 @@ class JsonP(Plugin):
             raise Exception('Error define in %s.%s: json_p plugin only support GET method.' %
                             (view_class.__name__, method.__name__))
 
-    @classmethod
-    def before_request(cls, view):
+    def before_request(self, view, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -55,14 +42,4 @@ class JsonP(Plugin):
                 #     if param == self.json_p or param == '_' or param == '1_':
                 #         continue
 
-        pass
-
-    @classmethod
-    def after_request(cls, view):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
-
-        :param CView view: view class instance
-        """
         pass

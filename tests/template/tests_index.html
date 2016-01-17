@@ -178,7 +178,13 @@
             </tr>
             {% for param in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">{{ param['type'] }}</td>
+                <td style="font-size:.8em;">
+                {% if param['type'].has_sub_type %}
+                    {{ param['type'].__name__ }}[{{ param['type'].type.__name__ }}]
+                {% else %}
+                    {{ param['type'].__name__ }}
+                {% endif %}
+                </td>
                 <td style="text-align:center;">{% if param['requisite'] %}●{% endif %}</td>
                 <td>{{ param['name'] }}</td>
                 <td>

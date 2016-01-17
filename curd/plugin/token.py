@@ -6,6 +6,7 @@ import binascii
 from Crypto.Cipher import AES
 
 from curd import Plugin, CView
+from curd.utility import get_cls_with_path
 
 
 class TokenException(Exception):
@@ -33,6 +34,16 @@ PARAM_IDENTITY = 'identity'
 TOKEN_TIME_OUT = 60             # 1 minute
 
 
+# def key_provider(identity):
+#     """Provide token secret key by identity.
+#
+#     :param str identity: Username or App Id
+#     :return: str. secret key, length must be 16
+#     """
+#     key = 'not implemented '
+#     return key.decode() if type(key) == bytes else key
+
+
 class Token(Plugin):
     """Token check Plugin.
 
@@ -41,50 +52,15 @@ class Token(Plugin):
     """
     error_codes = {'token_invalid': 'Invalid Token'}
 
-    @staticmethod
-    def __key_provider(identity):
-        """Provide token secret key by identity.
-
-        :param str identity: Username or App Id
-        :return: str. secret key, length must be 16
-        """
-        key = 'not implemented '
-        return key.decode() if type(key) == bytes else key
-
-    @classmethod
-    def reconstruct(cls, params):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
+    def __init__(self, params):
+        """Plugin init
 
         :param dict params: plug config parameters
         """
-        exec('from %s import %s as key_provider' % tuple(params['key_provider'].rsplit('.', 1)))
-        cls.__key_provider = locals()['key_provider']
-        exec('from %s import %s as raise_class' % tuple(params['raise_class'].rsplit('.', 1)))
-        cls.__raise_class = locals()['raise_class']
+        self.__key_provider = get_cls_with_path(params['key_provider'])
+        self.__raise_class = get_cls_with_path(params['raise_class'])
 
-    @classmethod
-    def init_view(cls, view_class, method):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
-
-        :param CView view_class: view class
-        """
-        pass
-
-    def aaa(self, i):
-        """Get index
-
-        :param i: index
-        :return: index
-        """
-
-        return i
-
-    @classmethod
-    def before_request(cls, view):
+    def before_request(self, view, method):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -98,14 +74,14 @@ class Token(Plugin):
         token = view.params.get(PARAM_TOKEN)
         identity = view.params.get(PARAM_IDENTITY)
         if not token:
-            raise cls.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN})
+            raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN})
         if not identity:
-            raise cls.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY})
+            raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY})
         # check token
         try:
-            cls.check(identity, token)
+            self.check(identity, token)
         except TokenException as e:
-            raise cls.__raise_class(view, 'token_invalid', {'error': str(e)})
+            raise self.__raise_class(view, 'token_invalid', {'error': str(e)})
 
     @classmethod
     def create(cls, identity, timestamp=None):

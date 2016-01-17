@@ -72,8 +72,8 @@ def setup_app(app, config):
     app.config['plugins'] = app.config.get('plugins') or {}
     for name, config in app.config['plugins'].items():
         plugin_class = get_cls_with_path(config.pop('class'))
-        plugin_class.reconstruct(config)
-        app.config['plugins'][name] = plugin_class
+        plugin = plugin_class(config)
+        app.config['plugins'][name] = plugin
 
     app.config['responses'] = app.config.get('responses') or {}
     for name, class_path in app.config['responses'].items():
