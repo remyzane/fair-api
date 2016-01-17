@@ -2,7 +2,7 @@
 
 from curd.view import CView
 from curd.plugin import Plugin
-
+from flask import current_app as app
 
 class JsonP(Plugin):
     """API Plugin parent class.
@@ -42,4 +42,8 @@ class JsonP(Plugin):
                 #     if param == self.json_p or param == '_' or param == '1_':
                 #         continue
 
-        pass
+        print(view.params)
+        print(view.params_proto)
+        print(app.config['responses']['json_p'])
+        method.callback_field_name = self.callback_field_name
+        method.raise_response = app.config['responses']['json_p']

@@ -14,15 +14,14 @@ class ResponseRaise(Exception):
 
     def __init__(self, view, code, data=None, status=None, exception=False):
         self.view = view
+        self.method = view.method
         self.code = code
         self.data = data
         self.status = status
         self.exception = exception
 
     def response(self):
-        print('aabbccd112233')
-        return 'aa'
-        return self.data
+        raise NotImplementedError()
 
 
 class JsonRaise(ResponseRaise):
@@ -70,4 +69,13 @@ Return Data: --------------------------------------------
 class JsonPRaise(ResponseRaise):
 
     def response(self):
-        return '5555'
+        ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
+        # log output
+        # self.log(code, ret, exception)
+        # return result
+        # json_p = self.params.get(self.json_p) if self.json_p else None
+        # if json_p:
+        #
+        # else:
+        #     return Response(json.dumps(ret), content_type=JSON, status=status)
+        return Response(self.method.callback_field_name + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=self.status)
