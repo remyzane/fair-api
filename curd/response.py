@@ -12,13 +12,11 @@ JSON_P = 'application/javascript; charset=utf-8'
 
 class ResponseRaise(Exception):
 
-    def __init__(self, view, code, data=None, status=None, exception=False):
+    def __init__(self, view, code, data=None, status=None):
         self.view = view
-        self.method = view.method
         self.code = code
         self.data = data
         self.status = status
-        self.exception = exception
 
     def response(self):
         raise NotImplementedError()
@@ -40,30 +38,7 @@ class JsonRaise(ResponseRaise):
         #     return Response(json_p + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=status)
         # else:
         #     return Response(json.dumps(ret), content_type=JSON, status=status)
-        return Response(json.dumps(ret), content_type=JSON, status=self.status)
-
-    # log output
-    def log(self, code, data, exception):
-        if self.process_log:
-            self.process_log = '''
-Process Flow: -------------------------------------------
-%s
----------------------------------------------------------''' % self.process_log
-        debug_info = '''%s
-Return Data: --------------------------------------------
-%s
----------------------------------------------------------''' % (self.process_log, str(data))
-        if code == 'success':
-            # different log output for performance
-            if log.parent.level == logging.DEBUG:
-                log.info('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
-            else:
-                log.info('%s %s %s', request.path, self.codes[code], self.params_log)
-        else:
-            if exception:
-                log.exception('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
-            else:
-                log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+        return self.code, ret, Response(json.dumps(ret), content_type=JSON, status=self.status)
 
 
 class JsonPRaise(ResponseRaise):
@@ -78,4 +53,5 @@ class JsonPRaise(ResponseRaise):
         #
         # else:
         #     return Response(json.dumps(ret), content_type=JSON, status=status)
-        return Response(self.method.callback_field_name + '(' + json.dumps(ret) + ')', content_type=JSON_P, status=self.status)
+        content = self.view.json_p_callback_name + '(' + json.dumps(ret) + ')'
+        return self.code, ret, Response(content, content_type=JSON_P, status=self.status)

@@ -4,6 +4,7 @@ from curd.view import CView
 from curd.plugin import Plugin
 from flask import current_app as app
 
+
 class JsonP(Plugin):
     """API Plugin parent class.
 
@@ -29,7 +30,7 @@ class JsonP(Plugin):
             raise Exception('Error define in %s.%s: json_p plugin only support GET method.' %
                             (view_class.__name__, method.__name__))
 
-    def before_request(self, view, method):
+    def before_request(self, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -42,8 +43,7 @@ class JsonP(Plugin):
                 #     if param == self.json_p or param == '_' or param == '1_':
                 #         continue
 
-        print(view.params)
-        print(view.params_proto)
-        print(app.config['responses']['json_p'])
-        method.callback_field_name = self.callback_field_name
-        method.raise_response = app.config['responses']['json_p']
+        if self.callback_field_name in view.params:
+            view.json_p_callback_name = view.params[self.callback_field_name]
+            view.raise_response = app.config['responses']['json_p']
+            del view.params[self.callback_field_name]

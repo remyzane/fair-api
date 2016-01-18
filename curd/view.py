@@ -1,17 +1,13 @@
 # -*- coding: utf-8 -*-
 
-import os
-import json
 import logging
-import docutils
-from docutils.core import publish_doctree
 from flask.views import request
 from flask import Response
 
 from .configure import db
+from .element import Element
 from .response import ResponseRaise, JsonRaise
-from .parameter import Param, Str, List
-from .utility import rst_to_html, get_request_params
+from .utility import get_request_params
 
 log = logging.getLogger(__name__)
 
@@ -23,44 +19,6 @@ Request Params: -----------------------------------------
 
 class CView(object):
     """View base class
-
-    element: {
-        title: 'xxxxx',
-        description: 'xxxxxx',
-        response: response,
-        plugin: (class_A, class_B),
-        param_not_null: ('xx', 'yy'),
-        param_allow_null: ('zz',),
-        param_index: ('xx', 'yy', 'zz'),
-        param_list: (
-            {
-                name: xxx,
-                type: class_A,
-                requisite: True/False,
-                description: 'xxxxx'
-            },
-            ...
-        ),
-        param_dict: {
-            xxx: {
-                name: xxx,
-                type: class_A,
-                requisite: True/False,
-                description: 'xxxxx'
-            },
-            ...
-        },
-        param_default: {
-            'xx': None,
-            'yy': None,
-            'zz': None
-        }
-        code_index: ('xx', 'yy', 'zz'),
-        code_dict: {
-            'xx': 'xxxxxxx',
-            'yy': 'yyyyyyy',
-            'zz': 'zzzzzzz'
-        }
     """
 
     request_methods = {}
@@ -77,139 +35,62 @@ class CView(object):
 
     @classmethod
     def __request_methods(cls, view_wrapper):
-        for method in ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']:
-            if hasattr(cls, method):
-                cls.request_methods[method.upper()] = getattr(cls, method)
+        for method_name in ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']:
+            if hasattr(cls, method_name):
+                cls.request_methods[method_name.upper()] = getattr(cls, method_name)
         view_wrapper.methods = cls.request_methods.keys()
-
-    @classmethod
-    def __element_init(cls, method):
-        method.element = {
-            'plugin': [],
-            'param_list': [],
-            'param_dict': {},
-            'param_index': [],
-            'param_default': {},
-            'param_not_null': [],
-            'param_allow_null': [],
-            'param_types': {},
-            'code_index': ['success', 'exception', 'param_unknown', 'param_missing'],
-            'code_dict': {
-                'success': 'Success',
-                'exception': 'Unknown exception',
-                'param_unknown': 'Unknown parameter',
-                'param_missing': 'Missing parameter'
-            }
-        }
-
-    @classmethod
-    def __element_clear_up(cls, app, element):
-        if not element['param_not_null']:
-            element['code_index'].remove('param_missing')
-            del element['code_dict']['param_missing']
-        element['plugin'] = tuple(element['plugin'])
-        element['param_list'] = tuple(element['param_list'])
-        element['param_not_null'] = tuple(element['param_not_null'])
-        element['param_allow_null'] = tuple(element['param_allow_null'])
-        element['param_index'] = element['param_not_null'] + element['param_allow_null']
-        element['code_index'] = tuple(element['code_index'])
-        element['response'] = element.get('response', app.config['responses']['default'])
-
-    @classmethod
-    def __element_code_set(cls, element, error_code, error_message):
-        if error_code not in element['code_index']:
-            element['code_index'].append(error_code)
-            element['code_dict'][error_code] = error_message
-
-    @classmethod
-    def __parse_doc_field(cls, app, method, element, doc_field):
-        name = doc_field.children[0].astext()
-        content = rst_to_html(doc_field.children[1].rawsource)
-        if name == 'response':
-            element['response'] = app.config['responses'][content]
-        elif name == 'plugin':
-            for item in content.split():
-                plugin = app.config['plugins'].get(item)
-                if not plugin:
-                    raise Exception('%s.%s use undefined plugin %s' % (cls.__name__, method.__name__, item))
-                element['plugin'].append(plugin)
-                for error_code, error_message in plugin.error_codes.items():
-                    cls.__element_code_set(element, error_code, error_message)
-        elif name.startswith('raise '):
-            cls.__element_code_set(element, name[6:], content)
-        elif name.startswith('param '):
-            items = name[6:].split()
-            param_type = items[0]
-            if param_type.endswith(']'):
-                sub_type = app.config['parameter_types'].get(param_type.split('[')[1][:-1])
-                param_type = app.config['parameter_types'].get(param_type.split('[')[0])
-                param_type = param_type(sub_type)
-            else:
-                param_type = app.config['parameter_types'].get(param_type)
-            if not param_type:
-                raise Exception('%s.%s use undefined parameter type %s' % (cls.__name__, method.__name__, items[0]))
-            if method.__name__.upper() not in param_type.support:
-                raise Exception('%s.%s use parameter %s type that not support %s method.' %
-                                (cls.__name__, method.__name__, param_type.__name__, method.__name__.upper()))
-            param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
-            if len(items) > 2 and items[1] == '*':
-                param['requisite'] = True
-                element['param_not_null'].append(items[-1])
-            else:
-                element['param_allow_null'].append(items[-1])
-            element['param_list'].append(param)
-            element['param_dict'][items[-1]] = param
-            element['param_default'][items[-1]] = None
-            element['param_types'][items[-1]] = param_type
-            if isinstance(param['type'], List):
-                cls.__element_code_set(element, param_type.type.error_code, param_type.type.requirement)
-                cls.__element_code_set(element, param_type.error_code, param_type.requirement % param_type.type.__name__)
-            elif param['type'] != Param:
-                cls.__element_code_set(element, param_type.error_code, param_type.requirement)
-        else:
-            element[name] = content
-
-    @classmethod
-    def __parse_doc_tree(cls, app, method, element, doc_tree):
-        if type(doc_tree) == docutils.nodes.term:
-            element['title'] = rst_to_html(doc_tree.rawsource)
-            return
-
-        if type(doc_tree) == docutils.nodes.paragraph:
-            if 'description' not in element:
-                element['title'] = element.get('title', '') + rst_to_html(doc_tree.rawsource)
-                element['description'] = ''
-            elif element['description'] == '':
-                element['description'] = rst_to_html(doc_tree.rawsource)
-            else:
-                element['description'] = element['description'] + os.linesep * 2 + rst_to_html(doc_tree.rawsource)
-            return
-
-        if type(doc_tree) == docutils.nodes.field:
-            cls.__parse_doc_field(app, method, element, doc_tree)
-            return
-
-        for item in doc_tree.children:
-            cls.__parse_doc_tree(app, method, element, item)
 
     @classmethod
     def __reconstruct(cls, app, view_wrapper):
 
         cls.__request_methods(view_wrapper)
-
         for method in cls.request_methods.values():
-            if not method.__doc__:
-                raise Exception('%s.%s doc not undefined' % (cls.__name__, method.__name__))
-            cls.__element_init(method)
-            cls.__parse_doc_tree(app, method, method.element, publish_doctree(method.__doc__))
-            cls.__element_clear_up(app, method.element)
-            # print(method.element)
-
-            for plugin in method.element['plugin']:
+            method.element = Element(app, cls, method)
+            for plugin in method.element.plugins:
                 plugin.init_view(cls, method)
 
         # setting database
         # cls.db = db.get(cls.database)
+
+    def __init__(self):
+        # the following variables is different in per request
+        self.request = request
+        self.application_json = False if request.json is None else True     # Content-Type: application/json
+        self.method = self.request_methods[request.method]
+        self.element = self.method.element
+        self.raise_response = self.element.response
+        self.types = self.element.param_types
+        self.codes = self.element.code_dict
+        self.params = {}
+        self.params_proto = {}
+        self.params_log = ''
+        self.process_log = ''
+
+    def __response(self, *args, **kwargs):
+        try:
+            # get request parameters
+            self.params = get_request_params(request)
+            self.params_proto = self.params.copy()
+
+            # plugin
+            for plugin in self.element.plugins:
+                plugin.before_request(self, self.method)
+
+            # structure parameters
+            self.__structure_params()
+
+            response_content = self.method(self, **self.params)
+            if type(response_content) == tuple:
+                code, content, response_content = response_content
+            else:
+                code = 'success'
+                content = response_content
+        except ResponseRaise as response_raise:
+            code, content, response_content = response_raise.response()
+        except:
+            code, content, response_content = self.r('exception')
+        self.log(code, content, code == 'exception')
+        return response_content
 
     @classmethod
     def as_view(cls, name, app, *class_args, **class_kwargs):
@@ -223,7 +104,6 @@ class CView(object):
             # else:
             #     return self.dispatch_request(*args, **kwargs)
             ret = self.__response(*args, **kwargs)
-            print(ret)
             return ret
 
         view_wrapper.view_class = cls
@@ -234,54 +114,21 @@ class CView(object):
         cls.__reconstruct(app, view_wrapper)
         return view_wrapper
 
-    def __init__(self):
-        # the following variables is different in per request
-        self.request = request
-        self.application_json = False if request.json is None else True     # Content-Type: application/json
-        self.method = self.request_methods[request.method]
-        self.element = self.method.element
-        self.raise_response = self.element['response']
-        self.types = self.element['param_types']
-        self.codes = self.element['code_dict']
-        self.params = {}
-        self.params_proto = {}
-        self.params_log = ''
-        self.process_log = ''
-
-    def __response(self, *args, **kwargs):
-        try:
-            # get request parameters
-            self.params = get_request_params(request)
-            self.params_proto = self.params.copy()
-
-            # plugin
-            for plugin in self.element['plugin']:
-                plugin.before_request(self, self.method)
-
-            # structure parameters
-            self.__structure_params()
-            return self.method(self, **self.params)
-        except ResponseRaise as response_raise:
-            return response_raise.response()
-        except:
-            log.exception('aaa')
-            return self.r('exception', exception=True)
-
     # get request parameters
     def __structure_params(self):
 
         self.params_log = _request_params_log % self.params
 
         # check the necessary parameter's value is sed
-        for param in self.element['param_not_null']:
+        for param in self.element.param_not_null:
             if self.params.get(param, '') == '':       # 0 is ok
                 raise JsonRaise(self, 'param_missing', {'parameter': param})
 
-        params = self.element['param_default'].copy()
+        params = self.element.param_default.copy()
 
         # parameter's type of proof and conversion
         for param, value in self.params.items():
-            if param not in self.element['param_index']:
+            if param not in self.element.param_index:
                 raise JsonRaise(self, 'param_unknown', {'parameter': param, 'value': value})
 
             if value is not None:
@@ -300,13 +147,34 @@ class CView(object):
                 #     raise RR(self.response(error_code, {'parameter': param, 'value': value}))
         self.params = params
 
-    def r(self, code, data=None, status=None, exception=False):
-        rr = self.raise_response(self, code, data, status, exception)
-        return rr.response()
+    def r(self, code, data=None, status=None):
+        return self.raise_response(self, code, data, status).response()
 
-    def rr(self, code, data=None, status=None, exception=False):
+    def rr(self, code, data=None, status=None):
         """Raise response
 
         :return:
         """
-        return self.raise_response(self, code, data, status, exception)
+        return self.raise_response(self, code, data, status)
+
+    def log(self, code, response_content, exception):
+        if self.process_log:
+            self.process_log = '''
+Process Flow: -------------------------------------------
+%s
+---------------------------------------------------------''' % self.process_log
+        debug_info = '''%s
+Return Data: --------------------------------------------
+%s
+---------------------------------------------------------''' % (self.process_log, str(response_content))
+        if code == 'success':
+            # different log output for performance
+            if log.parent.level == logging.DEBUG:
+                log.info('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+            else:
+                log.info('%s %s %s', request.path, self.codes[code], self.params_log)
+        else:
+            if exception:
+                log.exception('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+            else:
+                log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)

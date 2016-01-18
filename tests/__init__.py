@@ -42,8 +42,8 @@ def _get_case_dir(user, curr_api_uri, method_name):
 def _get_sorted_code(method_name, element, user, curr_api_uri):
     codes = []
     is_param_type = False
-    for error_code in element['code_index']:
-        error_message = element['code_dict'][error_code]
+    for error_code in element.code_index:
+        error_message = element.code_dict[error_code]
 
         if error_code.startswith('param_type_error_') and not is_param_type:
             codes.append(('----', None, None))
@@ -112,7 +112,7 @@ def index():
                             name = class_name_to_api_name(view.__name__)
                             for method_name, method in view.request_methods.items():
                                 uri = '/%s/%s' % (package_name, name)
-                                api_list.append((uri, method_name, _to_html(method.element['title'])))
+                                api_list.append((uri, method_name, _to_html(method.element.title)))
                                 if uri == request_uri:
                                     curr_api_uri = uri
                                     element = method.element
@@ -127,8 +127,8 @@ def index():
             with open(api_config_path, 'r') as config:
                 api_config = json.load(config)
                 params_config = api_config['params']
-        curr_api_description = _to_html(element['description'])
-        for plugin in element['plugin']:
+        curr_api_description = _to_html(element.description)
+        for plugin in element.plugins:
             if isinstance(plugin, JsonP):
                 json_p = plugin.callback_field_name
     context = {'user': user,
@@ -136,7 +136,7 @@ def index():
                'curr_api_uri': curr_api_uri,
                'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
                'curr_api_method': method_name,
-               'curr_api_params': element['param_list'],
+               'curr_api_params': element.param_list,
                'curr_api_codes': curr_api_codes,
                'api_config': api_config,
                'params_config': params_config,
