@@ -74,7 +74,7 @@ class CView(object):
 
             # plugin
             for plugin in self.element.plugins:
-                plugin.before_request(self, self.method)
+                plugin.before_request(self)
 
             # structure parameters
             self.__structure_params()
@@ -82,14 +82,15 @@ class CView(object):
             response_content = self.method(self, **self.params)
             if type(response_content) == tuple:
                 code, content, response_content = response_content
+                self.log(code, content)
             else:
-                code = 'success'
-                content = response_content
+                self.log('success', response_content)
         except ResponseRaise as response_raise:
             code, content, response_content = response_raise.response()
-        except:
+            self.log(code, content)
+        except Exception:
             code, content, response_content = self.r('exception')
-        self.log(code, content, code == 'exception')
+            self.log(code, content, True)
         return response_content
 
     @classmethod
@@ -121,7 +122,7 @@ class CView(object):
 
         # check the necessary parameter's value is sed
         for param in self.element.param_not_null:
-            if self.params.get(param, '') == '':       # 0 is ok
+            if self.params_proto.get(param, '') == '':       # 0 is ok
                 raise JsonRaise(self, 'param_missing', {'parameter': param})
 
         params = self.element.param_default.copy()
@@ -157,7 +158,7 @@ class CView(object):
         """
         return self.raise_response(self, code, data, status)
 
-    def log(self, code, response_content, exception):
+    def log(self, code, response_content, exception=False):
         if self.process_log:
             self.process_log = '''
 Process Flow: -------------------------------------------
@@ -175,6 +176,8 @@ Return Data: --------------------------------------------
                 log.info('%s %s %s', request.path, self.codes[code], self.params_log)
         else:
             if exception:
+                print('%s %s %s %s' % (request.path, self.codes[code], self.params_log, debug_info))
                 log.exception('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
+                # log.exception('')
             else:
                 log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)

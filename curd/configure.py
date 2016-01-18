@@ -4,6 +4,7 @@ import peewee
 import logging
 import pkgutil
 import datetime
+from importlib import import_module
 
 from .parameter import Param
 from .utility import class_name_to_api_name, get_cls_with_path
@@ -117,11 +118,27 @@ def setup_view(app, config):
     """
     from .view import CView
     app.view_packages = config
-    for package_name in app.view_packages:
-        exec('import %s as package' % package_name)
-        for importer, modname, is_pkg in pkgutil.iter_modules(locals()['package'].__path__):
+
+    for package_path in app.view_packages:
+
+        print('aabbcc', package_path)
+        view_package = import_module(package_path)
+        print(view_package.__path__)
+        # for loader, name, is_pkg in pkgutil.walk_packages(package.__path__)
+
+        for importer, modname, is_pkg in pkgutil.iter_modules(view_package.__path__):
+
+
+
+            print(importer, modname, is_pkg)
+
+
+            # if is_pkg:
+            #     for sub_importer, sub_modname, sub_is_pkg in pkgutil.iter_modules(view_package.__path__):
+
+            continue
             if not is_pkg:
-                exec('import %s.%s as package' % (package_name, modname))
+                exec('import %s.%s as package' % (package_path, modname))
                 views = locals()['package']
                 for item in dir(views):
                     # flask's request and session(werkzeug.local.LocalProxy) raise RuntimeError
@@ -130,9 +147,18 @@ def setup_view(app, config):
                     view = getattr(views, item)
                     try:
                         if issubclass(view, CView) and view != CView:
+
                             name = class_name_to_api_name(view.__name__)
-                            uri = '/%s/%s' % (package_name, name)
-                            endpoint = '%s.%s' % (package_name, name)
+                            uri = '/%s/%s' % (package_path, name)
+                            endpoint = '%s.%s' % (package_path, name)
+                            print(name, uri, endpoint, view, 'aaa')
                             app.add_url_rule(uri, view_func=view.as_view(endpoint, app))
+
+                            # keys = list(app.view_functions.keys())
+                            # keys.sort()
+                            # for name in keys:
+                            #     item = app.view_functions[name]
+                            #     if hasattr(item, 'view_class') and issubclass(item.view_class, CView):
+                            #         print(name, item.view_class)
                     except TypeError:
                         pass    # Some object throw TypeError in issubclass

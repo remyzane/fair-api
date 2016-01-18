@@ -73,25 +73,41 @@ def _get_test_case(user, curr_api_uri, method_name, code):
     return '[%s]' % use_cases
 
 
+# get detail info of current api
+def _get_curr_api():
+    curr_api_codes = _get_sorted_code(method_name, element, user, curr_api_uri)
+    api_config_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), '__config__')
+    if os.path.exists(api_config_path):
+        with open(api_config_path, 'r') as config:
+            api_config = json.load(config)
+            params_config = api_config['params']
+    curr_api_description = _to_html(element.description)
+
+
+    return {
+        'curr_api_uri': curr_api_uri,
+        'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
+        'curr_api_method': method_name,
+        'curr_api_params': element.param_list if element else [],
+        'curr_api_codes': curr_api_codes,
+        'curr_api_description': curr_api_description
+    }
+
+
 @app.route('/tests/', endpoint='tests.index')
 def index():
     api_list = []
     element = None
     curr_api_uri = None
     curr_api_params = []
-    curr_api_codes = []
     api_config = {}
     params_config = {}
-    curr_api_description = None
     request_uri = request.args.get('api', '')
     method_name = request.args.get('method', '')
-    post_type = request.args.get('type', 'j')
     user = request.args.get('user', '')
     if user not in app.config['tests_access_keys']:
-
         if app.config.get('SECRET_KEY'):
             session.pop('user', None)
-
         message = 'Please enter the correct access key.' if request.args.get('user') else 'Please enter the access key.'
         return render_template('tests/template/tests_auth.html', message=message)
 
@@ -109,40 +125,30 @@ def index():
                     view = getattr(views, item)
                     try:
                         if issubclass(view, CView) and view != CView:   # sometime issubclass throw TypeError
+                            print(item, view)
                             name = class_name_to_api_name(view.__name__)
-                            for method_name, method in view.request_methods.items():
+                            for _method_name, method in view.request_methods.items():
                                 uri = '/%s/%s' % (package_name, name)
-                                api_list.append((uri, method_name, _to_html(method.element.title)))
-                                if uri == request_uri:
+                                api_list.append((uri, _method_name, _to_html(method.element.title)))
+                                if uri == request_uri and _method_name == method_name:
                                     curr_api_uri = uri
                                     element = method.element
+                                    print(curr_api_uri)
+                                    print(method)
                     except TypeError:
                         pass
-    # get detail info of current api
+
     json_p = None
-    if element:
-        curr_api_codes = _get_sorted_code(method_name, element, user, curr_api_uri)
-        api_config_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), '__config__')
-        if os.path.exists(api_config_path):
-            with open(api_config_path, 'r') as config:
-                api_config = json.load(config)
-                params_config = api_config['params']
-        curr_api_description = _to_html(element.description)
-        for plugin in element.plugins:
-            if isinstance(plugin, JsonP):
-                json_p = plugin.callback_field_name
+    for plugin in element.plugins:
+        if isinstance(plugin, JsonP):
+            json_p = plugin.callback_field_name
     context = {'user': user,
                'api_list': api_list,
-               'curr_api_uri': curr_api_uri,
-               'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
-               'curr_api_method': method_name,
-               'curr_api_params': element.param_list,
-               'curr_api_codes': curr_api_codes,
                'api_config': api_config,
                'params_config': params_config,
-               'curr_api_description': curr_api_description,
-               'post_type': post_type,
+               'post_type': request.args.get('type', 'j'),
                'json_p': json_p}
+    context.update(_get_curr_api())
     return render_template('tests/template/tests_index.html', **context)
 
 

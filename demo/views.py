@@ -28,31 +28,25 @@ class Area(CView):
             return self.r('success', {'id': area_id, 'name': 'area_%d' % area_id, 'superior': 0})
 
 
+class User(CView):
+
+    def get(self, user_id):
+        """Get the user information through his/hers id.
+
+        :plugin: json_p token
+        :param Str * identity:
+        :param Str * token:
+        :param Int * user_id:
+        :raise id_not_exist: Record does not exist.
+        """
+        if user_id > 100:
+            return self.r('id_not_exist')
+        else:
+            return self.r('success', {'id': user_id,
+                                           'name': 'user_%d' % user_id,
+                                           'email': 'user_%s@yourself.com' % user_id})
 
 
-
-
-
-# class User(CView):
-#     description = '''Get the user information through his/hers id.'''
-#     parameters = {'identity': Str, 'token': Str, 'id': Int}
-#     requisite = ('identity', 'token', 'id',)
-#     json_p = 'callback'
-#     codes = {
-#         'id_not_exist': 'Record does not exist.'
-#     }
-#
-#     def get(self, params):
-#
-#         user_id = params['id']
-#         if user_id > 100:
-#             return self.r('id_not_exist')
-#         else:
-#             return self.r('success', {'id': user_id,
-#                                            'name': 'user_%d' % user_id,
-#                                            'email': 'user_%s@yourself.com' % user_id})
-#
-#
 # class GetUserForExternal(CView):
 #     description = '''Get the user information through his/hers encrypted id.'''
 #     parameters = {'id': Str}
