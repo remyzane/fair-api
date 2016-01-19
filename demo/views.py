@@ -46,6 +46,27 @@ class User(CView):
                                            'name': 'user_%d' % user_id,
                                            'email': 'user_%s@yourself.com' % user_id})
 
+    def post(self, username, nickname, password, email, address, mobile, zipcode):
+        """User setting
+
+        :plugin: token
+        :param Str * identity:
+        :param Str * token:
+        :param Str * username:
+        :param Str nickname:
+        :param Str * password:
+        :param Mail * email:
+        :param Str address:
+        :param Str mobile:
+        :param Str zipcode:
+        :raise mobile_existent: Mobile number already exists.
+        :raise email_existent: Email address already exists.
+        """
+        self.process_log += 'do job 1' + os.linesep
+        self.process_log += 'do job 2' + os.linesep
+        self.process_log += 'do job 3'
+        return self.r('success', {'id': 1})
+
 
 # class GetUserForExternal(CView):
 #     description = '''Get the user information through his/hers encrypted id.'''
@@ -75,22 +96,7 @@ class User(CView):
 #                                            'email': 'user_%s@yourself.com' % user_id})
 #
 #
-# class SetUser(CView):
-#     description = '''User setting'''
-#     parameters = {'identity': Str, 'token': Str, 'username': Str, 'nickname': Str,
-#                   'password': Str, 'email': Mail, 'address': Str, 'mobile': Str, 'zipcode': Str}
-#     requisite = ('identity', 'token', 'username', 'password', 'email')
-#     codes = {
-#         'mobile_existent': 'Mobile number already exists.',
-#         'email_existent': 'Email address already exists.'
-#     }
-#
-#     def post(self, params):
-#         self.process_log += 'do job 1' + os.linesep
-#         self.process_log += 'do job 2' + os.linesep
-#         self.process_log += 'do job 3'
-#         return self.r('success', {'id': 1})
-#
+
 #
 # class Session(CView):
 #     description = '''Session testing.'''

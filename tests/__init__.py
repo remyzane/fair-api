@@ -116,12 +116,12 @@ def index():
     for name in view_keys:
         view_class = getattr(app.view_functions[name], 'view_class', None)
         if view_class and issubclass(view_class, CView) and view_class != CView:
-            for _method_name, method in view_class.request_methods.items():
-                api_list.append((view_class.uri, _method_name, _to_html(method.element.title)))
-                if view_class.uri == request.args.get('api', '') and _method_name == request.args.get('method', ''):
-                    print(view_class)
-                    print(method)
-                    print(view_class.request_methods)
+            methods = list(view_class.request_methods.keys())
+            methods.sort()
+            for method_name in methods:
+                method = view_class.request_methods[method_name]
+                api_list.append((view_class.uri, method_name, _to_html(method.element.title)))
+                if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
                     curr_api_context = _get_curr_api(user, view_class, method)
 
     context = {'user': user,
@@ -129,7 +129,6 @@ def index():
                'api_config': api_config,
                'post_type': request.args.get('type', 'j')}
     context.update(curr_api_context)
-    print(context)
     return render_template('tests/template/tests_index.html', **context)
 
 

@@ -60,7 +60,7 @@ class Token(Plugin):
         self.__key_provider = get_cls_with_path(params['key_provider'])
         self.__raise_class = get_cls_with_path(params['raise_class'])
 
-    def before_request(self, view, method):
+    def before_request(self, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.

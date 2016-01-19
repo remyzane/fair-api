@@ -24,7 +24,7 @@ class Plugin(object):
         :param CView view_class: view class
         """
 
-    def before_request(self, view, method):
+    def before_request(self, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
@@ -32,7 +32,7 @@ class Plugin(object):
         :param CView view: view class instance
         """
 
-    def after_request(self, view, method):
+    def after_request(self, view):
         """Plugin main method.
 
         Will be called each request after parameters checked.
