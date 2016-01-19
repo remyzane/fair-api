@@ -21,7 +21,7 @@ class CView(object):
     """View base class
     """
     uri = None
-    request_methods = {}
+    request_methods = None
     # # Can be overload by subclasses
     # database = 'default'        # used by auto_rollback
     # db = None
@@ -35,6 +35,7 @@ class CView(object):
 
     @classmethod
     def __request_methods(cls, view_wrapper):
+        cls.request_methods = {}
         for method_name in ['get', 'post', 'head', 'options', 'delete', 'put', 'trace', 'patch']:
             if hasattr(cls, method_name):
                 cls.request_methods[method_name.upper()] = getattr(cls, method_name)

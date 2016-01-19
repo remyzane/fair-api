@@ -19,8 +19,9 @@ $(document).ready(function(){
     });
 
     $('.ui.menu .uri.item').on('click', function() {
+        var api = $(this)[0].innerText.split(" ");
         window.location.href = window.location.pathname +
-            '?user=' + user + '&type=' + get_post_type() + '&api=' + $(this)[0].innerText;
+            '?user=' + user + '&type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
     });
     $('.body .ui.link.api.items .item').on('click', function() {
         var method = $(this)[0].children[0].children[0].innerText;

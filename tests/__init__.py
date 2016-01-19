@@ -37,11 +37,11 @@ def _get_case_dir(user, curr_api_uri, method_name):
     return case_dir
 
 
-def _get_sorted_code(method_name, element, user, curr_api_uri):
+def _get_sorted_code(user, view, method):
     codes = []
     is_param_type = False
-    for error_code in element.code_index:
-        error_message = element.code_dict[error_code]
+    for error_code in method.element.code_index:
+        error_message = method.element.code_dict[error_code]
 
         if error_code.startswith('param_type_error_') and not is_param_type:
             codes.append(('----', None, None))
@@ -51,14 +51,15 @@ def _get_sorted_code(method_name, element, user, curr_api_uri):
             codes.append(('----', None, None))
             is_param_type = False
 
-        codes.append((error_code, _to_html(error_message), _get_test_case(user, curr_api_uri, method_name, error_code)))
+        codes.append((error_code, _to_html(error_message),
+                      _get_test_case(user, view, method, error_code)))
 
     return codes
 
 
-def _get_test_case(user, curr_api_uri, method_name, code):
+def _get_test_case(user, view, method, code):
     use_cases = ''
-    case_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), code)
+    case_path = os.path.join(_get_case_dir(user, view.uri, method.__name__.upper()), code)
     if os.path.exists(case_path):
         data_file = open(case_path, 'r')
         for line in data_file.readlines():
@@ -75,13 +76,13 @@ def _get_test_case(user, curr_api_uri, method_name, code):
 def _get_curr_api(user, view, method):
     context = dict()
     context['curr_api_uri'] = view.uri
-    context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri,
-    context['curr_api_method'] = method.__name__.upper(),
-    context['curr_api_params'] = method.element.param_list if method.element else [],
-    context['curr_api_description'] = _to_html(method.element.description),
-    context['curr_api_json_p'] = None,
+    context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
+    context['curr_api_method'] = method.__name__.upper()
+    context['curr_api_params'] = method.element.param_list
+    context['curr_api_description'] = _to_html(method.element.description)
+    context['curr_api_json_p'] = None
     context['curr_api_params_config'] = {}
-    context['curr_api_codes'] = _get_sorted_code(method.__name__.upper(), method.element, user, view.uri)
+    context['curr_api_codes'] = _get_sorted_code(user, view, method)
     api_config_path = os.path.join(_get_case_dir(user, view.uri, method.__name__.upper()), '__config__')
     if os.path.exists(api_config_path):
         with open(api_config_path, 'r') as config:
@@ -90,6 +91,8 @@ def _get_curr_api(user, view, method):
     for plugin in method.element.plugins:
         if isinstance(plugin, JsonP):
             context['curr_api_json_p'] = plugin.callback_field_name
+    print(method)
+    print(context)
     return context
 
 
@@ -116,6 +119,9 @@ def index():
             for _method_name, method in view_class.request_methods.items():
                 api_list.append((view_class.uri, _method_name, _to_html(method.element.title)))
                 if view_class.uri == request.args.get('api', '') and _method_name == request.args.get('method', ''):
+                    print(view_class)
+                    print(method)
+                    print(view_class.request_methods)
                     curr_api_context = _get_curr_api(user, view_class, method)
 
     context = {'user': user,
@@ -123,6 +129,7 @@ def index():
                'api_config': api_config,
                'post_type': request.args.get('type', 'j')}
     context.update(curr_api_context)
+    print(context)
     return render_template('tests/template/tests_index.html', **context)
 
 

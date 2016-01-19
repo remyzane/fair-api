@@ -75,6 +75,7 @@ def setup_app(app, config):
         plugin = plugin_class(config)
         app.config['plugins'][name] = plugin
 
+    default_class_sign = ''
     app.config['responses'] = app.config.get('responses') or {}
     for name, class_path in app.config['responses'].items():
         if name == 'default':

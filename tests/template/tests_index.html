@@ -33,9 +33,9 @@
         <div class="menu">
             {% for api_uri, method_name, description in api_list %}
             {% if api_uri == curr_api_uri and method_name == curr_api_method %}
-            <div class="uri item active">{{ api_uri }}</div>
+            <div class="uri item active">{{ '%s %s' % (api_uri, method_name) }}</div>
             {% else %}
-            <div class="uri item">{{ api_uri }}</div>
+            <div class="uri item">{{ '%s %s' % (api_uri, method_name) }}</div>
             {% endif %}
             {% endfor %}
         </div>
@@ -190,13 +190,13 @@
                 <td>
                     <label for="{{ param['name'] }}_pure_auto">
                         <input type="checkbox" id="{{ param['name'] }}_pure_auto"
-                                {% if params_config.get(param['name']) and params_config[param['name']]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
+                                {% if curr_api_params_config.get(param['name']) and curr_api_params_config[param['name']]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
                     </label>
                 </td>
                 <td>
                     <div class="ui transparent input param-url">
                         <input type="text" id="{{ param['name'] }}_url" name="param_url"
-                                value="{% if params_config.get(name) %}{{ params_config[param['name']]['url']}}{% endif %}">
+                                value="{% if curr_api_params_config.get(name) %}{{ curr_api_params_config[param['name']]['url']}}{% endif %}">
                     </div>
                 </td>
             </tr>
