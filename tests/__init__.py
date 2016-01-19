@@ -2,10 +2,8 @@
 
 import os
 import json
-import pkgutil
 from flask import session, request, render_template, Response
-from curd import parameter, plugin, JSON, CView
-from curd.utility import class_name_to_api_name
+from curd import JSON, CView
 from curd.plugin.jsonp import JsonP
 
 from demo import app
@@ -74,36 +72,32 @@ def _get_test_case(user, curr_api_uri, method_name, code):
 
 
 # get detail info of current api
-def _get_curr_api():
-    curr_api_codes = _get_sorted_code(method_name, element, user, curr_api_uri)
-    api_config_path = os.path.join(_get_case_dir(user, curr_api_uri, method_name), '__config__')
+def _get_curr_api(user, view, method):
+    context = dict()
+    context['curr_api_uri'] = view.uri
+    context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri,
+    context['curr_api_method'] = method.__name__.upper(),
+    context['curr_api_params'] = method.element.param_list if method.element else [],
+    context['curr_api_description'] = _to_html(method.element.description),
+    context['curr_api_json_p'] = None,
+    context['curr_api_params_config'] = {}
+    context['curr_api_codes'] = _get_sorted_code(method.__name__.upper(), method.element, user, view.uri)
+    api_config_path = os.path.join(_get_case_dir(user, view.uri, method.__name__.upper()), '__config__')
     if os.path.exists(api_config_path):
         with open(api_config_path, 'r') as config:
             api_config = json.load(config)
-            params_config = api_config['params']
-    curr_api_description = _to_html(element.description)
-
-
-    return {
-        'curr_api_uri': curr_api_uri,
-        'curr_api_path': 'http://' + request.environ['HTTP_HOST'] + (curr_api_uri or ''),
-        'curr_api_method': method_name,
-        'curr_api_params': element.param_list if element else [],
-        'curr_api_codes': curr_api_codes,
-        'curr_api_description': curr_api_description
-    }
+            context['curr_api_params_config'] = api_config['params']
+    for plugin in method.element.plugins:
+        if isinstance(plugin, JsonP):
+            context['curr_api_json_p'] = plugin.callback_field_name
+    return context
 
 
 @app.route('/tests/', endpoint='tests.index')
 def index():
     api_list = []
-    element = None
-    curr_api_uri = None
-    curr_api_params = []
+    curr_api_context = {}
     api_config = {}
-    params_config = {}
-    request_uri = request.args.get('api', '')
-    method_name = request.args.get('method', '')
     user = request.args.get('user', '')
     if user not in app.config['tests_access_keys']:
         if app.config.get('SECRET_KEY'):
@@ -114,41 +108,21 @@ def index():
     if app.config.get('SECRET_KEY'):
         session['user'] = user
 
-    for package_name in app.view_packages:
-        exec('import %s as package' % package_name)
-        # recursive traversal package
-        for importer, modname, is_pkg in pkgutil.iter_modules(locals()['package'].__path__):
-            if not is_pkg:
-                exec('import %s.%s as package' % (package_name, modname))
-                views = locals()['package']
-                for item in dir(views):
-                    view = getattr(views, item)
-                    try:
-                        if issubclass(view, CView) and view != CView:   # sometime issubclass throw TypeError
-                            print(item, view)
-                            name = class_name_to_api_name(view.__name__)
-                            for _method_name, method in view.request_methods.items():
-                                uri = '/%s/%s' % (package_name, name)
-                                api_list.append((uri, _method_name, _to_html(method.element.title)))
-                                if uri == request_uri and _method_name == method_name:
-                                    curr_api_uri = uri
-                                    element = method.element
-                                    print(curr_api_uri)
-                                    print(method)
-                    except TypeError:
-                        pass
+    view_keys = list(app.view_functions.keys())
+    view_keys.sort()
+    for name in view_keys:
+        view_class = getattr(app.view_functions[name], 'view_class', None)
+        if view_class and issubclass(view_class, CView) and view_class != CView:
+            for _method_name, method in view_class.request_methods.items():
+                api_list.append((view_class.uri, _method_name, _to_html(method.element.title)))
+                if view_class.uri == request.args.get('api', '') and _method_name == request.args.get('method', ''):
+                    curr_api_context = _get_curr_api(user, view_class, method)
 
-    json_p = None
-    for plugin in element.plugins:
-        if isinstance(plugin, JsonP):
-            json_p = plugin.callback_field_name
     context = {'user': user,
                'api_list': api_list,
                'api_config': api_config,
-               'params_config': params_config,
-               'post_type': request.args.get('type', 'j'),
-               'json_p': json_p}
-    context.update(_get_curr_api())
+               'post_type': request.args.get('type', 'j')}
+    context.update(curr_api_context)
     return render_template('tests/template/tests_index.html', **context)
 
 

@@ -5,6 +5,7 @@ import sys
 import yaml
 import string
 import logging
+import pkgutil
 from importlib import import_module
 from argparse import HelpFormatter
 from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
@@ -185,9 +186,24 @@ def get_request_params(request):
             return request.json.copy()              # Content-Type: application/json
 
 
-def get_cls_with_path(cls):
-    module_name, class_name = cls.rsplit(".", 1)
+def get_cls_with_path(cls_path):
+    module_name, class_name = cls_path.rsplit(".", 1)
     module = import_module(module_name)
     return getattr(module, class_name)
 
 
+def iterate_package(package):
+    for importer, modname, is_pkg in pkgutil.iter_modules(package.__path__):
+        sub_package = import_module('%s.%s' % (package.__package__, modname))
+        if is_pkg:
+            iterate_package(sub_package)
+
+
+def iterate_package_with_processor(package, processor):
+    processor(package)
+    for importer, modname, is_pkg in pkgutil.iter_modules(package.__path__):
+        sub_package = import_module('%s.%s' % (package.__package__, modname))
+        if is_pkg:
+            iterate_package(sub_package, processor)
+        else:
+            processor(sub_package)

@@ -20,7 +20,7 @@ Request Params: -----------------------------------------
 class CView(object):
     """View base class
     """
-
+    uri = None
     request_methods = {}
     # # Can be overload by subclasses
     # database = 'default'        # used by auto_rollback
@@ -41,8 +41,8 @@ class CView(object):
         view_wrapper.methods = cls.request_methods.keys()
 
     @classmethod
-    def __reconstruct(cls, app, view_wrapper):
-
+    def __reconstruct(cls, app, uri, view_wrapper):
+        cls.uri = uri
         cls.__request_methods(view_wrapper)
         for method in cls.request_methods.values():
             method.element = Element(app, cls, method)
@@ -94,7 +94,7 @@ class CView(object):
         return response_content
 
     @classmethod
-    def as_view(cls, name, app, *class_args, **class_kwargs):
+    def as_view(cls, name, uri, app, *class_args, **class_kwargs):
         def view_wrapper(*args, **kwargs):
             # instantiate view class, thread security
             self = view_wrapper.view_class(*class_args, **class_kwargs)
@@ -112,7 +112,7 @@ class CView(object):
         view_wrapper.__module__ = cls.__module__
         view_wrapper.__doc__ = cls.__doc__
         # reconstruct view class
-        cls.__reconstruct(app, view_wrapper)
+        cls.__reconstruct(app, uri, view_wrapper)
         return view_wrapper
 
     # get request parameters
