@@ -78,8 +78,9 @@ class CView(object):
                 plugin.before_request(self)
 
             # structure parameters
+            print('aaa', self.params)
             self.__structure_params()
-
+            print('bbb', self.params)
             response_content = self.method(self, **self.params)
             if type(response_content) == tuple:
                 code, content, response_content = response_content

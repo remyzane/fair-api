@@ -161,10 +161,10 @@ class Element(object):
             self.param_default[items[-1]] = None
             self.param_types[items[-1]] = param_type
             if isinstance(param['type'], List):
-                self.__element_code_set(param_type.type.error_code, param_type.type.requirement)
-                self.__element_code_set(param_type.error_code, param_type.requirement % param_type.type.__name__)
+                self.__element_code_set(param_type.type.error_code, param_type.type.description)
+                self.__element_code_set(param_type.error_code, param_type.description % param_type.type.__name__)
             elif param['type'] != Param:
-                self.__element_code_set(param_type.error_code, param_type.requirement)
+                self.__element_code_set(param_type.error_code, param_type.description)
         else:
             setattr(self, name, content)
 

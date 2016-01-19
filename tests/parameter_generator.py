@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from flask import request
-from curd.plugin.token import Token
 
 from demo import app
 from demo.utility import SimpleAes
@@ -17,7 +16,7 @@ def token():
         return '/parameter_generator/token/ must specify the parameter [tests_access_key]'
     if tests_access_key not in app.config['tests_access_keys']:
         return 'invalid tests_access_key'
-    return Token.create(identity)
+    return app.config['plugins']['token'].create(identity)
 
 
 @app.route('/parameter_generator/encrypt/', endpoint='parameter_generator.encrypt')

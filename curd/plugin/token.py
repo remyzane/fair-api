@@ -60,6 +60,16 @@ class Token(Plugin):
         self.__key_provider = get_cls_with_path(params['key_provider'])
         self.__raise_class = get_cls_with_path(params['raise_class'])
 
+    def init_view(self, view_class, method):
+        """Plugin main method.
+
+        Will be called each request after parameters checked.
+
+        :param CView view_class: view class
+        """
+        del method.element.param_default[PARAM_TOKEN]
+        del method.element.param_default[PARAM_IDENTITY]
+
     def before_request(self, view):
         """Plugin main method.
 
@@ -77,14 +87,15 @@ class Token(Plugin):
             raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN})
         if not identity:
             raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY})
+        del view.params[PARAM_TOKEN]
+        del view.params[PARAM_IDENTITY]
         # check token
         try:
             self.check(identity, token)
         except TokenException as e:
             raise self.__raise_class(view, 'token_invalid', {'error': str(e)})
 
-    @classmethod
-    def create(cls, identity, timestamp=None):
+    def create(self, identity, timestamp=None):
         """Generate token use identity and timestamp.
 
         :param str identity: Username or App Id
@@ -95,7 +106,7 @@ class Token(Plugin):
         :raise TokenTimestampInvalid: Token timestamp invalid, timestamp must be integer
         :raise TokenKeyInvalid: Key must be 16 bytes long
         """
-        key = cls.__key_provider(identity)
+        key = self.__key_provider(identity)
         try:
             plaintext = '%d%s' % (timestamp or int(time.time()), key)
         except TypeError:
@@ -110,8 +121,7 @@ class Token(Plugin):
         cipher_text = aes_obj.encrypt(byte_text)
         return base64.b16encode(cipher_text).decode()
 
-    @classmethod
-    def check(cls, identity, cipher_text):
+    def check(self, identity, cipher_text):
         """Check Token is valid or invalid.
 
         :param str identity: Username or App Id
@@ -124,7 +134,7 @@ class Token(Plugin):
         """
         if len(cipher_text) % 16 != 0:
             raise TokenInvalid('Token must be a multiple of 16 in length')
-        key = cls.__key_provider(identity)
+        key = self.__key_provider(identity)
         try:
             aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + 'x')
         except ValueError:

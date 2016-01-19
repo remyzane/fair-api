@@ -90,33 +90,20 @@
                 <th>Parameter Value</th>
                 <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
             </tr>
-            {% for param in curr_api_params %}
+            {% for name, requisite, description, type_name, type_display in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">
-                {% if param['type'].has_sub_type %}
-                    <span title="{{ param['type'].requirement }}">{{ param['type'].__name__ }}</span>[
-                    <span title="{{ param['type'].type.requirement }}">{{ param['type'].type.__name__ }}</span>]
-                {% else %}
-                    <span title="{{ param['type'].requirement }}">{{ param['type'].__name__ }}</span>
-                {% endif %}
-                </td>
-                <td style="text-align:center;">{% if param['requisite'] %}●{% endif %}</td>
-                <td class="param-name">{{ param['name'] }}</td>
+                <td style="font-size:.8em;">{{ type_display | safe }}</td>
+                <td style="text-align:center;">{{ requisite }}</td>
+                <td class="param-name">{{ name }}</td>
                 <td>
                     <div class="ui transparent input param">
-                        <input type="text" id="{{ param['name'] }}" name="param" onchange="param_onchange(this);">
+                        <input type="text" id="{{ name }}" name="param" onchange="param_onchange(this);">
                     </div>
                 </td>
                 <td>
-                    <input type="checkbox" id="{{ param['name'] }}_select" name="param_select" style="float:right">
+                    <input type="checkbox" id="{{ name }}_select" name="param_select" style="float:right">
                 </td>
-                <input type="hidden" id="{{ param['name'] }}_type" name="param_type"
-                       {% if param['type'].has_sub_type %}
-                       value="{{ '%s[%s]' % (param['type'].__name__, param['type'].type.__name__) }}">
-                {% else %}
-                value="{{ param['type'].__name__ }}">
-                {% endif %}
-
+                <input type="hidden" id="{{ name }}_type" name="param_type" value="{{ type_name }}">
             </tr>
             {% endfor %}
         </table>
@@ -149,7 +136,7 @@
     <div class="content">
         {% if json_p %}
         <label for="json_p">
-            <input type="checkbox" id="json_p" {% if api_config.get('json_p') %} checked="checked" {% endif %}>
+            <input type="checkbox" id="json_p" {% if curr_api_config.get('json_p') %} checked="checked" {% endif %}>
             &nbsp;&nbsp; <strong>Use JSONP mode, &nbsp;&nbsp; correlation parameter:</strong>
         </label>
          </br>
@@ -160,11 +147,11 @@
         <strong>POST ContentType:</strong>&nbsp;&nbsp;&nbsp;
         <label for="post_type_j">
             <input type="radio" id="post_type_j" name="post_type" value="j"
-                   {% if api_config.get('post_type')!='f'%} checked="checked" {% endif %}/>&nbsp;&nbsp;application/json
+                   {% if curr_api_config.get('post_type')!='f'%} checked="checked" {% endif %}/>&nbsp;&nbsp;application/json
         </label>&nbsp;&nbsp;&nbsp;
         <label for="post_type_f">
             <input type="radio" id="post_type_f" name="post_type" value="f"
-                   {% if api_config.get('post_type')=='f' %} checked="checked" {% endif %}/>&nbsp;&nbsp;application/x-www-form-urlencoded
+                   {% if curr_api_config.get('post_type')=='f' %} checked="checked" {% endif %}/>&nbsp;&nbsp;application/x-www-form-urlencoded
         </label>
         {% endif %}
         <h4 class="ui dividing header"></h4>
@@ -176,27 +163,21 @@
                 <th style="width:18%;">Input Value</th>
                 <th style="width:52%;">Value Generator URL (append Input Value if need and inputted)</th>
             </tr>
-            {% for param in curr_api_params %}
+            {% for name, requisite, description, type_name, type_display in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">
-                {% if param['type'].has_sub_type %}
-                    {{ param['type'].__name__ }}[{{ param['type'].type.__name__ }}]
-                {% else %}
-                    {{ param['type'].__name__ }}
-                {% endif %}
-                </td>
-                <td style="text-align:center;">{% if param['requisite'] %}●{% endif %}</td>
-                <td>{{ param['name'] }}</td>
+                <td style="font-size:.8em;">{{ type_name }}</td>
+                <td style="text-align:center;">{{ requisite }}</td>
+                <td>{{ name }}</td>
                 <td>
-                    <label for="{{ param['name'] }}_pure_auto">
-                        <input type="checkbox" id="{{ param['name'] }}_pure_auto"
-                                {% if curr_api_params_config.get(param['name']) and curr_api_params_config[param['name']]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
+                    <label for="{{ name }}_pure_auto">
+                        <input type="checkbox" id="{{ name }}_pure_auto"
+                                {% if curr_api_params_config.get(name) and curr_api_params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
                     </label>
                 </td>
                 <td>
                     <div class="ui transparent input param-url">
-                        <input type="text" id="{{ param['name'] }}_url" name="param_url"
-                                value="{% if curr_api_params_config.get(name) %}{{ curr_api_params_config[param['name']]['url']}}{% endif %}">
+                        <input type="text" id="{{ name }}_url" name="param_url"
+                                value="{% if curr_api_params_config.get(name) %}{{ curr_api_params_config[name]['url']}}{% endif %}">
                     </div>
                 </td>
             </tr>
