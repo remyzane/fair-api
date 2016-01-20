@@ -2,36 +2,38 @@
 
 import logging
 from flask.views import request
-from flask import Response
 
-from .configure import db
 from .element import Element
-from .response import ResponseRaise, JsonRaise
+from .response import ResponseRaise
 from .utility import get_request_params
 
 log = logging.getLogger(__name__)
 
-_request_params_log = '''
-Request Params: -----------------------------------------
+_request_params = '''
+Request params: -----------------------------------------
 %s
 ---------------------------------------------------------'''
 
+_method_params = '''
+Method params: ------------------------------------------
+%s
+---------------------------------------------------------'''
 
 class CView(object):
     """View base class
+
+    :cvar str uri: reservation variable, readonly in sub view class.
+    :cvar dict request_methods: CView reservation variable, readonly in sub view class.
+
     """
+
     uri = None
     request_methods = None
-    # # Can be overload by subclasses
-    # database = 'default'        # used by auto_rollback
-    # db = None
-    # auto_rollback = True       # auto rollback the current transaction while result code != success
-    # parameters = {}             # example：{'Id': Int, ...}, type has available：Int, Float, Str, Mail、...
-    # requisite = []
-    # json_p = None               # if defined view's return will using jsonp (accustomed to using 'callback')
-    # codes = None
-    # plugins = None
-    # exclude = ()
+
+    log_request_params = True
+    log_method_params = True
+    log_process = True
+    log_return_data = True
 
     @classmethod
     def __request_methods(cls, view_wrapper):
@@ -49,9 +51,6 @@ class CView(object):
             method.element = Element(app, cls, method)
             for plugin in method.element.plugins:
                 plugin.init_view(cls, method)
-
-        # setting database
-        # cls.db = db.get(cls.database)
 
     def __init__(self):
         # the following variables is different in per request
@@ -78,10 +77,10 @@ class CView(object):
                 plugin.before_request(self)
 
             # structure parameters
-            print('aaa', self.params)
             self.__structure_params()
-            print('bbb', self.params)
+
             response_content = self.method(self, **self.params)
+
             if type(response_content) == tuple:
                 code, content, response_content = response_content
                 self.log(code, content)
@@ -100,14 +99,7 @@ class CView(object):
         def view_wrapper(*args, **kwargs):
             # instantiate view class, thread security
             self = view_wrapper.view_class(*class_args, **class_kwargs)
-            # rollback the current transaction while result code != success
-            # if self.auto_rollback:
-            #     with self.db.transaction():
-            #         return self.dispatch_request(*args, **kwargs)
-            # else:
-            #     return self.dispatch_request(*args, **kwargs)
-            ret = self.__response(*args, **kwargs)
-            return ret
+            return self.__response(*args, **kwargs)
 
         view_wrapper.view_class = cls
         view_wrapper.__name__ = name
@@ -120,34 +112,28 @@ class CView(object):
     # get request parameters
     def __structure_params(self):
 
-        self.params_log = _request_params_log % self.params
+        self.params_log = _request_params % self.params_proto
 
         # check the necessary parameter's value is sed
         for param in self.element.param_not_null:
             if self.params_proto.get(param, '') == '':       # 0 is ok
-                raise JsonRaise(self, 'param_missing', {'parameter': param})
+                raise self.rr('param_missing', {'parameter': param})
 
         params = self.element.param_default.copy()
 
         # parameter's type of proof and conversion
         for param, value in self.params.items():
             if param not in self.element.param_index:
-                raise JsonRaise(self, 'param_unknown', {'parameter': param, 'value': value})
-
+                raise self.rr('param_unknown', {'parameter': param, 'value': value})
             if value is not None:
-                params[param] = self.types[param].structure(self, value)
-                #
-                # # type conversion (application/json don't need) (Str and its subclasses don't need)
-                # if not issubclass(_type, Str):
-                #     try:
-                #         value = _type.conversion(value) if value else None
-                #         self.params[param] = value
-                #     except ValueError:
-                #         raise RR(self.response(_type.code, {'parameter': param, 'value': value}))
-                # # parameter check
-                # error_code = _type.check(value)
-                # if error_code:
-                #     raise RR(self.response(error_code, {'parameter': param, 'value': value}))
+                try:
+                    print('aa', param, params[param])
+                    params[param] = self.types[param].structure(self, value)
+                    print('bb', param, params[param])
+                except Exception:
+                    raise self.rr(self.types[param].error_code, {'parameter': param, 'value': value})
+
+        self.params_log += _method_params % params
         self.params = params
 
     def r(self, code, data=None, status=None):
@@ -178,8 +164,6 @@ Return Data: --------------------------------------------
                 log.info('%s %s %s', request.path, self.codes[code], self.params_log)
         else:
             if exception:
-                print('%s %s %s %s' % (request.path, self.codes[code], self.params_log, debug_info))
                 log.exception('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)
-                # log.exception('')
             else:
                 log.error('%s %s %s %s', request.path, self.codes[code], self.params_log, debug_info)

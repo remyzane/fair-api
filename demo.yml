@@ -56,7 +56,7 @@ flask:
 #  DEBUG: true
 
   # session secret key, in order to optimal performance comment it if need not
-  # SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
+   SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
 
   # session lifetime (days)
   # need set flask.session['remember'] = 'set', or set remember=True while call flask_login.login_user

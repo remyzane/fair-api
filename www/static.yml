@@ -23,6 +23,7 @@ www/libs/semantic/semantic.min.css:
 # test_ui
 www/js/tests/tests.min.js:
   - tests/static/tests.js
+  - tests/static/parameter.js
 
 www/css/tests/tests.min.css:
   - tests/static/tests.css

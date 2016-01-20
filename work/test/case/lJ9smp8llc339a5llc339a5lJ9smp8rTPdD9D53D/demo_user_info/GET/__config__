@@ -1,1 +1,1 @@
-{"post_type": "j", "params": {"identity": {"pure_auto": false, "url": ""}, "token": {"pure_auto": true, "url": "/parameter_generator/token/?identity=[identity]&tests_access_key=lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D"}, "id": {"pure_auto": false, "url": ""}}, "json_p": false}
+{"params": {"identity": {"pure_auto": false, "url": ""}, "token": {"pure_auto": true, "url": "/parameter_generator/token/?identity=[identity]&tests_access_key=lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D"}, "user_id": {"pure_auto": false, "url": ""}}, "post_type": "j", "json_p": true, "method": "GET"}

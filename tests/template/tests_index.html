@@ -12,11 +12,11 @@
     <script type="text/javascript" src="/res/js/tests/tests.min.js"></script>
     <script type="text/javascript">
         var user = '{{user}}';
-        var json_p = '{{json_p}}';
         var post_type = '{{post_type}}';
         var curr_api_uri = '{{curr_api_uri}}';
         var curr_api_path = '{{curr_api_path}}';
         var curr_api_method = '{{curr_api_method}}';
+        var curr_api_json_p = '{{curr_api_json_p}}';
         var test_cases = {};
     </script>
 </head>
@@ -116,13 +116,13 @@
 <div class="ui modal">
     <div class="header">Setting&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="content">
-        {% if json_p %}
+        {% if curr_api_json_p %}
         <label for="json_p">
             <input type="checkbox" id="json_p" {% if curr_api_config.get('json_p') %} checked="checked" {% endif %}>
             &nbsp;&nbsp; <strong>Use JSONP mode, &nbsp;&nbsp; correlation parameter:</strong>
         </label>
          </br>
-        <span class="json-p-param"><strong>Name</strong> [{{json_p}}] defined in API class, &nbsp;&nbsp;
+        <span class="json-p-param"><strong>Name</strong> [{{curr_api_json_p}}] defined in API class, &nbsp;&nbsp;
             <strong>Value</strong> Generate by network lib like jQuery.ajax</span>
         {% endif %}
         {% if curr_api_method == 'POST' %}

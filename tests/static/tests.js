@@ -127,6 +127,11 @@ function get_params(auto_gen_param){
                 } else {
                     params[this.id] = null;
                 }
+            } else if (type == 'Bool'){
+                if (value == 'true' || value == 'True') {
+
+                }
+
             } else if (type.substr(0, 5) == 'List[') {
                 if ($.trim(value)) {
                     params[this.id] = [];
@@ -242,8 +247,8 @@ function do_test(){
         };
         if ($('#json_p').is(':checked')){
             request.dataType = 'jsonp';
-            request.jsonp = json_p;
-            request.cache = true;     // Let jquery not use "_" parameter (a timestamp, to prevent the server cache)
+            request.jsonp = curr_api_json_p;
+            //request.cache = true;     // Let jquery not use "_" parameter (a timestamp, to prevent the server cache)
         }
         $.ajax(request);
     } else {

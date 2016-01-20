@@ -8,6 +8,8 @@ from flask import current_app as app
 class JsonP(Plugin):
     """API Plugin parent class.
 
+    if defined in view's return will using jsonp (accustomed to using 'callback')
+
     :cvar dict codes: error code and message
     """
     error_codes = {}
@@ -37,13 +39,11 @@ class JsonP(Plugin):
 
         :param CView view: view class instance
         """
-                        # if self.json_p:
-                #     # jquery's cache management mechanism will add '_', '1_' parameter,
-                #     # let jquery don't add '_' parameter's method: set 'cache: true' in jquery's ajax method
-                #     if param == self.json_p or param == '_' or param == '1_':
-                #         continue
-
         if self.callback_field_name in view.params:
             view.json_p_callback_name = view.params[self.callback_field_name]
             view.raise_response = app.config['responses']['json_p']
             del view.params[self.callback_field_name]
+            if '_' in view.params:
+                del view.params['_']
+            if '1_' in view.params:
+                del view.params['1_']

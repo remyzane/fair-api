@@ -27,9 +27,6 @@ class Param(object):
 
 class Str(Param):
     """Str and it's sub class don't need [conversion] function
-
-    :cvar str error_code: Error code
-    :cvar str description: Parameter description
     """
     error_code = 'param_type_error_str'
     description = 'Parameter must be String'
@@ -37,35 +34,41 @@ class Str(Param):
     @classmethod
     def structure(cls, view, value):
         if view.application_json and type(value) is not str:
-            raise view.rr('')
+            raise Exception()
         return value
 
 
 class Bool(Param):
     """Boolean type parameter
-
-    :cvar str error_code: Error code
-    :cvar str description: Parameter description
     """
     error_code = 'param_type_error_bool'
-    description = 'Parameter must be Boolean'
+    description = 'Parameter must be true or false'
 
     @classmethod
     def structure(cls, view, value):
-        return int(value)
+        if view.application_json:
+            if type(value) is bool:
+                return value
+            else:
+                raise Exception()
+        else:
+            if value == 'true':
+                return True
+            elif value == 'false':
+                return False
+            else:
+                raise Exception()
 
 
 class Int(Param):
     """Int type parameter
-
-    :cvar str error_code: Error code
-    :cvar str description: Parameter description
     """
     error_code = 'param_type_error_int'
     description = 'Parameter must be Integer'
 
     @classmethod
     def structure(cls, view, value):
+        print(view.application_json)
         """conversion value to int
 
         :param value:   parameter value

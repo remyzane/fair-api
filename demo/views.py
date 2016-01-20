@@ -35,7 +35,7 @@ class UserInfo(CView):
         :plugin: json_p token
         :param Str * identity:
         :param Str * token:
-        :param Int * user_id:
+        :param Bool * user_id:
         :raise id_not_exist: Record does not exist.
         """
         if user_id > 100:
@@ -48,15 +48,10 @@ class UserInfo(CView):
     def post(self, username, nickname, password, email, address, mobile, zipcode):
         """User setting
 
-        aaa
-        Record does not exist.
-        Mobile number already exists.
-        Email address already exists.
-
         :plugin: token
         :param Str * identity: Identity
         :param Str * token: Token
-        :param Str * username:
+        :param Bool * username:
         :param Str nickname:
         :param Str * password:
         :param Mail * email:
