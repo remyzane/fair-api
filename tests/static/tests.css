@@ -4,15 +4,8 @@ body {
     height: auto;
 }
 
-.menu .property {
-    line-height: 40px;
-}
-.menu .property span, .menu .property label {
-    padding-left: 10px;
+.ui.inverted.menu .item.current-api, .ui.inverted.menu .item.message {
     color: #0087ba;
-}
-.menu .property label input {
-    margin-right: 3px;
 }
 
 .body {
@@ -67,12 +60,6 @@ body {
     margin-bottom: 0;
     padding: 8px 7px 8px 13px;
 }
-.body .case .message {
-    display: inline-block;
-    padding: 0 10px 3px 10px;
-    min-height: 40px;
-    color: #0087ba;
-}
 .body .case .divider {
     width: 100%;
     border-bottom: #cccccc solid 1px;
@@ -81,6 +68,9 @@ body {
 .body .params {
     padding-left: 1%;
     width: 48%;
+}
+.body .params table th {
+    text-align: left;
 }
 .param-mode {
     float: right;
@@ -99,6 +89,8 @@ body {
 table th { height: 2.2em; }
 table tr { height: 2.11em; }
 table td.param-name { font-size: 1.1em; }
+table td.type { font-size:.8em; }
+table td.requisite { text-align:center; }
 table td .ui.input input[name=param] { font-size: 1.1em; margin: .2em 0 .1em .2em;}
 div.param, div.param-url {
     width: 100%;

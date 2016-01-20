@@ -52,11 +52,11 @@ $(document).ready(function(){
         $('#result').height(window.innerHeight - 180);
     }
 
-    $(".case .item").mouseover(function(){
-        $(".case .message span").html($(this).attr('message'));
+    $(".show-message").mouseover(function(){
+        $(".menu .message span").html($(this).attr('message'));
     });
-    $(".case .item").mouseout(function(){
-        $(".case .message span").html($(".case .description").html());
+    $(".show-message").mouseout(function(){
+        $(".menu .message span").html('');
     });
 
     $(".green.ok.button").click(save_config);

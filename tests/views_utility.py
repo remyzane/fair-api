@@ -64,43 +64,47 @@ def get_test_case(user, view, method, code):
     return '[%s]' % use_cases
 
 
-def get_curr_api_params(param_list):
+def get_curr_api_params(param_list, config):
     params = []
+    params_config = config['params'] if config else {}
     for param in param_list:
+        name = param['name']
         requisite = '●' if param['requisite'] else ''
-        print(param)
         if param['type'].has_sub_type:
             type_name = '%s[%s]' % (param['type'].__name__, param['type'].type.__name__)
-            type_display = '''<span title="%s">%s</span>[<span title="%s">%s</span>]''' % (
+            type_display = '''<span message="%s">%s</span>[<span message="%s">%s</span>]''' % (
                 param['type'].description, param['type'].__name__,
                 param['type'].type.description, param['type'].type.__name__)
         else:
             type_name = param['type'].__name__
-            type_display = '''<span title="%s">%s</span>''' % (param['type'].description, param['type'].__name__)
-        params.append((param['name'], requisite, param['description'], type_name, type_display))
+            type_display = '''<span class="show-message" message="%s">%s</span>''' % \
+                           (to_html(param['type'].description), param['type'].__name__)
+        pure_auto = 'checked="checked"' if name in params_config and params_config[name]['pure_auto'] else ''
+        param_url = params_config[name]['url'] if name in params_config else ''
+        params.append((name, requisite, to_html(param['description']), type_name, type_display, pure_auto, param_url))
     return params
 
 
 # get detail info of current api
 def get_curr_api(user, view, method):
     context = dict()
-    context['curr_api_uri'] = view.uri
-    context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
-    context['curr_api_method'] = method.__name__.upper()
-    context['curr_api_params'] = get_curr_api_params(method.element.param_list)
-    context['curr_api_description'] = to_html(method.element.description)
-    context['curr_api_json_p'] = None
-    context['curr_api_config'] = {}
-    context['curr_api_params_config'] = {}
-    context['curr_api_codes'] = get_sorted_code(user, view, method)
     api_config_path = os.path.join(get_case_dir(user, view.uri, method.__name__.upper()), '__config__')
     if os.path.exists(api_config_path):
         with open(api_config_path, 'r') as config:
             context['curr_api_config'] = json.load(config)
-            context['curr_api_params_config'] = context['curr_api_config']['params']
+
+    title, description = method.element.title, method.element.description
+    context['curr_api_uri'] = view.uri
+    context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
+    context['curr_api_method'] = method.__name__.upper()
+    context['curr_api_params'] = get_curr_api_params(method.element.param_list, context.get('curr_api_config'))
+    context['curr_api_description'] = to_html(title + (os.linesep*2 if description else '') + description)
+    context['curr_api_json_p'] = None
+    context['curr_api_config'] = {}
+    context['curr_api_params_config'] = {}
+    context['curr_api_codes'] = get_sorted_code(user, view, method)
+
     for plugin in method.element.plugins:
         if isinstance(plugin, JsonP):
             context['curr_api_json_p'] = plugin.callback_field_name
-    print(context['curr_api_params'])
-    print(context['curr_api_params_config'])
     return context

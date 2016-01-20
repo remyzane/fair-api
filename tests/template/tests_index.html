@@ -24,62 +24,44 @@
 
 <div class="ui top fixed inverted menu">
     {% if curr_api_uri %}
-    <a class="item icon home-button" href="/tests/?user={{user}}">
-        <i class="home icon"></i>
-    </a>
-
-    <div class="ui dropdown item">
-        <i class="sidebar icon"></i>Api List
+    <a class="item icon home-button" href="/tests/?user={{user}}"><i class="home icon"></i></a>
+    <div class="ui dropdown item"><i class="sidebar icon"></i>Api List
         <div class="menu">
-            {% for api_uri, method_name, description in api_list %}
-            {% if api_uri == curr_api_uri and method_name == curr_api_method %}
-            <div class="uri item active">{{ '%s %s' % (api_uri, method_name) }}</div>
-            {% else %}
-            <div class="uri item">{{ '%s %s' % (api_uri, method_name) }}</div>
-            {% endif %}
+            {% for api_uri, method_name, description, active in api_list %}
+            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method_name) }}</div>
             {% endfor %}
         </div>
     </div>
-    <a class="item copy-button">
-        <i class="linkify icon"></i>Copy Address
-    </a>
+    <a class="item copy-button"><i class="linkify icon"></i>Copy Address</a>
     <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
         <i class="setting icon"></i>
     </a>
-
-    <div class="item property">
-        <span>{{ curr_api_method }}</span>
-        <span>{{ curr_api_uri }}</span>
-    </div>
+    <div class="item current-api show-message" message="{{curr_api_description | safe}}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
+    <div class="item message"><span></span></div>
     {% endif %}
     <div class="right menu">
         {% if curr_api_uri %}
-        <a class="item" onclick="do_test()">
-            <i class="setting icon"></i>run testing
-        </a>
+        <a class="item" onclick="do_test()"><i class="setting icon"></i>run testing</a>
         {% endif %}
-        <a class="item" href="/tests/">
-            <i class="sign out icon"></i>Exit
-        </a>
+        <a class="item" href="/tests/"><i class="sign out icon"></i>Exit</a>
     </div>
 </div>
 
 <div class="body x">
     {% if curr_api_uri %}
     <div class="case">
-        <div class="title">Api & return code information</div>
+        <div class="title">Response code</div>
         <div class="description">{{curr_api_description | safe}}</div>
         <div class="ui secondary vertical menu">
             {% for code, message, cases in curr_api_codes %}
                 {% if code == '----' %}
             <div class="divider"></div>
                 {% else %}
-            <a class="item" code="{{code}}" message="{{message}}" cases="{{cases}}" use_index=-1
+            <a class="item show-message" code="{{code}}" message="{{message | safe}}" cases="{{cases}}" use_index=-1
                onclick="use_case('{{code}}')">{{ code }}</a>
                 {% endif %}
             {% endfor %}
         </div>
-        <div class="message"><span>{{curr_api_description | safe}}</span></div>
     </div>
     <div class="params">
         <table style="width:100%;border-spacing:0;">
@@ -90,11 +72,11 @@
                 <th>Parameter Value</th>
                 <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
             </tr>
-            {% for name, requisite, description, type_name, type_display in curr_api_params %}
+            {% for name, requisite, description, type_name, type_display, pure_auto, param_url in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">{{ type_display | safe }}</td>
-                <td style="text-align:center;">{{ requisite }}</td>
-                <td class="param-name">{{ name }}</td>
+                <td class="type">{{ type_display | safe }}</td>
+                <td class="requisite">{{ requisite }}</td>
+                <td class="param-name show-message" message="{{ description | safe }}">{{ name }}</td>
                 <td>
                     <div class="ui transparent input param">
                         <input type="text" id="{{ name }}" name="param" onchange="param_onchange(this);">
@@ -119,12 +101,12 @@
     </div>
     {% else %}
     <div class="ui link api items">
-        {% for api_uri, method_name, title in api_list %}
+        {% for api_uri, method_name, description, active in api_list %}
         <div class="item">
             <div class="content">
                 <div class="method">{{ method_name }}</div>
                 <div class="uri">{{ api_uri }}</div>
-                <div class="title">{{ title | safe }}</div>
+                <div class="title">{{ description | safe }}</div>
             </div>
         </div>
         {% endfor %}
@@ -163,21 +145,19 @@
                 <th style="width:18%;">Input Value</th>
                 <th style="width:52%;">Value Generator URL (append Input Value if need and inputted)</th>
             </tr>
-            {% for name, requisite, description, type_name, type_display in curr_api_params %}
+            {% for name, requisite, description, type_name, type_display, pure_auto, param_url in curr_api_params %}
             <tr>
-                <td style="font-size:.8em;">{{ type_name }}</td>
-                <td style="text-align:center;">{{ requisite }}</td>
+                <td class="type">{{ type_name }}</td>
+                <td class="requisite">{{ requisite }}</td>
                 <td>{{ name }}</td>
                 <td>
                     <label for="{{ name }}_pure_auto">
-                        <input type="checkbox" id="{{ name }}_pure_auto"
-                                {% if curr_api_params_config.get(name) and curr_api_params_config[name]['pure_auto'] %} checked="checked" {% endif %}>&nbsp;Not Need
+                        <input type="checkbox" id="{{ name }}_pure_auto" {{ pure_auto }}>&nbsp;Not Need
                     </label>
                 </td>
                 <td>
                     <div class="ui transparent input param-url">
-                        <input type="text" id="{{ name }}_url" name="param_url"
-                                value="{% if curr_api_params_config.get(name) %}{{ curr_api_params_config[name]['url']}}{% endif %}">
+                        <input type="text" id="{{ name }}_url" name="param_url" value="{{ param_url }}">
                     </div>
                 </td>
             </tr>
@@ -185,14 +165,8 @@
         </table>
     </div>
     <div class="actions">
-        <div class="ui red cancel button">
-            <i class="remove icon"></i>
-            Cancel
-        </div>
-        <div class="ui green ok button">
-            <i class="checkmark icon"></i>
-            OK
-        </div>
+        <div class="ui red cancel button"><i class="remove icon"></i>Cancel</div>
+        <div class="ui green ok button"><i class="checkmark icon"></i>OK</div>
     </div>
 </div>
 </body>

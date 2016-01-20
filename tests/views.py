@@ -32,10 +32,11 @@ def index():
             methods.sort()
             for method_name in methods:
                 method = view_class.request_methods[method_name]
-                api_list.append((view_class.uri, method_name, to_html(method.element.title)))
                 if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
                     curr_api_context = get_curr_api(user, view_class, method)
-
+                    api_list.append((view_class.uri, method_name, to_html(method.element.title), 'active'))
+                else:
+                    api_list.append((view_class.uri, method_name, to_html(method.element.title), ''))
     context = {'user': user,
                'api_list': api_list,
                'post_type': request.args.get('type', 'j')}
