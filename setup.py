@@ -3,7 +3,7 @@
 
 from setuptools import setup, find_packages
 
-setup(name='flask http api',
+setup(name='flask-http-api',
       version='1.0',
       description='',
       long_description='',
