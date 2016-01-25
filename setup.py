@@ -27,3 +27,7 @@ setup(name='flask-http-api',
             'mock',
       ]
       )
+
+# TODO check chinese comments  then translate
+# TODO DOC
+# TODO The web test case's automation (in unit test)

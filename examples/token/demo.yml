@@ -51,6 +51,14 @@ app:
     json_p: http_api.response.JsonPRaise
     default: json
 
+  workspace: work
+
+  web_ui:
+    uri: api
+    test_ui:
+      save_path:
+
+
 flask:
 #  DEBUG: true
 

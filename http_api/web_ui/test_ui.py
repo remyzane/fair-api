@@ -5,7 +5,54 @@ import json
 from flask import request
 from http_api.plugin.jsonp import JsonP
 
-from demo.utility import program_dir
+# from demo.utility import program_dir
+
+def _params_not_equal(old_params, new_params):
+    for param in old_params:
+        if old_params[param] != new_params.get(param):
+            return True
+    for param in new_params:
+        if new_params[param] != old_params.get(param):
+            return True
+    return False
+
+
+class TestsUI(object):
+
+    def __init__(self, workspace, params=None):
+        pass
+
+    def get_case(self):
+        pass
+
+    def set_case(self, user, uri, method, param_mode, params, code):
+        result = []
+        case_path = os.path.join(get_case_dir(user, uri, method), code)
+        new_data = json.dumps({
+            'param_mode': param_mode,
+            'params': params
+        }) + os.linesep
+        # read old record
+        if os.path.exists(case_path):
+            data_file = open(case_path, 'r')
+            for line in data_file.readlines():
+                line_data = json.loads(line)
+                if line_data['param_mode'] != param_mode or _params_not_equal(line_data['params'], params):
+                    result.append(line)
+            data_file.close()
+        # add new record
+        result.append(new_data)
+
+        # save the latest 10 record
+        data_file = open(case_path, 'w')
+        for line in result[-10:]:
+            data_file.write(line)
+        data_file.close()
+        return {'result': 'success'}
+
+
+    def set_config(self):
+        pass
 
 
 def to_html(text):

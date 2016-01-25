@@ -9,11 +9,11 @@ from argparse import ArgumentParser
 from watchdog.observers import Observer
 
 sys.path.insert(0, '..')
+import http_api
 from http_api.utility import load_yaml, CustomizeHelpFormatter
 from http_api.assist.coding import SourceCodeMonitor, ServerRestartProcessor, BuildCssJsProcessor
 from http_api.assist.profile import run_profile
 from http_api.assist.pyshell import start_ipython
-
 from http_api.assist.coding import css_js_compressor
 css_js_compressor()
 
@@ -52,7 +52,7 @@ def code():
     ])
     monitor = SourceCodeMonitor(restart_processor, patterns)
     observer.schedule(monitor, program_dir, recursive=True)
-    # observer.schedule(monitor, another_module.__path__[0], recursive=True)         # another module
+    observer.schedule(monitor, http_api.__path__[0], recursive=True)
 
     # # rebuild css and js's min file while source file is change
     # patterns = ['*.css', '*.js', '*static.yml']     # '*' is necessary, and must in the first.

@@ -3,14 +3,13 @@
 <head lang="zh-cmn-Hans">
     <meta charset="UTF-8">
     <title>API Test Interface</title>
-    <script type="text/javascript" src="/res/libs/jquery.min.js"></script>
-    <script type="text/javascript" src="/res/libs/ZeroClipboard.min.js"></script>
-    <link rel="stylesheet" href="/res/fonts/lato.min.css"/>
-    <link rel="stylesheet" href="/res/libs/semantic/semantic.min.css"/>
-    <script type="text/javascript" src="/res/libs/semantic/semantic.min.js"></script>
-    <!--<link rel="stylesheet" href="/res/css/tests/tests.min.css"/>-->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/tests/tests.min.css') }}"/>
-    <script type="text/javascript" src="/res/js/tests/tests.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/ZeroClipboard.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='tests.css') }}"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='tests.js') }}"></script>
     <script type="text/javascript">
         var user = '{{user}}';
         var post_type = '{{post_type}}';

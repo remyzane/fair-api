@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <title>API Test Interface</title>
-    <script type="text/javascript" src="/res/libs/jquery.min.js"></script>
-    <link rel="stylesheet" href="/res/fonts/lato.min.css"/>
-    <link rel="stylesheet" href="/res/libs/semantic/semantic.min.css"/>
-    <script type="text/javascript" src="/res/libs/semantic/semantic.min.js"></script>
-    <link rel="stylesheet" href="/res/css/tests/tests.min.css"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='tests.css') }}"/>
+
     <script type="text/javascript">
         function do_entry(){
             window.location = '/tests/?user=' + $('#user')[0].value;

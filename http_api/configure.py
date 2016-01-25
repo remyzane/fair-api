@@ -7,11 +7,18 @@ from importlib import import_module
 
 from .parameter import Param
 from .utility import class_name_to_api_name, get_cls_with_path, iterate_package
+from .web_ui import setup_web_ui
+from .web_ui.log_ui import LogUI
+from .web_ui.test_ui import TestsUI
 
 log = logging.getLogger(__name__)
 
 
-def http_api_setup(app, config):
+def http_api_setup(app, config, workspace, log_ui_class=LogUI, test_ui_class=TestsUI):
+
+    # create application
+    app = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
+
     if config.get('databases'):
         setup_database(config['databases'])
 
@@ -23,6 +30,20 @@ def http_api_setup(app, config):
 
     # configure view
     setup_view(app, config['app']['view_packages'])
+
+    # configure web ui
+    setup_web_ui(app, config['app']['web_ui'], workspace, log_ui_class, test_ui_class)
+
+    workspace = os.path.join(program_dir, 'work')
+
+    # setting logging
+    set_logging(config['logging'], workspace)
+    # log.debug('app config: %s', json.dumps(config['app'], indent=4))
+
+    return app
+
+
+
 
 
 db_classes = {
