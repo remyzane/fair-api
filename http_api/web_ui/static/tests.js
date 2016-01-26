@@ -9,7 +9,7 @@ $(document).ready(function(){
     $('.ui.menu .ui.dropdown').dropdown({
         on: 'hover'
     });
-    ZeroClipboard.config( { swfPath: "/res/libs/ZeroClipboard.swf" } );
+    ZeroClipboard.config( { swfPath: web_ui_static + "libs/ZeroClipboard.swf" } );
     var client = new ZeroClipboard($(".copy-button"));
     client.on( "copy", function (event) {
         var params = curr_api_method == 'GET' ? $.param(get_params(true)) : null;
@@ -345,7 +345,7 @@ function save_case(code){
         "code": code
     };
     $.ajax({
-        url: '/tests/save_case/',
+        url: '/' + web_ui + '/tests/save_case',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -372,7 +372,7 @@ function save_case(code){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [/tests/save_case/]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui + '/tests/save_case]'); }
     });
 }
 
@@ -425,7 +425,7 @@ function save_config(){
         "params": get_params_config()
     };
     $.ajax({
-        url: '/tests/save_config/',
+        url: '/' + web_ui + '/tests/save_config',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -436,6 +436,6 @@ function save_config(){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [/tests/save_config/]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui + '/tests/save_config]'); }
     });
 }

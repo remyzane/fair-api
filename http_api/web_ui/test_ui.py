@@ -4,17 +4,29 @@ from flask import request
 from http_api.plugin.jsonp import JsonP
 
 
-def _params_not_equal(old_params, new_params):
-    for param in old_params:
-        if old_params[param] != new_params.get(param):
-            return True
-    for param in new_params:
-        if new_params[param] != old_params.get(param):
-            return True
-    return False
-
-
 class TestsUI(object):
+
+    def get_case(self, user, view, method):
+        raise NotImplementedError
+
+    def save_case(self, user, api_path, method, param_mode, params, code):
+        raise NotImplementedError
+
+    def save_config(self, user, api_path, method, post_type, json_p, params):
+        raise NotImplementedError
+
+    @staticmethod
+    def params_not_equal(old_params, new_params):
+        for param in old_params:
+            if old_params[param] != new_params.get(param):
+                return True
+        for param in new_params:
+            if new_params[param] != old_params.get(param):
+                return True
+        return False
+
+
+class TestsStandaloneUI(TestsUI):
 
     def __init__(self, workspace, params=None):
         self.workspace = workspace
@@ -35,7 +47,7 @@ class TestsUI(object):
         context['curr_api_json_p'] = None
         context['curr_api_config'] = {}
         context['curr_api_params_config'] = {}
-        context['curr_api_codes'] = get_sorted_code(user, view, method)
+        context['curr_api_codes'] = self.get_sorted_code(user, view, method)
 
         for plugin in method.element.plugins:
             if isinstance(plugin, JsonP):
@@ -49,9 +61,9 @@ class TestsUI(object):
             os.makedirs(case_dir)
         return case_dir
 
-    def set_case(self, user, uri, method, param_mode, params, code):
+    def save_case(self, user, api_path, method, param_mode, params, code):
         result = []
-        case_path = os.path.join(self.curr_case_dir(user, uri, method), code)
+        case_path = os.path.join(self.curr_case_dir(user, api_path, method), code)
         new_data = json.dumps({
             'param_mode': param_mode,
             'params': params
@@ -61,7 +73,7 @@ class TestsUI(object):
             data_file = open(case_path, 'r')
             for line in data_file.readlines():
                 line_data = json.loads(line)
-                if line_data['param_mode'] != param_mode or _params_not_equal(line_data['params'], params):
+                if line_data['param_mode'] != param_mode or self.params_not_equal(line_data['params'], params):
                     result.append(line)
             data_file.close()
         # add new record
@@ -74,64 +86,46 @@ class TestsUI(object):
         data_file.close()
         return {'result': 'success'}
 
-
-    def set_config(self):
-        pass
-
-
-def to_html(text):
-    text = text.replace('&', '&#38;')
-    text = text.replace(' ', '&nbsp;')
-    text = text.replace(' ', '&#160;')
-    # text = text.replace('<', '&#60;')
-    # text = text.replace('>', '&#62;')
-    text = text.replace('"', '&#34;')
-    text = text.replace('\'', '&#39;')
-    text = text.replace(os.linesep, '</br>')
-    return text
-
-
-def get_case_dir(user, curr_api_uri, method_name):
-    api_path = '_'.join(curr_api_uri[1:].split('/'))
-    case_dir = os.path.realpath(os.path.join(program_dir, 'work', 'test', 'case', user, api_path, method_name))
-    if not os.path.exists(case_dir):
-        os.makedirs(case_dir)
-    return case_dir
-
-
-def get_sorted_code(user, view, method):
-    codes = []
-    is_param_type = False
-    for error_code in method.element.code_index:
-        error_message = method.element.code_dict[error_code]
-
-        if error_code.startswith('param_type_error_') and not is_param_type:
-            codes.append(('----', None, None))
-            is_param_type = True
-
-        if is_param_type and not error_code.startswith('param_type_error_'):
-            codes.append(('----', None, None))
-            is_param_type = False
-
-        codes.append((error_code, to_html(error_message),
-                      get_test_case(user, view, method, error_code)))
-
-    return codes
-
-
-def get_test_case(user, view, method, code):
-    use_cases = ''
-    case_path = os.path.join(get_case_dir(user, view.uri, method.__name__.upper()), code)
-    if os.path.exists(case_path):
-        data_file = open(case_path, 'r')
-        for line in data_file.readlines():
-            line = line.replace(os.linesep, '')
-            if use_cases:
-                use_cases += ', ' + line
-            else:
-                use_cases += line
+    def save_config(self, user, api_path, method, post_type, json_p, params):
+        config_path = os.path.join(self.curr_case_dir(user, api_path, method), '__config__')
+        # save configure
+        data_file = open(config_path, 'w')
+        data_file.write(json.dumps({'method': method, 'post_type': post_type, 'json_p': json_p, 'params': params}))
         data_file.close()
-    return '[%s]' % use_cases
+        return {'result': 'success'}
+
+    def get_sorted_code(self, user, view, method):
+        codes = []
+        is_param_type = False
+        for error_code in method.element.code_index:
+            error_message = method.element.code_dict[error_code]
+
+            if error_code.startswith('param_type_error_') and not is_param_type:
+                codes.append(('----', None, None))
+                is_param_type = True
+
+            if is_param_type and not error_code.startswith('param_type_error_'):
+                codes.append(('----', None, None))
+                is_param_type = False
+
+            codes.append((error_code, to_html(error_message),
+                          self.get_test_case(user, view, method, error_code)))
+
+        return codes
+
+    def get_test_case(self, user, view, method, code):
+        use_cases = ''
+        case_path = os.path.join(self.curr_case_dir(user, view.uri, method.__name__.upper()), code)
+        if os.path.exists(case_path):
+            data_file = open(case_path, 'r')
+            for line in data_file.readlines():
+                line = line.replace(os.linesep, '')
+                if use_cases:
+                    use_cases += ', ' + line
+                else:
+                    use_cases += line
+            data_file.close()
+        return '[%s]' % use_cases
 
 
 def get_curr_api_params(param_list, config):
@@ -153,3 +147,15 @@ def get_curr_api_params(param_list, config):
         param_url = params_config[name]['url'] if name in params_config else ''
         params.append((name, requisite, to_html(param['description']), type_name, type_display, pure_auto, param_url))
     return params
+
+
+def to_html(text):
+    text = text.replace('&', '&#38;')
+    text = text.replace(' ', '&nbsp;')
+    text = text.replace(' ', '&#160;')
+    # text = text.replace('<', '&#60;')
+    # text = text.replace('>', '&#62;')
+    text = text.replace('"', '&#34;')
+    text = text.replace('\'', '&#39;')
+    text = text.replace(os.linesep, '</br>')
+    return text
