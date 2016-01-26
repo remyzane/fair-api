@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import time
@@ -25,34 +23,36 @@ def show_file(file_path):
     locals().get('_view_' + sys.platform)()
 
 
-# 性能分析
-# 用例:
-#   test_cmd = 'xxx.start()'
-#   var_env = {'xxx': xxx}
 def run_profile(test_cmd, var_env, save_dir):
+    """Performance analysis
+
+    Generate profile png and output in console
+
+    :param test_cmd: 'xxx.start()'
+    :param var_env: {'xxx': xxx}
+    :param save_dir:
+    :return:
+    """
     dat_file = os.path.join(save_dir, 'profile.dat')
     png_file = os.path.join(save_dir, 'profile.png')
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    # 为了方便在linux下生成windows的性能图 (windows下没有相关shell命令)
-    if os.name == 'nt':
-        # 生成profile
-        cProfile.runctx(test_cmd, var_env, var_env, dat_file)
-        # 删除图片(非windows下生成的)
-        os.remove(png_file)
-    else:
-        # 判断是否已经在windows下生成了dat文件
-        if not os.path.exists(dat_file) or os.path.exists(png_file):
-            # 生成profile
-            cProfile.runctx(test_cmd, var_env, var_env, dat_file)
-        # 生成PNG
-        subprocess.Popen('gprof2dot -f pstats profile.dat | dot -Tpng -o profile.png', cwd=save_dir, shell=True)
-        # 输出PNG
-        time.sleep(1)
-        show_file(png_file)
-    # 输出数据
+    # generate profile
+    cProfile.runctx(test_cmd, var_env, var_env, dat_file)
+
+    # TODO check gprof2dot command is exists
+    # if os.name == 'nt':
+    #     pass
+    #     # TODO call remote server to generate PNG
+    # else:
+    # generate PNG
+    subprocess.Popen('gprof2dot -f pstats profile.dat | dot -Tpng -o profile.png', cwd=save_dir, shell=True)
+    # output PNG
+    time.sleep(1)
+    show_file(png_file)
+    # console output
     st = pstats.Stats()
     st.load_stats(dat_file)
     st.strip_dirs().sort_stats(-1).print_stats()

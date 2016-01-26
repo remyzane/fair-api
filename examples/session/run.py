@@ -1,20 +1,32 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 import os
 import sys
 import time
+import logging
 from argparse import ArgumentParser
 from watchdog.observers import Observer
 
 sys.path.insert(0, '..')
 import http_api
-from http_api.utility import CustomizeHelpFormatter
-from http_api.assist.coding import SourceCodeMonitor, ServerStarter
+from http_api.utility import load_yaml, CustomizeHelpFormatter
+from http_api.assist.coding import SourceCodeMonitor, ServerStarter, BuildCssJsProcessor
 from http_api.assist.profile import run_profile
 from http_api.assist.pyshell import start_ipython
+from http_api.assist.coding import css_js_compressor
+css_js_compressor()
+
 
 import demo
-from demo import config, program_dir, workspace
+from demo.utility import program_dir
+
+log = logging.getLogger(__name__)
+
+# environment config
+work_dir = os.path.join(program_dir, 'work')
+config = load_yaml(os.path.join(program_dir, 'demo.yml'))
+static = os.path.join(program_dir, 'www', 'static.yml')
 
 
 # test mode
@@ -35,12 +47,17 @@ def code():
     # py yml file monitor
     patterns = ['*.py', '*demo.yml']                # '*' is necessary, and must in the first.
     restart_processor = ServerStarter([
-        {'cmd': 'rm -rf %s/*.log' % os.path.join(workspace, 'log'), 'is_daemon': False},
+        {'cmd': 'rm -rf %s/*.log' % os.path.join(work_dir, 'log'), 'is_daemon': False},
         {'cmd': './run.py run', 'network_port': (config['simple_server']['port'],)}
     ])
     monitor = SourceCodeMonitor(restart_processor, patterns)
     observer.schedule(monitor, program_dir, recursive=True)
     observer.schedule(monitor, http_api.__path__[0], recursive=True)
+
+    # # rebuild css and js's min file while source file is change
+    # patterns = ['*.css', '*.js', '*static.yml']     # '*' is necessary, and must in the first.
+    # monitor = SourceCodeMonitor(BuildCssJsProcessor(program_dir, static), patterns, None, 500)
+    # observer.schedule(monitor, program_dir, recursive=True)
 
     # start monitoring
     observer.start()
@@ -62,7 +79,7 @@ def shell():
 # performance analysis
 def profile(params=None):
     var_env = {'run': run, 'params': params}
-    save_dir = os.path.join(workspace, 'test')
+    save_dir = os.path.join(work_dir, 'test')
     run_profile('run(params)', var_env, save_dir)
 
 

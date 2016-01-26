@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # run in command line:
 # py.test-3.x       # or
 # py.test-3.x -s    # disable all capturing

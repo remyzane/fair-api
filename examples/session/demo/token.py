@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+
 def get_token_key(identity):
     """Provide token secret key by identity.
 

@@ -1,0 +1,119 @@
+
+# use in development and testting
+simple_server:
+  host: 0.0.0.0
+  port: 8081
+
+
+# Database list
+databases:
+  -
+    key: default
+    type: sqlite
+    params:
+      database: work/test/sqlite.db
+
+  -
+    key: second
+    type: mysql
+    params:
+      host: 192.168.1.2
+      port: 3306
+      database: xxx
+      user: xxx
+      password: xxx
+
+# saved in flask.current_app.config
+app:
+  tests_access_keys:
+    - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
+
+  plugins:
+    token:
+      class: http_api.plugin.token.Token
+      key_provider: demo.token.get_token_key
+      raise_class: http_api.response.JsonRaise
+
+    json_p:
+      class: http_api.plugin.jsonp.JsonP
+      callback_field_name: callback
+
+  # View packages
+  view_packages:
+    - demo
+
+  # Parameter types
+  parameter_types:
+    - http_api.parameter
+
+  responses:
+    json: http_api.response.JsonRaise
+    json_p: http_api.response.JsonPRaise
+    default: json
+
+  workspace: work
+
+  web_ui:
+    uri: api
+    test_ui:
+      save_path:
+
+
+flask:
+#  DEBUG: true
+
+  # session secret key, in order to optimal performance comment it if need not
+   SECRET_KEY: 'yX R8j/3RTA0H!jmN]LWXZr~XH/,?WXZr9d8j/3'
+
+  # session lifetime (days)
+  # need set flask.session['remember'] = 'set', or set remember=True while call flask_login.login_user
+  # PERMANENT_SESSION_LIFETIME: 31
+
+  # login address, unauthorized access will redirect to this address
+  # need flask_login support, and set app.login_manager.login_view = app.config['login_url']
+  # login_url: '/xxx/login'
+
+
+# Logging
+logging:
+
+  # default／stream format, file logging's format can define in handler
+  # docs.python.org/3/library/logging.html#logrecord-attributes
+  format: '%(asctime)s %(levelname)s %(message)s'      # %(process)d  [%(name)s]
+
+  # judge whether repeatedly output to default logger, you can redefine in each logger's configure
+  propagate: False
+
+  # all parameter can redefine in each handler
+  class:
+    # screen output
+    stream:
+      colour: True              # M$ windows not support
+
+    # which switches from one file to the next when the current file reaches a certain size.
+    rotating_file:
+      max_size: 1024*1024*50    # byte
+      backup_count: 10          # reserve log file count
+
+    # rotating the log file at certain timed intervals.
+    time_rotating_file:
+      when: d                   # timing unit   s:second   m:minute   h:hour   d:day    w:week
+      interval: 30
+      backup_count: 10          # reserve log file count
+
+  handler:
+    default:
+      format: '%(asctime)s %(levelname)s [%(name)s] %(message)s'
+      class: time_rotating_file
+      path: log/api.log         # can use absolute or relative path, the latter use set_logging's parameter root_path
+
+  logger:
+    default:
+      level: debug
+      handler: default stream   # stream must on the last, otherwise the output will be chaos
+    api:
+      level: debug
+      handler: default stream   # stream must on the last, otherwise the output will be chaos
+    peewee:
+      level: info
+      handler: default stream   # stream must on the last, otherwise the output will be chaos

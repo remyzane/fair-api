@@ -1,18 +1,14 @@
 # -*- coding: utf-8 -*-
 
-import os
-import json
-import logging
 from flask import Flask
-from http_api.utility import load_yaml, set_logging
 from http_api.configure import http_api_setup
 
-from .utility import program_dir
+from .utility import program_dir, get_config
 
-log = logging.getLogger(__name__)
+# load config
+config = get_config(program_dir, 'demo.yml')
 
-# load config file
-config = load_yaml(os.path.join(program_dir, 'demo.yml'))
+# create wsgi application
+app = application = Flask(__name__)
 
-app = application = http_api_setup(config)
-
+workspace = http_api_setup(app, config)

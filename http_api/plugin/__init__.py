@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from http_api.view import CView
 
 

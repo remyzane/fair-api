@@ -1,15 +1,12 @@
-# -*- coding: utf-8 -*-
-
 import os
 import json
 from flask import session, request, render_template, Response, current_app as app
 from http_api import JSON, CView
 
-from .test_ui import to_html, get_curr_api, get_case_dir
+from .test_ui import to_html, get_case_dir
 
 
 def index():
-    app.config['test_ui'].get_case()
     api_list = []
     curr_api_context = {}
     user = request.args.get('user', '')
@@ -32,7 +29,7 @@ def index():
             for method_name in methods:
                 method = view_class.request_methods[method_name]
                 if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
-                    curr_api_context = get_curr_api(user, view_class, method)
+                    curr_api_context = app.config['test_ui'].get_case(user, view_class, method)
                     api_list.append((view_class.uri, method_name, to_html(method.element.title), 'active'))
                 else:
                     api_list.append((view_class.uri, method_name, to_html(method.element.title), ''))

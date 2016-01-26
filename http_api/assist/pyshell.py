@@ -1,14 +1,15 @@
-# -*- coding: utf-8 -*-
-
 import os
 import sys
 import json
 from collections import OrderedDict
 
 
-# 把python数据装成可以在ipython中带换行和缩进输出的对象
-# === 文本也要封装，否则ipython会忽略换行和缩进 ===
 class IPythonObject(object):
+    """Object will be pretty-printed in IPython
+
+    IPython output will lost Line breaks and indent
+    """
+
     def __init__(self, obj):
         self.obj = obj
 
@@ -61,30 +62,35 @@ class IPythonObject(object):
         return self.obj[key]
 
 
-# 把python数组和字典封装成ipython中带换行和缩进的文本段
-# 如果不需要多层显示（只需二层显示），请直接使用 ipython_object 封装
-# 如果传入的数组和字典里有复杂的Python对象，请直接使用 ipython_object 封装（不然json.dumps会报错）
 class IPythonListDict(IPythonObject):
+    """List/Dict will be multi-layer display in IPython
+
+    use IPythonObject, if not need multi-layer display.
+    use IPythonObject, if object unable to serialize by json.
+    """
     def __init__(self, obj):
         self.obj = json.dumps(obj, indent=4)
 
 
-# env_objects 数据结构
-# [ ['obj_or_class1 name', obj_or_class1, 'obj_or_class1 description'],
-#   ['obj_or_class2 name', obj_or_class2, 'obj_or_class2 description'], ...]
 def start_ipython(env_objects=None):
+    """Start IPython shell
+
+    :param env_objects: [ ['obj_or_class1 name', obj_or_class1, 'obj_or_class1 description'],
+                          ['obj_or_class2 name', obj_or_class2, 'obj_or_class2 description'], ...]
+    :return:
+    """
     from IPython import embed as python_shell
     _help = 'Command:' + os.linesep
     _help += '  %-20s %s%s' % ('h',  'show this message', os.linesep)
     _help += '  %-20s %s%s' % ('s',  'show python data width indent', os.linesep)
     _help += '  %-20s %s%s' % ('ss', 'show python dist/list width indent', os.linesep)
-    # 设置外部环境变量
+    # external environment objects
     if env_objects:
         _help += 'Environment:' + os.linesep
         for name, obj, display in env_objects:
             locals()[name] = obj
             _help += '  %-20s %s%s' % (name, display, os.linesep)
-    # 设置项目环境对象 (请别将本段代码放置到前面去, 不然h中就指定的没有外部变量了)
+    # default environment objects
     h = IPythonObject(_help)
     s = IPythonObject
     ss = IPythonListDict

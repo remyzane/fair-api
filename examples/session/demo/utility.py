@@ -4,21 +4,13 @@ import os
 import base64
 from Crypto.Cipher import AES
 
-from http_api.utility import load_yaml
-
 demo_key = b'p' * 16
 demo_iv = b'i' * 16
 program_dir = os.path.realpath(os.path.join(__file__, '..', '..'))
 
 
-def get_config(path, file_name):
-    config_file = os.path.join(path, file_name)
-    if not os.path.exists(config_file):
-        raise Exception('config file [%s] not exists.' % config_file)
-    return load_yaml(config_file)
-
-
 class SimpleAes(object):
+
     @staticmethod
     def encrypt(data, key=demo_key, iv=demo_iv):
         fill_size = 16 - len(data) % 16

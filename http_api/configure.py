@@ -1,12 +1,11 @@
-# -*- coding: utf-8 -*-
-
+import os
 import peewee
 import logging
 import datetime
 from importlib import import_module
 
 from .parameter import Param
-from .utility import class_name_to_api_name, get_cls_with_path, iterate_package
+from .utility import set_logging, class_name_to_api_name, get_cls_with_path, iterate_package
 from .web_ui import setup_web_ui
 from .web_ui.log_ui import LogUI
 from .web_ui.test_ui import TestsUI
@@ -14,10 +13,16 @@ from .web_ui.test_ui import TestsUI
 log = logging.getLogger(__name__)
 
 
-def http_api_setup(app, config, workspace, log_ui_class=LogUI, test_ui_class=TestsUI):
+def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsUI):
+    workspace = config['app'].get('workspace') or 'work'
+    if os.path.exists(workspace):
+        workspace = os.path.realpath(workspace)
+    else:
+        raise Exception('workspace (define in app -> workspace) [%s] not exists.' % os.path.realpath(workspace))
 
-    # create application
-    app = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
+    # setting logging
+    set_logging(config['logging'], workspace)
+    # log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
     if config.get('databases'):
         setup_database(config['databases'])
@@ -34,17 +39,7 @@ def http_api_setup(app, config, workspace, log_ui_class=LogUI, test_ui_class=Tes
     # configure web ui
     setup_web_ui(app, config['app']['web_ui'], workspace, log_ui_class, test_ui_class)
 
-    workspace = os.path.join(program_dir, 'work')
-
-    # setting logging
-    set_logging(config['logging'], workspace)
-    # log.debug('app config: %s', json.dumps(config['app'], indent=4))
-
-    return app
-
-
-
-
+    return workspace
 
 db_classes = {
     'mysql': peewee.MySQLDatabase,

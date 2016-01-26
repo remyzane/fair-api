@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from http_api.view import CView
 from http_api.plugin import Plugin
 from flask import current_app as app

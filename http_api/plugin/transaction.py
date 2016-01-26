@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 # from .configure import db
 # database = 'default'        # used by auto_rollback
 # db = None
