@@ -42,6 +42,11 @@ def code():
     observer.schedule(monitor, program_dir, recursive=True)
     observer.schedule(monitor, http_api.__path__[0], recursive=True)
 
+    # # rebuild css and js's min file while source file is change
+    # patterns = ['*.css', '*.js', '*static.yml']     # '*' is necessary, and must in the first.
+    # monitor = SourceCodeMonitor(BuildCssJsProcessor(program_dir, static), patterns, None, 500)
+    # observer.schedule(monitor, program_dir, recursive=True)
+
     # start monitoring
     observer.start()
     try:

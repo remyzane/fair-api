@@ -9,6 +9,6 @@ from .utility import program_dir, get_config
 config = get_config(program_dir, 'demo.yml')
 
 # create wsgi application
-app = application = Flask(__name__)
+app = application = Flask(__name__, static_folder='../www', static_url_path='/res',  template_folder='../')
 
 workspace = http_api_setup(app, config)
