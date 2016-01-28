@@ -11,7 +11,8 @@ from docutils.core import publish_string
 from docutils.writers.html4css1 import Writer, HTMLTranslator
 
 POSIX = os.name != 'nt'
-# 命令行不同的日志显示不同的颜色
+
+# colourful logging
 BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE, _NOTHING, DEFAULT = range(10)
 RESET_SEQ = "\033[0m"
 COLOR_SEQ = "\033[1;%dm"
@@ -27,17 +28,17 @@ LEVEL_COLOR_MAPPING = {
 log = logging.getLogger(__name__)
 
 
-# 外部接口调用日志
+# call logging
 def call_log(api_name, api_url, call_params, return_data):
     return '''
-调用%s接口 ---------->
-地址：
+Call %s ------------->
+URL：
     %s
-参数：
+Params：
     %s
-返回：
+Return：
     %s
--------------------%s<''' % (api_name, api_url, call_params, return_data, '-'*len(api_name)*2)
+-------------------%s<''' % (api_name, api_url, call_params, return_data, '-'*len(api_name))
 
 
 def class_name_to_api_name(class_name):
@@ -51,26 +52,30 @@ def class_name_to_api_name(class_name):
 
 
 def load_yaml(file_path):
-    # 取得配置
     f = open(file_path, 'r', encoding='utf-8')
     conf = yaml.load(f)
     f.close()
     return conf
 
 
-# 计算乘法表达式，如日志文件大小限制：「 max_size: 1024*1024*50 」
 def multiply(expression):
+    """multiplication calculation
+
+    :param expression: string e.g. "1024*1024*50"
+    :return: integer
+    """
     value = 1
     for n in expression.split('*'):
         value *= int(n)
     return value
-    # 实现方法2：（sympy 太占用内存）
+    # sympy takes up too much memory
     # from sympy.parsing.sympy_parser import parse_expr
     # return int(parse_expr(expression).evalf())
 
 
-# 自定义的ArgumentParser提示信息
 class CustomizeHelpFormatter(HelpFormatter):
+    """Customize ArgumentParser's Help info """
+
     def add_usage(self, usage, actions, groups, prefix=None):
         sys.stdout.write('%s%s%s' % (usage, os.linesep, os.linesep))
 
@@ -99,33 +104,39 @@ class CustomizeLog(logging.Formatter):
         return logging.Formatter.format(self, record)
 
 
-# 通过配置设置logging
 def set_logging(config, root_path=''):
-    colour = config['class']['stream']['colour']        # 屏幕输出是否多彩显示(windows下会乱码)
+    """setting logging
+
+    :param config: config dict
+    :param root_path:
+    """
+    colour = config['class']['stream']['colour']        # windows not support
     default_format = CustomizeLog(config['format'])
     stream_format = CustomizeLog(config['format'], width_color=True) if colour and POSIX else default_format
     handlers = {}
 
-    # 屏幕输出handler
+    # console handler
     handler = logging.StreamHandler(sys.stderr)
     handler.setFormatter(stream_format)
     handlers['stream'] = handler
 
-    # 自定义handler
+    # customize handler
     for handler_name, params in config['handler'].items():
         handler_format = CustomizeLog(params['format']) if params.get('format') else default_format
         handler_params = config['class'][params['class']].copy()
         handler_params.update(params)
-        # 创建日志目录
+        # create log dir
         logfile = params['path'] if params['path'].startswith('/') else os.path.join(root_path, params['path'])
         if not os.path.exists(os.path.dirname(logfile)):
             os.makedirs(os.path.dirname(logfile))
-        # 创建handler
+        # create handler
         backup_count = handler_params['backup_count']
-        if params['class'] == 'rotating_file':             # 按文件固定大小输出文件日志
+        # which switches from one file to the next when the current file reaches a certain size.
+        if params['class'] == 'rotating_file':
             max_size = multiply(handler_params['max_size'])
             handler = RotatingFileHandler(logfile, 'a', max_size, backup_count, encoding='utf-8')
-        elif params['class'] == 'time_rotating_file':      # 按固定时间输出文件日志
+        # rotating the log file at certain timed intervals.
+        elif params['class'] == 'time_rotating_file':
             when = handler_params['when']
             interval = handler_params['interval']
             handler = TimedRotatingFileHandler(logfile, when, interval, backup_count, encoding='utf-8')
@@ -137,11 +148,11 @@ def set_logging(config, root_path=''):
         handler_names = params['handler'].split()
         propagate = params.get('propagate') or config['propagate']
 
-        if module == 'default':                 # 定义root log
+        if module == 'default':                 # define root log
             logger = logging.getLogger()
         else:
-            logger = logging.getLogger(module)  # 定义模块日志
-            logger.propagate = propagate        # 定义模块日志是否同时在default中输出
+            logger = logging.getLogger(module)  # define module's logging
+            logger.propagate = propagate        # judge whether repeatedly output to default logger
 
         for handler_name in handler_names:
             logger.addHandler(handlers[handler_name])

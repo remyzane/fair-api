@@ -33,7 +33,7 @@ class TestsStandaloneUI(TestsUI):
 
     def get_case(self, user, view, method):
         context = dict()
-        api_config_path = os.path.join(self.__case_dir(user, view.uri, method.__name__.upper()), '__config__')
+        api_config_path = os.path.join(self.curr_case_dir(user, view.uri, method.__name__.upper()), '__config__')
         if os.path.exists(api_config_path):
             with open(api_config_path, 'r') as config:
                 context['curr_api_config'] = json.load(config)
@@ -54,7 +54,7 @@ class TestsStandaloneUI(TestsUI):
                 context['curr_api_json_p'] = plugin.callback_field_name
         return context
 
-    def __case_dir(self, user, curr_api_uri, method_name):
+    def curr_case_dir(self, user, curr_api_uri, method_name):
         api_path = '_'.join(curr_api_uri[1:].split('/'))
         case_dir = os.path.realpath(os.path.join(self.workspace, 'test', 'case', user, api_path, method_name))
         if not os.path.exists(case_dir):
@@ -63,7 +63,7 @@ class TestsStandaloneUI(TestsUI):
 
     def save_case(self, user, api_path, method, param_mode, params, code):
         result = []
-        case_path = os.path.join(self.__case_dir(user, api_path, method), code)
+        case_path = os.path.join(self.curr_case_dir(user, api_path, method), code)
         new_data = json.dumps({
             'param_mode': param_mode,
             'params': params
@@ -87,7 +87,7 @@ class TestsStandaloneUI(TestsUI):
         return {'result': 'success'}
 
     def save_config(self, user, api_path, method, post_type, json_p, params):
-        config_path = os.path.join(self.__case_dir(user, api_path, method), '__config__')
+        config_path = os.path.join(self.curr_case_dir(user, api_path, method), '__config__')
         # save configure
         data_file = open(config_path, 'w')
         data_file.write(json.dumps({'method': method, 'post_type': post_type, 'json_p': json_p, 'params': params}))
@@ -115,7 +115,7 @@ class TestsStandaloneUI(TestsUI):
 
     def get_test_case(self, user, view, method, code):
         use_cases = ''
-        case_path = os.path.join(self.__case_dir(user, view.uri, method.__name__.upper()), code)
+        case_path = os.path.join(self.curr_case_dir(user, view.uri, method.__name__.upper()), code)
         if os.path.exists(case_path):
             data_file = open(case_path, 'r')
             for line in data_file.readlines():
