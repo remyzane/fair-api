@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
     <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='tests.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='test_ui.css') }}"/>
 
     <script type="text/javascript">
         var web_ui_uri = '{{ web_ui_uri }}';
         function do_entry(){
-            window.location = '/' + web_ui_uri + '/tests/?user=' + $('#user')[0].value;
+            window.location = '/' + web_ui_uri + '/{{ test_ui_uri }}/?user=' + $('#user')[0].value;
         }
         $(document).ready(function(){
             var margin_top = ($(window).height() - 141) * (2/5);    // slants on looking at more comfortable

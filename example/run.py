@@ -67,7 +67,7 @@ def shell():
 # performance analysis
 def profile(params=None):
     var_env = {'run': run, 'params': params}
-    save_dir = os.path.join(workspace, 'test')
+    save_dir = os.path.join(workspace)
     run_profile('run(params)', var_env, save_dir)
 
 

@@ -49,7 +49,7 @@ $(document).ready(function(){
         $('.body .use-case').height($('.body .params').height());
     }
     if (window.innerHeight > 480) {
-        $('#result').height(window.innerHeight - 180);
+        $('#result').height(window.innerHeight - 200);
     }
 
     $(".show-message").mouseover(function(){
@@ -238,10 +238,10 @@ function do_test(){
             success: function(_data, textStatus, jqXHR){
                 try{
                     $("#result")[0].value = JSON.stringify(_data, null, 4);
-                    save_case(_data.code);
                 }catch(e){
                     $("#result")[0].value = _data;
                 }
+                save_case(_data.code);
             },
             error: function(xhr, status, error) { alert('Can not access API [' + curr_api_path + ']'); }
         };
@@ -263,10 +263,10 @@ function do_test(){
                 success: function(_data, textStatus, jqXHR){
                     try{
                         $("#result")[0].value = JSON.stringify(_data, null, 4);
-                        save_case(_data.code);
                     }catch(e){
                         $("#result")[0].value = _data;
                     }
+                    save_case(_data.code);
                 },
                 error: function(xhr, status, error) { alert('Can not access API [' + curr_api_path + ']'); }
             });
@@ -345,7 +345,7 @@ function save_case(code){
         "code": code
     };
     $.ajax({
-        url: '/' + web_ui + '/tests/save_case',
+        url: '/' + web_ui_uri + '/' + test_ui_uri + '/save_case',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -372,7 +372,7 @@ function save_case(code){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui + '/tests/save_case]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui_uri + '/tests/save_case]'); }
     });
 }
 
@@ -425,7 +425,7 @@ function save_config(){
         "params": get_params_config()
     };
     $.ajax({
-        url: '/' + web_ui + '/tests/save_config',
+        url: '/' + web_ui_uri + '/' + test_ui_uri + '/save_config',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -436,6 +436,6 @@ function save_config(){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui + '/tests/save_config]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui_uri + '/tests/save_config]'); }
     });
 }

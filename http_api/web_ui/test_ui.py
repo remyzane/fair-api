@@ -32,7 +32,7 @@ class TestsStandaloneUI(TestsUI):
         self.workspace = workspace
 
     def get_case(self, user, view, method):
-        context = dict()
+        context = {'curr_api_config': None, 'curr_api_json_p': None}
         api_config_path = os.path.join(self.curr_case_dir(user, view.uri, method.__name__.upper()), '__config__')
         if os.path.exists(api_config_path):
             with open(api_config_path, 'r') as config:
@@ -44,8 +44,6 @@ class TestsStandaloneUI(TestsUI):
         context['curr_api_method'] = method.__name__.upper()
         context['curr_api_params'] = get_curr_api_params(method.element.param_list, context.get('curr_api_config'))
         context['curr_api_description'] = to_html(title + (os.linesep*2 if description else '') + description)
-        context['curr_api_json_p'] = None
-        context['curr_api_config'] = {}
         context['curr_api_params_config'] = {}
         context['curr_api_codes'] = self.get_sorted_code(user, view, method)
 
@@ -56,7 +54,7 @@ class TestsStandaloneUI(TestsUI):
 
     def curr_case_dir(self, user, curr_api_uri, method_name):
         api_path = '_'.join(curr_api_uri[1:].split('/'))
-        case_dir = os.path.realpath(os.path.join(self.workspace, 'test', 'case', user, api_path, method_name))
+        case_dir = os.path.realpath(os.path.join(self.workspace, 'test_ui', user, api_path, method_name))
         if not os.path.exists(case_dir):
             os.makedirs(case_dir)
         return case_dir

@@ -19,11 +19,3 @@
 #
 #www/libs/semantic/semantic.min.css:
 #  - www/libs/semantic/semantic.css   # 需要注释了其中的 @import url('https://fonts.googleapis ......
-#
-## test_ui
-#www/js/tests/tests.min.js:
-#  - tests/static/tests.js
-#  - tests/static/parameter.js
-#
-#www/css/tests/tests.min.css:
-#  - tests/static/tests.css
