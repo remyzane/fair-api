@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='flask-http-api',
-      version='1.0',
+      version='0.1',
       description='',
       long_description='',
       classifiers=[],
@@ -27,6 +27,4 @@ setup(name='flask-http-api',
       ]
       )
 
-# TODO check chinese comments  then translate
-# TODO DOC
 # TODO The web test case's automation (in unit test)
