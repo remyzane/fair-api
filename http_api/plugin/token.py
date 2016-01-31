@@ -3,28 +3,29 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from http_api import Plugin, CView
+from http_api.parameter import Str
+from http_api.plugin import Plugin, NOT_NULL
 from http_api.utility import get_cls_with_path
 
 
 class TokenException(Exception):
-    pass
+    """All Token exception's parent class"""
 
 
 class TokenTimestampInvalid(TokenException):
-    pass
+    """Token timestamp invalid, timestamp must be integer"""
 
 
 class TokenTimeout(TokenException):
-    pass
+    """Token time out"""
 
 
 class TokenInvalid(TokenException):
-    pass
+    """Token invalid"""
 
 
 class TokenKeyInvalid(TokenException):
-    pass
+    """Token key must be 16 bytes long"""
 
 
 PARAM_TOKEN = 'token'
@@ -32,52 +33,36 @@ PARAM_IDENTITY = 'identity'
 TOKEN_TIME_OUT = 60             # 1 minute
 
 
-# def key_provider(identity):
-#     """Provide token secret key by identity.
-#
-#     :param str identity: Username or App Id
-#     :return: str. secret key, length must be 16
-#     """
-#     key = 'not implemented '
-#     return key.decode() if type(key) == bytes else key
-
-
 class Token(Plugin):
     """Token check Plugin.
 
-    :cvar dict error_codes: error code and message
     :cvar function __key_provider: provide token secret key by identity
+            e.g.:
+            def key_provider(identity):
+                \"""Provide token secret key by identity.
+
+                :param str identity: Username or App Id
+                :return: str. secret key, length must be 16
+                \"""
+                key = 'not implemented '
+                return key.decode() if type(key) == bytes else key
     """
     error_codes = {'token_invalid': 'Invalid Token'}
 
-    def __init__(self, params):
-        """Plugin init
+    parameters = (
+        (PARAM_IDENTITY, Str, NOT_NULL, 'Identity'),
+        (PARAM_TOKEN, Str, NOT_NULL, 'Token')
+    )
 
-        :param dict params: plug config parameters
-        """
+    def __init__(self, params):
         self.__key_provider = get_cls_with_path(params['key_provider'])
         self.__raise_class = get_cls_with_path(params['raise_class'])
 
-    def init_view(self, view_class, method):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
-
-        :param CView view_class: view class
-        """
-        del method.element.param_default[PARAM_TOKEN]
-        del method.element.param_default[PARAM_IDENTITY]
+    # def init_view(self, view_class, method):
+    #     del method.element.param_default[PARAM_TOKEN]
+    #     del method.element.param_default[PARAM_IDENTITY]
 
     def before_request(self, view):
-        """Plugin main method.
-
-        Will be called each request after parameters checked.
-
-        :param CView view: Api class instance for request
-        :return:
-        :raise raise_class:
-        """
-
         # get token parameter
         token = view.params.get(PARAM_TOKEN)
         identity = view.params.get(PARAM_IDENTITY)
@@ -85,8 +70,6 @@ class Token(Plugin):
             raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_TOKEN})
         if not identity:
             raise self.__raise_class(view, 'token_invalid', {'error': 'param_missing', 'parameter': PARAM_IDENTITY})
-        del view.params[PARAM_TOKEN]
-        del view.params[PARAM_IDENTITY]
         # check token
         try:
             self.check(identity, token)

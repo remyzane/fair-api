@@ -33,24 +33,20 @@ class UserInfo(CView):
         """Get the user information through his/hers id.
 
         :plugin: json_p token
-        :param Str * identity:
-        :param Str * token:
-        :param Bool * user_id:
+        :param Int * user_id:
         :raise id_not_exist: Record does not exist.
         """
         if user_id > 100:
             return self.r('id_not_exist')
         else:
             return self.r('success', {'id': user_id,
-                                           'name': 'user_%d' % user_id,
-                                           'email': 'user_%s@yourself.com' % user_id})
+                                      'name': 'user_%d' % user_id,
+                                      'email': 'user_%s@yourself.com' % user_id})
 
     def post(self, username, nickname, password, email, address, mobile, zipcode):
         """User setting
 
         :plugin: token
-        :param Str * identity: Identity
-        :param Str * token: Token
         :param Bool * username:
         :param Str nickname:
         :param Str * password:
@@ -64,7 +60,14 @@ class UserInfo(CView):
         self.process_log += 'do job 1' + os.linesep
         self.process_log += 'do job 2' + os.linesep
         self.process_log += 'do job 3'
-        return self.r('success', {'id': 1})
+        return self.r('success', {'id': 1,
+                                  'username': username,
+                                  'nickname': nickname,
+                                  'password': password,
+                                  'email': email,
+                                  'address': address,
+                                  'mobile': mobile,
+                                  'zipcode': zipcode})
 
 
 class UserForExternal(CView):
@@ -88,8 +91,8 @@ class UserForExternal(CView):
             return self.r('id_not_exist')
         else:
             return self.r('success', {'id': user_id,
-                                           'name': 'user_%d' % user_id,
-                                           'email': 'user_%s@yourself.com' % user_id})
+                                      'name': 'user_%d' % user_id,
+                                      'email': 'user_%s@yourself.com' % user_id})
 
 
 class Session(CView):

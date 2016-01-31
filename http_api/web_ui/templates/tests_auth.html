@@ -10,9 +10,9 @@
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='tests.css') }}"/>
 
     <script type="text/javascript">
-        var web_ui = '{{ web_ui }}';
+        var web_ui_uri = '{{ web_ui_uri }}';
         function do_entry(){
-            window.location = '/' + web_ui + 'tests/?user=' + $('#user')[0].value;
+            window.location = '/' + web_ui_uri + '/tests/?user=' + $('#user')[0].value;
         }
         $(document).ready(function(){
             var margin_top = ($(window).height() - 141) * (2/5);    // slants on looking at more comfortable

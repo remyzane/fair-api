@@ -33,7 +33,7 @@ def index():
                 else:
                     api_list.append((view_class.uri, method_name, to_html(method.element.title), ''))
     context = {'user': user,
-               'web_ui': app.config['web_ui']['uri'],
+               'web_ui_uri': app.config['web_ui']['uri'],
                'api_list': api_list,
                'post_type': request.args.get('type', 'j')}
     context.update(curr_api_context)

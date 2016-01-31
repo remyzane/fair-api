@@ -17,14 +17,13 @@ Method params: ------------------------------------------
 %s
 ---------------------------------------------------------'''
 
+
 class CView(object):
     """View base class
 
     :cvar str uri: reservation variable, readonly in sub view class.
     :cvar dict request_methods: CView reservation variable, readonly in sub view class.
-
     """
-
     uri = None
     request_methods = None
 
@@ -49,6 +48,14 @@ class CView(object):
             method.element = Element(app, cls, method)
             for plugin in method.element.plugins:
                 plugin.init_view(cls, method)
+                # add plugin.parameters to method.element.param_list.
+                if plugin.parameters:
+                    plugin_parameters = list(plugin.parameters)
+                    param_list = list(method.element.param_list)
+                    while plugin_parameters:
+                        p = plugin_parameters.pop()
+                        param_list.insert(0, {'name': p[0], 'type': p[1], 'requisite': p[2], 'description': p[3]})
+                    method.element.param_list = tuple(param_list)
 
     def __init__(self):
         # the following variables is different in per request
@@ -73,6 +80,8 @@ class CView(object):
             # plugin
             for plugin in self.element.plugins:
                 plugin.before_request(self)
+                for parameter in plugin.parameters:
+                    del self.params[parameter[0]]
 
             # structure parameters
             self.__structure_params()
@@ -118,16 +127,13 @@ class CView(object):
                 raise self.rr('param_missing', {'parameter': param})
 
         params = self.element.param_default.copy()
-
         # parameter's type of proof and conversion
         for param, value in self.params.items():
             if param not in self.element.param_index:
                 raise self.rr('param_unknown', {'parameter': param, 'value': value})
             if value is not None:
                 try:
-                    print('aa', param, params[param])
                     params[param] = self.types[param].structure(self, value)
-                    print('bb', param, params[param])
                 except Exception:
                     raise self.rr(self.types[param].error_code, {'parameter': param, 'value': value})
 
@@ -140,6 +146,9 @@ class CView(object):
     def rr(self, code, data=None, status=None):
         """Raise response
 
+        :param code:
+        :param data:
+        :param status:
         :return:
         """
         return self.raise_response(self, code, data, status)

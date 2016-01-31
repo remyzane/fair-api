@@ -133,7 +133,7 @@ def get_curr_api_params(param_list, config):
     params_config = config['params'] if config else {}
     for param in param_list:
         name = param['name']
-        requisite = '●' if param['requisite'] else ''
+        requisite = b'\xe2\x97\x8f'.decode() if param['requisite'] else ''
         if param['type'].has_sub_type:
             type_name = '%s[%s]' % (param['type'].__name__, param['type'].type.__name__)
             type_display = '''<span message="%s">%s</span>[<span message="%s">%s</span>]''' % (
