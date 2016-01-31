@@ -1,6 +1,15 @@
-from http_api.view import CView
+import json
+from flask import Response
 from http_api.plugin import Plugin
-from flask import current_app as app
+from http_api.response import ResponseRaise, JSON_P
+
+
+class JsonPRaise(ResponseRaise):
+
+    def response(self):
+        ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
+        content = self.view.json_p_callback_name + '(' + json.dumps(ret) + ')'
+        return self.code, ret, Response(content, content_type=JSON_P, status=self.status)
 
 
 class JsonP(Plugin):
@@ -21,7 +30,7 @@ class JsonP(Plugin):
     def before_request(self, view):
         if self.callback_field_name in view.params:
             view.json_p_callback_name = view.params[self.callback_field_name]
-            view.raise_response = app.config['responses']['json_p']
+            view.raise_response = JsonPRaise
             del view.params[self.callback_field_name]
             if '_' in view.params:
                 del view.params['_']

@@ -14,7 +14,7 @@ def token():
         return '/generator/token/ must specify the parameter [identity]'
     if not tests_access_key:
         return '/generator/token/ must specify the parameter [tests_access_key]'
-    if tests_access_key not in app.config['tests_access_keys']:
+    if tests_access_key not in app.config['web_ui']['access_keys']:
         return 'invalid tests_access_key'
     return app.config['plugins']['token'].create(identity)
 

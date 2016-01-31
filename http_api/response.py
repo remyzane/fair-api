@@ -25,11 +25,3 @@ class JsonRaise(ResponseRaise):
     def response(self):
         ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
         return self.code, ret, Response(json.dumps(ret), content_type=JSON, status=self.status)
-
-
-class JsonPRaise(ResponseRaise):
-
-    def response(self):
-        ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
-        content = self.view.json_p_callback_name + '(' + json.dumps(ret) + ')'
-        return self.code, ret, Response(content, content_type=JSON_P, status=self.status)

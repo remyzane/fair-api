@@ -14,11 +14,11 @@ def index():
                'test_ui_uri': app.config['web_ui']['test_ui']['uri'],
                'post_type': request.args.get('type', 'j')}
 
-    if user not in app.config['tests_access_keys']:
+    if user not in app.config['web_ui']['access_keys']:
         if app.config.get('SECRET_KEY'):
             session.pop('user', None)
         context['message'] = 'Please enter the correct access key.' if user else 'Please enter the access key.'
-        return render_template('tests_auth.html', **context)
+        return render_template('test_auth.html', **context)
 
     if app.config.get('SECRET_KEY'):
         session['user'] = user
@@ -39,7 +39,7 @@ def index():
                     api_list.append((view_class.uri, method_name, to_html(method.element.title), ''))
     context['api_list'] = api_list
     context.update(curr_api_context)
-    return render_template('tests_index.html', **context)
+    return render_template('test_ui.html', **context)
 
 
 def save_case():

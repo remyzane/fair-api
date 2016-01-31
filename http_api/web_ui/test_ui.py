@@ -32,7 +32,7 @@ class TestsStandaloneUI(TestsUI):
         self.workspace = workspace
 
     def get_case(self, user, view, method):
-        context = {'curr_api_config': None, 'curr_api_json_p': None}
+        context = {'curr_api_config': {}, 'curr_api_json_p': None}
         api_config_path = os.path.join(self.curr_case_dir(user, view.uri, method.__name__.upper()), '__config__')
         if os.path.exists(api_config_path):
             with open(api_config_path, 'r') as config:

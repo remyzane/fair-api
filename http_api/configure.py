@@ -21,8 +21,9 @@ def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandalon
         raise Exception('workspace (define in app -> workspace) [%s] not exists.' % os.path.realpath(workspace))
 
     # setting logging
-    set_logging(config['logging'], workspace)
-    # log.debug('app config: %s', json.dumps(config['app'], indent=4))
+    if config.get('logging'):
+        set_logging(config['logging'], workspace)
+        # log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
     if config.get('databases'):
         setup_database(config['databases'])
