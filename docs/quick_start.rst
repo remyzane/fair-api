@@ -13,26 +13,45 @@ A Minimal Application
 
 A minimal Flask Http API application looks something like this
 
-demo/work/
+hello.py::
 
-demo/demo.yml::
+    from flask import Flask
+    from http_api import CView
+    from http_api.configure import http_api_setup
+    from http_api.utility import load_yaml
 
-    # saved in flask.current_app.config
+
+    class Hello(CView):
+
+        def get(self, username):
+            """Get the area information through it's id.
+
+            :param Str * username: area id
+            :raise not_exist: Record does not exist.
+            """
+            if username == 'remy':
+                return self.r('not_exist')
+
+            return self.r('success', {'id': 1, 'username': username, '...': '...'})
+
+    app = Flask(__name__)
+    http_api_setup(app, load_yaml('hello.yml'))
+
+    if __name__ == '__main__':
+        app.run()
+
+
+hello.yml::
+
     app:
+      workspace: .
 
-      # View packages
-      view_packages:
-        - demo
-
-      # Parameter types
       parameter_types:
         - http_api.parameter
 
       responses:
         json: http_api.response.JsonRaise
         default: json
-
-      workspace: work
 
       web_ui:
         access_keys:
@@ -41,51 +60,26 @@ demo/demo.yml::
         test_ui:
           uri: tests
 
-demo/__init__.py::
 
-    from flask import Flask
-    from http_api.configure import http_api_setup
-    from http_api.utility import load_yaml
+Run it with your Python interpreter.::
 
-    app = Flask(__name__)
-
-    http_api_setup(app, load_yaml('demo.yml'))
-
-    if __name__ == '__main__':
-        app.run()
+    $ python hello.py
+     * Running on http://127.0.0.1:5000/
 
 
-demo/views.py::
+Test
+----
 
-    from http_api import CView, Int
+Now head over to http://127.0.0.1:5000/api/tests/, and you should see your test ui.
 
+.. image:: _static/test_auth.png
 
-    class Area(CView):
+input access key that defined in hello.yml, click "Enter", and you should see a api list.
 
-        def get(self, area_id):
-            """Get the area information through it's id.
+.. image:: _static/test_index.png
 
-            :param Int * area_id: area id
-            :raise id_not_exist: Record does not exist.
-            """
-            if area_id > 100:
-                return self.r('id_not_exist')
-            else:
-                return self.r('success', {'id': area_id, 'name': 'area_%d' % area_id, 'superior': 0})
+click the hello line, and you should see your hello's test ui.
 
+.. image:: _static/test_hello.png
 
-
-Debug Mode
-----------
-
-Routing
-Static Files
-Rendering Templates
-Accessing Request Data
-Redirects and Errors
-About Responses
-Sessions
-Message Flashing
-Logging
-Hooking in WSGI Middlewares
-Deploying to a Web Server
+More information about Test UI see :ref:`dessert-test_ui`

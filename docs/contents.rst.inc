@@ -4,3 +4,5 @@
 
    installation
    quick_start
+   dessert/index
+   plugins/index

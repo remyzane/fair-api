@@ -35,7 +35,7 @@ def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandalon
     parameter_types(app, config['app']['parameter_types'])
 
     # configure view
-    setup_view(app, config['app']['view_packages'])
+    setup_view(app, config['app'].get('view_packages', ()))
 
     # configure web ui
     setup_web_ui(app, config['app']['web_ui'], workspace, log_ui_class, test_ui_class)
@@ -140,6 +140,6 @@ def setup_view(app, config):
 
     for view in CView.__subclasses__():
         name = class_name_to_api_name(view.__name__)
-        uri = '/%s/%s' % (package_path, name)
-        endpoint = '%s.%s' % (package_path, name)
+        uri = '/%s/%s' % (view.__module__.split('.')[0], name)
+        endpoint = '%s.%s' % (view.__module__.split('.')[0], name)
         app.add_url_rule(uri, view_func=view.as_view(endpoint, uri, app))

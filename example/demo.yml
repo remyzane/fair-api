@@ -2,7 +2,7 @@
 # use in development and testting
 simple_server:
   host: 0.0.0.0
-  port: 8081
+  port: 5000
 
 
 # Database list
@@ -25,6 +25,7 @@ databases:
 
 # saved in flask.current_app.config
 app:
+  workspace: work
 
   plugins:
     token:
@@ -48,7 +49,6 @@ app:
     json: http_api.response.JsonRaise
     default: json
 
-  workspace: work
 
   web_ui:
     access_keys:

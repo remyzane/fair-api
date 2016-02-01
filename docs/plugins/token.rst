@@ -1,0 +1,4 @@
+.. _plugins-token:
+
+token
+=====
