@@ -43,6 +43,11 @@ class Element(object):
             'zz': None
         }
         code_index: ('xx', 'yy', 'zz'),
+        code_list: (
+            ('xx', 'xxxxxxx'),
+            ('yy', 'yyyyyyy'),
+            ('zz', 'zzzzzzz')
+        )
         code_dict: {
             'xx': 'xxxxxxx',
             'yy': 'yyyyyyy',
@@ -86,6 +91,7 @@ class Element(object):
         self.param_allow_null = []
         self.param_types = {}
         self.code_index = ['success', 'exception', 'param_unknown', 'param_missing']
+        self.code_list = []
         self.code_dict = {
             'success': 'Success',
             'exception': 'Unknown exception',
@@ -111,6 +117,10 @@ class Element(object):
         self.param_allow_null = tuple(self.param_allow_null)
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
+        code_list = []
+        for code in self.code_index:
+            code_list.append((code, self.code_dict[code]))
+        self.code_list = tuple(code_list)
         self.response = self.response or app.config['responses']['default']
         self.description = self.description or ''
 

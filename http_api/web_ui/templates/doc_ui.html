@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head lang="zh-cmn-Hans">
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='doc_ui.css') }}"/>
+    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='doc_ui.js') }}"></script>
+    <script type="text/javascript">
+        var user = '{{user}}';
+        var web_ui_uri = '{{ web_ui_uri }}';
+        var test_ui_uri = '{{ test_ui_uri }}';
+        var web_ui_static = '{{ url_for('web_ui.static', filename='') }}';
+        var post_type = '{{post_type}}';
+        var curr_api_uri = '{{curr_api_uri}}';
+        var curr_api_path = '{{curr_api_path}}';
+        var curr_api_method = '{{curr_api_method}}';
+        var curr_api_json_p = '{{curr_api_json_p}}';
+        var test_cases = {};
+    </script>
+</head>
+<body>
+    <div class="index-label" id="index_label">Document Index</div>
+    <table class="ui very basic table" id="index">
+        {% for api_uri, method, element, title, description in api_list %}
+        <tr>
+            <td class="method">{{ method }}</td>
+            <td class="name"><a href="#{{ api_uri }}">{{ api_uri }}</a></td>
+            <td><a href="#{{ api_uri }}">{{ title | safe }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+
+{% for api_uri, method, element, title, description in api_list %}
+    <div class="title" id="{{ api_uri }}">{{ title | safe }}</div>
+    <table class="ui black table summary">
+        <tr>
+            <td class="url label">Url:</td>
+            <td class="url value">{{ api_uri }}</td>
+            <td class="method label">Method:</td>
+            <td class="method value">{{ method }}</td>
+        </tr>
+        {% if description %}
+        <tr><td class="description" colspan="4">{{ description | safe }}</td></tr>
+        {% endif %}
+    </table>
+    {% if element.param_list %}
+    <div class="section">Request Parameters:</div>
+    <table class="ui olive table parameters">
+        <tr class="label">
+            <td>Name</td>
+            <td colspan="2"></td>
+            <td class="type">Type</td>
+            <td>Description</td>
+        </tr>
+        {% for param in element.param_list %}
+        <tr class="param">
+            <td class="name">{{ param.name }}</td>
+            <td class="requisite">{{ '*' if param.requisite else '' }}</td>
+            <td class="type">{{ param.type.__name__ }}</td>
+            <td class="type-description">{{ param.type.description }}</td>
+            <td class="description">{{ param.description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+
+    {% if element.code_list %}
+    <div class="section">Response Codes:</div>
+    <table class="ui olive table codes">
+        <tr class="label">
+            <td>Code</td>
+            <td>Description</td>
+        </tr>
+        {% for code, description in element.code_list %}
+        <tr class="param">
+            <td class="code">{{ code }}</td>
+            <td class="description">{{ description }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% endif %}
+{% endfor %}
+    <a href="#index_label" class="index-link">Document Index&nbsp;&nbsp;&uarr;</a>
+</body>
+</html>

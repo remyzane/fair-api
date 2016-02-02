@@ -4,13 +4,20 @@ body {
     margin: 0 auto;
 }
 
+table tr.label {
+    color: #b5cc18;
+}
+
 .ui.table {
     margin-top: .5em;
 }
 
-
+.index-label {
+    font-size: 2em;
+    line-height: 2em;
+    padding-top: 1em;
+}
 #index .method {
-    color: #aaaaaa;
     font-size: .8em;
 }
 
@@ -18,11 +25,9 @@ body {
     font-size: 2em;
     margin: 2em 0 .5em 0;
 }
-
-.description {
-    margin-left: 1em;
+.summary .value {
+    font-weight: bold;
 }
-
 .summary .url.label {
     width: 50px;
     text-align: center;
@@ -37,15 +42,30 @@ body {
 }
 
 .summary .label {
-    color: #fbbd08;
     text-align: center;
 }
 
 .section {
     font-size: 1.1em;
+    font-weight: bold;
 }
 
+.parameters .label .type {
+    padding-left: 0;
+}
+.parameters .param .type {
+    text-align: right;
+    padding-right: 0;
+}
+.parameters .param .type-description {
+    color: #888888;
+    font-size: .8em;
+    padding-left: .5em;
+}
 
-.parameters .label {
-    color: #b5cc18;
+.index-link {
+    padding-bottom: 1em;
+    height: 2em;
+    line-height: 2em;
+    font-size:1.4em;
 }
