@@ -10,8 +10,9 @@ def setup_web_ui(app, config, workspace, log_ui_class, test_ui_class):
     doc_uri = config['doc_ui']['uri']
     test_uri = config['test_ui']['uri']
     static_path = os.path.realpath(os.path.join(__file__, '..', 'static'))
+    templates_path = os.path.realpath(os.path.join(__file__, '..', 'templates'))
     web_ui = Blueprint('web_ui', __name__,
-                       template_folder='templates',
+                       template_folder=templates_path,
                        static_url_path='/%s/static' % web_uri,
                        static_folder=static_path)
     web_ui.add_url_rule('/%s/%s/' % (web_uri, doc_uri), doc_uri, doc_index)

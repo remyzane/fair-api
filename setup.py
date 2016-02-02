@@ -25,6 +25,7 @@ setup(name='flask-http-api',
             'watchdog',
             'pytest',
             'mock',
+            'pycrypto',
       ]
       )
 
