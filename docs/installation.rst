@@ -12,7 +12,7 @@ Install dependency packages
     pip3 install -r *.egg-info/requires.txt
 
 
-Build Flask http api Documents
+Build Documents
 
 .. code-block:: bash
 
