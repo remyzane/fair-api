@@ -1,11 +1,8 @@
 import os
-import logging
 from flask import Blueprint
 
 from .doc_ui import index as doc_index
 from .test_view import index as test_index, save_case, save_config
-
-log = logging.getLogger(__name__)
 
 
 def setup_web_ui(app, config, workspace, log_ui_class, test_ui_class):
@@ -14,7 +11,6 @@ def setup_web_ui(app, config, workspace, log_ui_class, test_ui_class):
     test_uri = config['test_ui']['uri']
     static_path = os.path.realpath(os.path.join(__file__, '..', 'static'))
     templates_path = os.path.realpath(os.path.join(__file__, '..', 'templates'))
-    log.debug('templates_path: %s', templates_path)
     web_ui = Blueprint('web_ui', __name__,
                        template_folder=templates_path,
                        static_url_path='/%s/static' % web_uri,
