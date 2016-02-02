@@ -2,7 +2,7 @@
 <html>
 <head lang="zh-cmn-Hans">
     <meta charset="UTF-8">
-    <title>API Test Interface</title>
+    <title>{{ title }}</title>
     <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/ZeroClipboard.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
@@ -30,8 +30,8 @@
     <a class="item icon home-button" href="/{{ test_ui_uri }}/?user={{user}}"><i class="home icon"></i></a>
     <div class="ui dropdown item"><i class="sidebar icon"></i>Api List
         <div class="menu">
-            {% for api_uri, method_name, description, active in api_list %}
-            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method_name) }}</div>
+            {% for api_uri, method, title, active in api_list %}
+            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method) }}</div>
             {% endfor %}
         </div>
     </div>
@@ -114,17 +114,15 @@
         <input size="10" style="float: right;">
     </div>
     {% else %}
-    <div class="ui link api items">
-        {% for api_uri, method_name, description, active in api_list %}
-        <div class="item">
-            <div class="content">
-                <div class="method">{{ method_name }}</div>
-                <div class="uri">{{ api_uri }}</div>
-                <div class="title">{{ description | safe }}</div>
-            </div>
-        </div>
+    <table class="ui very basic table" id="index">
+        {% for api_uri, method, title, active in api_list %}
+        <tr>
+            <td class="method">{{ method }}</td>
+            <td class="name"><a href="#{{ api_uri }}">{{ api_uri }}</a></td>
+            <td><a href="#{{ api_uri }}">{{ title | safe }}</a></td>
+        </tr>
         {% endfor %}
-    </div>
+    </table>
     {% endif %}
 </div>
 <div class="ui modal">

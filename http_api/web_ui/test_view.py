@@ -10,6 +10,7 @@ def index():
     curr_api_context = {}
     user = request.args.get('user', '')
     context = {'user': user,
+               'title': app.config['web_ui']['test_ui'].get('title', 'Test UI'),
                'web_ui_uri': app.config['web_ui']['uri'],
                'test_ui_uri': app.config['web_ui']['test_ui']['uri'],
                'post_type': request.args.get('type', 'j')}

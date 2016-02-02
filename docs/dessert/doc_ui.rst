@@ -1,4 +1,4 @@
-.. _dessert-test_ui:
+.. _dessert-doc_ui:
 
 DOC UI
 ======

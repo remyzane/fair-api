@@ -1,4 +1,4 @@
-.. _dessert-test_ui:
+.. _dessert-log_ui:
 
 Log UI
 ======

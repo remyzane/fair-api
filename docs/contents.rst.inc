@@ -4,5 +4,7 @@
 
    installation
    quick_start
+   element
+   configure
    dessert/index
    plugins/index

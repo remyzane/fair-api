@@ -54,9 +54,12 @@ app:
     access_keys:
       - lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
     uri: api
+    doc_ui:
+      uri: docs
+      title: DOC UI
     test_ui:
       uri: tests
-#      save_path:
+      title: Test UI
 
 
 flask:

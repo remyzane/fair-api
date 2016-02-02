@@ -1,0 +1,51 @@
+
+body {
+    width: 1024px;
+    margin: 0 auto;
+}
+
+.ui.table {
+    margin-top: .5em;
+}
+
+
+#index .method {
+    color: #aaaaaa;
+    font-size: .8em;
+}
+
+.title {
+    font-size: 2em;
+    margin: 2em 0 .5em 0;
+}
+
+.description {
+    margin-left: 1em;
+}
+
+.summary .url.label {
+    width: 50px;
+    text-align: center;
+}
+
+.summary .url.value {
+    font-size: 1.2em;
+}
+
+.summary .method {
+    width: 5em;
+}
+
+.summary .label {
+    color: #fbbd08;
+    text-align: center;
+}
+
+.section {
+    font-size: 1.1em;
+}
+
+
+.parameters .label {
+    color: #b5cc18;
+}

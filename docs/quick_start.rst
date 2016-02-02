@@ -11,7 +11,7 @@ assumes you already have Flask installed.  If you do not, head over to the
 A Minimal Application
 ---------------------
 
-A minimal Flask Http API application looks something like this
+A minimal Http API application looks something like this
 
 hello.py::
 
@@ -61,25 +61,38 @@ hello.yml::
           uri: tests
 
 
+aaa
+
+
 Run it with your Python interpreter.::
 
     $ python hello.py
      * Running on http://127.0.0.1:5000/
 
+Document
+--------
+
+Now head over to http://127.0.0.1:5000/api/docs/#hello, and you should see hello's api document.
+
 
 Test
 ----
 
-Now head over to http://127.0.0.1:5000/api/tests/, and you should see your test ui.
+Now head over to http://127.0.0.1:5000/api/tests/, and you should see test ui.
 
 .. image:: _static/test_auth.png
 
-input access key that defined in hello.yml, click "Enter", and you should see a api list.
+Input access key that defined in hello.yml, click "Enter", and you should see a api list.
 
 .. image:: _static/test_index.png
 
-click the hello line, and you should see your hello's test ui.
+Click the hello line, and you should see your hello's test ui.
 
 .. image:: _static/test_hello.png
 
-More information about Test UI see :ref:`dessert-test_ui`
+Click :ref:`dessert-test_ui` to view more information.
+
+
+Logging Query
+-------------
+

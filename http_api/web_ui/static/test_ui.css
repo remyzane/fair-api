@@ -15,29 +15,16 @@ body {
     float: left;
 }
 
-.body .ui.link.api.items {
+#index {
     margin: 0 auto;
     width: 1024px;
     float: inherit;
-}
-.body .ui.link.api.items .item {
-    margin: 15px 0 0 0;
-}
-.body .ui.link.api.items .item .method {
-    width: 50px;
-    color: #aaaaaa;
-    font-size: 1em;
-}
-.body .ui.link.api.items .item .uri {
-    width: 270px;
-    font-weight: normal;
-    font-size: 1.2em;
-}
-.body .ui.link.api.items .item .title {
-    width: 704px;
-    word-wrap: break-word;
-    word-break: normal;
     font-size: 1.1em;
+}
+
+#index .method {
+    color: #aaaaaa;
+    font-size: .8em;
 }
 
 .body .case {

@@ -17,6 +17,11 @@ class Area(CView):
     def get(self, area_id):
         """Get the area information through it's id.
 
+        Get the area information through it's id.
+        Get the area information through it's id.
+        Get the area information through it's id.
+        Get the area information through it's id.
+
         :plugin: json_p
         :param Int * area_id: area id
         :raise id_not_exist: Record does not exist.
