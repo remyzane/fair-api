@@ -1,9 +1,11 @@
 import os
+import logging
 from flask import Blueprint
 
 from .doc_ui import index as doc_index
 from .test_view import index as test_index, save_case, save_config
 
+log = logging.getLogger(__name__)
 
 def setup_web_ui(app, config, workspace, log_ui_class, test_ui_class):
     web_uri = config['uri']
