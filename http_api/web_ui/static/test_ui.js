@@ -4,7 +4,6 @@ function get_post_type(){
     type = type ? type : post_type;
     return type ? type : 'j';
 }
-console.log()
 $(document).ready(function(){
     $('.ui.menu .ui.dropdown').dropdown({
         on: 'hover'
@@ -22,12 +21,6 @@ $(document).ready(function(){
         var api = $(this)[0].innerText.split(" ");
         window.location.href = window.location.pathname +
             '?user=' + user + '&type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
-    });
-    $('.body .ui.link.api.items .item').on('click', function() {
-        var method = $(this)[0].children[0].children[0].innerText;
-        var uri = $(this)[0].children[0].children[1].innerText;
-        window.location.href = window.location.pathname +
-            '?user=' + user + '&type=' + get_post_type() + '&method=' + method + '&api=' + uri;
     });
     init_test_case();
     $('.param-mode').change(function(){

@@ -3,3 +3,4 @@
 {"param_mode": false, "params": {}}
 {"param_mode": false, "params": {"identity": "sass", "email": "bbb@bbb.ccc", "mobile": "18966668888", "username": "aaa"}}
 {"params": {"email": "bbb", "mobile": "ddd", "identity": "sass", "username": "aaa"}, "param_mode": false}
+{"params": {"email": "bbb@bbb.ccc", "mobile": "18966668888", "identity": "sass", "password": "adasdfas"}, "param_mode": false}

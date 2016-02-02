@@ -5,7 +5,7 @@ import datetime
 from importlib import import_module
 
 from .parameter import Param
-from .utility import set_logging, class_name_to_api_name, get_cls_with_path, iterate_package
+from .utility import set_logging, class_name_to_api_name, get_cls_with_path, iterate_package, rst_to_html
 from .web_ui import setup_web_ui
 from .web_ui.log_ui import LogUI
 from .web_ui.test_ui import TestsStandaloneUI
@@ -134,6 +134,8 @@ def setup_view(app, config):
     :type  config: dict
     """
     from .view import CView
+
+    app.jinja_env.globals.update(rst_to_html=rst_to_html)
 
     for package_path in config:
         iterate_package(import_module(package_path))

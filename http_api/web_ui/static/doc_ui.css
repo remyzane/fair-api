@@ -37,6 +37,16 @@ table tr.label {
     font-size: 1.2em;
 }
 
+.summary .plugins.label {
+    width: 5em;
+}
+.summary .plugins.value {
+    width: 15em;
+}
+.summary .plugins.value span {
+
+    padding-right: .6em;
+}
 .summary .method {
     width: 5em;
 }
@@ -63,6 +73,17 @@ table tr.label {
     padding-left: .5em;
 }
 
+.codes .item.common, .codes .item.type {
+    color: #995a31;
+}
+
+.codes .item.plugin, .codes .item.biz {
+    color: #b58105;
+}
+
+.codes blockquote {
+    margin: 1em;
+}
 .index-link {
     padding-bottom: 1em;
     height: 2em;

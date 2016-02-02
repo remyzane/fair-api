@@ -16,6 +16,7 @@ class Element(object):
         description: 'xxxxxx',
         response: response,
         plugins: (class_A, class_B),
+        plugin_keys: ('plugin_a', 'plugin_b'),
         param_not_null: ('xx', 'yy'),
         param_allow_null: ('zz',),
         param_index: ('xx', 'yy', 'zz'),
@@ -44,9 +45,10 @@ class Element(object):
         }
         code_index: ('xx', 'yy', 'zz'),
         code_list: (
-            ('xx', 'xxxxxxx'),
-            ('yy', 'yyyyyyy'),
-            ('zz', 'zzzzzzz')
+            ('xx', 'xxxxxxx', 'common'),
+            ('yy', 'yyyyyyy', 'plugin'),
+            ('zz', 'zzzzzzz', 'type'),
+            ('aa', 'aaaaaaa', 'biz')
         )
         code_dict: {
             'xx': 'xxxxxxx',
@@ -83,6 +85,7 @@ class Element(object):
     def __init__(self, app, view, method):
         self.title = ''
         self.plugins = []
+        self.plugin_keys = []
         self.param_list = []
         self.param_dict = {}
         self.param_index = []
@@ -90,14 +93,12 @@ class Element(object):
         self.param_not_null = []
         self.param_allow_null = []
         self.param_types = {}
-        self.code_index = ['success', 'exception', 'param_unknown', 'param_missing']
+        self.code_index = []
         self.code_list = []
-        self.code_dict = {
-            'success': 'Success',
-            'exception': 'Unknown exception',
-            'param_unknown': 'Unknown parameter',
-            'param_missing': 'Missing parameter'
-        }
+        self.code_dict = {}
+        self.__element_code_set('success', 'Success', 'common')
+        self.__element_code_set('exception', 'Unknown exception', 'common')
+        self.__element_code_set('param_unknown', 'Unknown parameter', 'common')
         if not method.__doc__:
             raise Exception('%s.%s doc not undefined' % (view.__name__, method.__name__))
         try:
@@ -108,25 +109,26 @@ class Element(object):
             log.exception('element defined error')
 
     def __clear_up(self, app):
-        if not self.param_not_null:
-            self.code_index.remove('param_missing')
-            del self.code_dict['param_missing']
+        if self.param_not_null:
+            self.code_index.insert(2, 'param_missing')
+            self.code_list.insert(2, ('param_missing', 'Missing parameter', 'common'))
+            self.code_dict['param_missing'] = 'Missing parameter'
         self.plugins = tuple(self.plugins)
+        self.plugin_keys = tuple(self.plugin_keys)
         self.param_list = tuple(self.param_list)
         self.param_not_null = tuple(self.param_not_null)
         self.param_allow_null = tuple(self.param_allow_null)
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
-        code_list = []
-        for code in self.code_index:
-            code_list.append((code, self.code_dict[code]))
-        self.code_list = tuple(code_list)
+        self.code_list = tuple(self.code_list)
         self.response = self.response or app.config['responses']['default']
         self.description = self.description or ''
+        print(self.plugin_keys)
 
-    def __element_code_set(self, error_code, error_message):
+    def __element_code_set(self, error_code, error_message, category='biz'):
         if error_code not in self.code_index:
             self.code_index.append(error_code)
+            self.code_list.append((error_code, error_message, category))
             self.code_dict[error_code] = error_message
 
     def __parse_doc_field(self, app, view, method, doc_field):
@@ -140,8 +142,9 @@ class Element(object):
                 if not plugin:
                     raise Exception('%s.%s use undefined plugin %s' % (view.__name__, method.__name__, item))
                 self.plugins.append(plugin)
+                self.plugin_keys.append(item)
                 for error_code, error_message in plugin.error_codes.items():
-                    self.__element_code_set(error_code, error_message)
+                    self.__element_code_set(error_code, error_message, 'plugin ' + item)
         elif name.startswith('raise '):
             self.__element_code_set(name[6:], content)
         elif name.startswith('param '):
@@ -169,10 +172,10 @@ class Element(object):
             self.param_default[items[-1]] = None
             self.param_types[items[-1]] = param_type
             if isinstance(param['type'], List):
-                self.__element_code_set(param_type.type.error_code, param_type.type.description)
-                self.__element_code_set(param_type.error_code, param_type.description % param_type.type.__name__)
+                self.__element_code_set(param_type.type.error_code, param_type.type.description, 'type')
+                self.__element_code_set(param_type.error_code, param_type.description % param_type.type.__name__, 'type')
             elif param['type'] != Param:
-                self.__element_code_set(param_type.error_code, param_type.description)
+                self.__element_code_set(param_type.error_code, param_type.description, 'type')
         else:
             setattr(self, name, content)
 

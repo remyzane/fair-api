@@ -5,6 +5,10 @@ from http_api.response import ResponseRaise, JSON_P
 
 
 class JsonPRaise(ResponseRaise):
+    """Json response
+
+    format: { "code": "", "message": "",  "data": "" }
+    """
 
     def response(self):
         ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}

@@ -21,8 +21,9 @@ class ResponseRaise(Exception):
 
 
 class JsonRaise(ResponseRaise):
-    """
+    """Json response
 
+    format: { "code": "", "message": "",  "data": "" }
     """
 
     def response(self):

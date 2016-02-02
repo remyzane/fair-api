@@ -8,19 +8,6 @@
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
     <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
     <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='doc_ui.css') }}"/>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='doc_ui.js') }}"></script>
-    <script type="text/javascript">
-        var user = '{{user}}';
-        var web_ui_uri = '{{ web_ui_uri }}';
-        var test_ui_uri = '{{ test_ui_uri }}';
-        var web_ui_static = '{{ url_for('web_ui.static', filename='') }}';
-        var post_type = '{{post_type}}';
-        var curr_api_uri = '{{curr_api_uri}}';
-        var curr_api_path = '{{curr_api_path}}';
-        var curr_api_method = '{{curr_api_method}}';
-        var curr_api_json_p = '{{curr_api_json_p}}';
-        var test_cases = {};
-    </script>
 </head>
 <body>
     <div class="index-label" id="index_label">Document Index</div>
@@ -40,11 +27,19 @@
         <tr>
             <td class="url label">Url:</td>
             <td class="url value">{{ api_uri }}</td>
+            {% if element.plugin_keys %}
+            <td class="plugins label">Plugins:</td>
+            <td class="plugins value">
+                {% for plugin in element.plugin_keys %}
+                <span>{{ plugin }}</span>
+                {% endfor %}
+            </td>
+            {% endif %}
             <td class="method label">Method:</td>
             <td class="method value">{{ method }}</td>
         </tr>
         {% if description %}
-        <tr><td class="description" colspan="4">{{ description | safe }}</td></tr>
+        <tr><td class="description" colspan="{{ 6 if element.plugin_keys else 4 }}">{{ description | safe }}</td></tr>
         {% endif %}
     </table>
     {% if element.param_list %}
@@ -68,21 +63,25 @@
     </table>
     {% endif %}
 
-    {% if element.code_list %}
-    <div class="section">Response Codes:</div>
+    {% if element.response %}
+    <div class="section">Response Data:</div>
     <table class="ui olive table codes">
+        <tr><td rowspan="{{ element.code_list | length + 2 }}">{{ rst_to_html(element.response.__doc__) | safe }}</td></tr>
+        {% if element.code_list %}
         <tr class="label">
             <td>Code</td>
             <td>Description</td>
         </tr>
-        {% for code, description in element.code_list %}
-        <tr class="param">
+        {% for code,  description, category in element.code_list %}
+        <tr class="item {{ category }}">
             <td class="code">{{ code }}</td>
             <td class="description">{{ description }}</td>
         </tr>
         {% endfor %}
+        {% endif %}
     </table>
     {% endif %}
+
 {% endfor %}
     <a href="#index_label" class="index-link">Document Index&nbsp;&nbsp;&uarr;</a>
 </body>
