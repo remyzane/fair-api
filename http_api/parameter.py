@@ -66,7 +66,6 @@ class Int(Param):
 
     @classmethod
     def structure(cls, view, value):
-        print(view.application_json)
         """conversion value to int
 
         :param value:   parameter value

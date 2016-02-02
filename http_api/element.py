@@ -123,7 +123,6 @@ class Element(object):
         self.code_list = tuple(self.code_list)
         self.response = self.response or app.config['responses']['default']
         self.description = self.description or ''
-        print(self.plugin_keys)
 
     def __element_code_set(self, error_code, error_message, category='biz'):
         if error_code not in self.code_index:

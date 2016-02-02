@@ -3,8 +3,8 @@
 QuickStart
 ==========
 
-Eager to get started?  This page gives a good introduction to Flask.  It
-assumes you already have Flask installed.  If you do not, head over to the
+Eager to get started?  This page gives a good introduction to Flask http api.  It
+assumes you already have flask-http-api installed.  If you do not, head over to the
 :ref:`installation` section.
 
 
@@ -24,9 +24,11 @@ hello.py::
     class Hello(CView):
 
         def get(self, username):
-            """Get the area information through it's id.
+            """Get the user information through User account name.
 
-            :param Str * username: area id
+            This is a demonstration using Flask Http Api.
+
+            :param Str * username: User account name
             :raise not_exist: Record does not exist.
             """
             if username == 'remy':
@@ -39,7 +41,6 @@ hello.py::
 
     if __name__ == '__main__':
         app.run()
-
 
 hello.yml::
 
@@ -59,9 +60,9 @@ hello.yml::
         uri: api
         test_ui:
           uri: tests
+        doc_ui:
+          uri: docs
 
-
-aaa
 
 
 Run it with your Python interpreter.::
@@ -74,6 +75,7 @@ Document
 
 Now head over to http://127.0.0.1:5000/api/docs/#hello, and you should see hello's api document.
 
+.. image:: _static/doc_ui.png
 
 Test
 ----
@@ -86,9 +88,9 @@ Input access key that defined in hello.yml, click "Enter", and you should see a 
 
 .. image:: _static/test_index.png
 
-Click the hello line, and you should see your hello's test ui.
+Click link, and you should see your hello's test ui.
 
-.. image:: _static/test_hello.png
+.. image:: _static/test_main.png
 
 Click :ref:`dessert-test_ui` to view more information.
 

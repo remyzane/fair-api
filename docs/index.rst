@@ -6,8 +6,6 @@
 Welcome to Falsk http api's documentation!
 ==========================================
 
-
-http://flask.pocoo.org/docs
-
+Falsk http api fully compatible with Flask, `Flask Docs <http://flask.pocoo.org/docs>`_
 
 .. include:: contents.rst.inc
