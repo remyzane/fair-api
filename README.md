@@ -1,4 +1,4 @@
-Falsk http api is a api framework, and fully compatible with Flask
+Flask http api is a api framework, and fully compatible with Flask
 
 Document
 http://flask-http-api.c88c.cn/html/

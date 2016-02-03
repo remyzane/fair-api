@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# Falsk http api documentation build configuration file, created by
+# Flask http api documentation build configuration file, created by
 # sphinx-quickstart on Wed Dec 16 11:33:29 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'Falsk http api'
+project = 'Flask http api'
 copyright = '2015, remyzane'
 author = 'remyzane'
 
@@ -203,7 +203,7 @@ html_use_index = False  # by remy
 #html_search_scorer = 'scorer.js'
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Falskhttpapidoc'
+htmlhelp_basename = 'Flaskhttpapidoc'
 
 # -- Options for LaTeX output ---------------------------------------------
 
@@ -225,7 +225,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  (master_doc, 'Falskhttpapi.tex', 'Falsk http api Documentation',
+  (master_doc, 'Flaskhttpapi.tex', 'Flask http api Documentation',
    'remyzane', 'manual'),
 ]
 
@@ -255,7 +255,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'falskhttpapi', 'Falsk http api Documentation',
+    (master_doc, 'flask-http-api-example', 'Flask http api example Documentation',
      [author], 1)
 ]
 
@@ -269,8 +269,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  (master_doc, 'Falskhttpapi', 'Falsk http api Documentation',
-   author, 'Falskhttpapi', 'One line description of project.',
+  (master_doc, 'flask-http-api-example', 'Flask http api example Documentation',
+   author, 'Flask-http-api-example', 'One line description of project.',
    'Miscellaneous'),
 ]
 
