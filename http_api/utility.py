@@ -32,11 +32,11 @@ log = logging.getLogger(__name__)
 def call_log(api_name, api_url, call_params, return_data):
     return '''
 Call %s ------------->
-URL：
+URL:
     %s
-Params：
+Params:
     %s
-Return：
+Return:
     %s
 -------------------%s<''' % (api_name, api_url, call_params, return_data, '-'*len(api_name))
 

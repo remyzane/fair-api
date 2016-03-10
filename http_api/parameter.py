@@ -95,7 +95,7 @@ class Float(Param):
 class List(Param):
     """List type parameter
 
-    POST（application/json）only, so don't need [conversion] function
+    POST (application/json) only, so don't need [conversion] function
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description
