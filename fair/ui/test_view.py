@@ -1,9 +1,6 @@
 import json
-from flask import session, request, render_template, Response, current_app as app
+from flask import request, render_template, Response, current_app as app
 from fair import JSON, CView
-
-from . import to_html
-
 
 def index():
     curr_api_context = {}

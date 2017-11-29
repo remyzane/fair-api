@@ -1,3 +1,4 @@
+import os
 import string
 import logging
 import pkgutil
@@ -56,6 +57,18 @@ def rst_to_html(source):
     if html.endswith(b'</p>'):
         html = html[:-4]
     return html.decode()
+
+
+def text_to_html(text):
+    text = text.replace('&', '&#38;')
+    text = text.replace(' ', '&nbsp;')
+    text = text.replace(' ', '&#160;')
+    # text = text.replace('<', '&#60;')
+    # text = text.replace('>', '&#62;')
+    text = text.replace('"', '&#34;')
+    text = text.replace('\'', '&#39;')
+    text = text.replace(os.linesep, '</br>')
+    return text
 
 
 def get_request_params(request):

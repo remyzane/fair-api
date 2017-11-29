@@ -81,8 +81,6 @@ def setup_view(app, config):
     """
     from .view import CView
 
-    app.jinja_env.globals.update(rst_to_html=rst_to_html)
-
     for package_path in config:
         iterate_package(import_module(package_path))
 

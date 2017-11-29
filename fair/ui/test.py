@@ -2,7 +2,7 @@ import os
 import json
 from flask import request
 from fair.plugin.jsonp import JsonP
-from . import to_html
+from fair.utility import text_to_html
 
 
 class TestsUI(object):
@@ -44,7 +44,7 @@ class TestsStandaloneUI(TestsUI):
         context['curr_api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
         context['curr_api_method'] = method.__name__.upper()
         context['curr_api_params'] = get_curr_api_params(method.element.param_list, context.get('curr_api_config'))
-        context['curr_api_description'] = to_html(title + (os.linesep*2 if description else '') + description)
+        context['curr_api_description'] = text_to_html(title + (os.linesep*2 if description else '') + description)
         context['curr_api_params_config'] = {}
         context['curr_api_codes'] = self.get_sorted_code(user, view, method)
 
@@ -107,7 +107,7 @@ class TestsStandaloneUI(TestsUI):
                 codes.append(('----', None, None))
                 is_param_type = False
 
-            codes.append((error_code, to_html(error_message),
+            codes.append((error_code, text_to_html(error_message),
                           self.get_test_case(user, view, method, error_code)))
 
         return codes
@@ -141,9 +141,9 @@ def get_curr_api_params(param_list, config):
         else:
             type_name = param['type'].__name__
             type_display = '''<span class="show-message" message="%s">%s</span>''' % \
-                           (to_html(param['type'].description), param['type'].__name__)
+                           (text_to_html(param['type'].description), param['type'].__name__)
         pure_auto = 'checked="checked"' if name in params_config and params_config[name]['pure_auto'] else ''
         param_url = params_config[name]['url'] if name in params_config else ''
-        params.append((name, requisite, to_html(param['description']), type_name, type_display, pure_auto, param_url))
+        params.append((name, requisite, text_to_html(param['description']), type_name, type_display, pure_auto, param_url))
     return params
 

@@ -1,9 +1,10 @@
 import logging
+from flask import render_template, current_app as app
 from flask.views import request
 
 from .element import Element
 from .response import ResponseRaise
-from .utility import get_request_params
+from .utility import get_request_params, text_to_html, rst_to_html
 
 log = logging.getLogger(__name__)
 
@@ -76,6 +77,19 @@ class CView(object):
             # get request parameters
             self.params = get_request_params(request)
             self.params_proto = self.params.copy()
+
+            if self.params.get('_api') == 'doc':
+                response_doc = None
+                if self.method.element.response:
+                    response_doc = rst_to_html(self.method.element.response.__doc__)
+                return render_template('doc.html',
+                                       title='DOC UI',
+                                       api_uri=self.uri,
+                                       method=request.method,
+                                       element=self.method.element,
+                                       api_title=text_to_html(self.method.element.title),
+                                       response_doc=response_doc,
+                                       description=text_to_html(self.method.element.description))
 
             # plugin
             for plugin in self.element.plugins:

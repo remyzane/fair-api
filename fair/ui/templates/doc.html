@@ -11,8 +11,7 @@
     </style>
 </head>
 <body>
-{% for api_uri, method, element, title, description in api_list %}
-    <div class="title" id="{{ api_uri }}">{{ title | safe }}</div>
+    <div class="title" id="{{ api_uri }}">{{ api_title | safe }}</div>
     <table class="ui black table summary">
         <tr>
             <td class="url label">Url:</td>
@@ -56,7 +55,7 @@
     {% if element.response %}
     <div class="section">Response Data:</div>
     <table class="ui olive table codes">
-        <tr><td rowspan="{{ element.code_list | length + 2 }}">{{ rst_to_html(element.response.__doc__) | safe }}</td></tr>
+        <tr><td rowspan="{{ element.code_list | length + 2 }}">{{ response_doc | safe }}</td></tr>
         {% if element.code_list %}
         <tr class="label">
             <td>Code</td>
@@ -72,6 +71,5 @@
     </table>
     {% endif %}
 
-{% endfor %}
 </body>
 </html>
