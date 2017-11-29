@@ -2,7 +2,7 @@ import re
 
 
 class Param(object):
-    """Parameter that don't need to conversion.
+    """ Parameter that don't need to conversion.
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description
@@ -24,7 +24,7 @@ class Param(object):
 
 
 class Str(Param):
-    """Str and it's sub class don't need [conversion] function
+    """ Str and it's sub class don't need [conversion] function
     """
     error_code = 'param_type_error_str'
     description = 'Parameter must be String'
@@ -37,7 +37,7 @@ class Str(Param):
 
 
 class Bool(Param):
-    """Boolean type parameter
+    """ Boolean type parameter
     """
     error_code = 'param_type_error_bool'
     description = 'Parameter must be true or false'
@@ -59,7 +59,7 @@ class Bool(Param):
 
 
 class Int(Param):
-    """Int type parameter
+    """ Int type parameter
     """
     error_code = 'param_type_error_int'
     description = 'Parameter must be Integer'
@@ -76,7 +76,7 @@ class Int(Param):
 
 
 class Float(Param):
-    """Float type parameter
+    """ Float type parameter
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description
@@ -93,7 +93,7 @@ class Float(Param):
 
 
 class List(Param):
-    """List type parameter
+    """ List type parameter
 
     POST (application/json) only, so don't need [conversion] function
 
@@ -123,7 +123,7 @@ class List(Param):
 
 
 class Mail(Param):
-    """Parameter that is Email address
+    """ Parameter that is Email address
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description

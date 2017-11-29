@@ -14,10 +14,6 @@ log = logging.getLogger(__name__)
 
 def fair_setup(app, config):
     workspace = config['app'].get('workspace') or 'var'
-    if os.path.exists(workspace):
-        workspace = os.path.realpath(workspace)
-    else:
-        raise Exception('workspace (define in app -> workspace) [%s] not exists.' % os.path.realpath(workspace))
 
     # setting logging
     if config.get('logging'):
