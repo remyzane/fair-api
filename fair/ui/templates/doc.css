@@ -12,18 +12,9 @@ table tr.label {
     margin-top: .5em;
 }
 
-.index-label {
-    font-size: 2em;
-    line-height: 2em;
-    padding-top: 1em;
-}
-#index .method {
-    font-size: .8em;
-}
-
 .title {
     font-size: 2em;
-    margin: 2em 0 .5em 0;
+    margin: 1.5em 0 1em 0;
 }
 .summary .value {
     font-weight: bold;
@@ -32,11 +23,9 @@ table tr.label {
     width: 50px;
     text-align: center;
 }
-
 .summary .url.value {
     font-size: 1.2em;
 }
-
 .summary .plugins.label {
     width: 5em;
 }
@@ -50,12 +39,12 @@ table tr.label {
 .summary .method {
     width: 5em;
 }
-
 .summary .label {
     text-align: center;
 }
 
 .section {
+    margin-top: 1em;
     font-size: 1.1em;
     font-weight: bold;
 }
@@ -76,17 +65,10 @@ table tr.label {
 .codes .item.common, .codes .item.type {
     color: #995a31;
 }
-
 .codes .item.plugin, .codes .item.biz {
     color: #b58105;
 }
 
 .codes blockquote {
     margin: 1em;
-}
-.index-link {
-    padding-bottom: 1em;
-    height: 2em;
-    line-height: 2em;
-    font-size:1.4em;
 }

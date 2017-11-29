@@ -6,14 +6,13 @@ from importlib import import_module
 
 from .parameter import Param
 from .utility import set_logging, class_name_to_api_name, get_cls_with_path, iterate_package, rst_to_html
-from .web_ui import setup_web_ui
-from .web_ui.log_ui import LogUI
-from .web_ui.test_ui import TestsStandaloneUI
+from .ui import setup_web_ui
+from .ui.test import TestsStandaloneUI
 
 log = logging.getLogger(__name__)
 
 
-def fair_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandaloneUI):
+def fair_setup(app, config):
     workspace = config['app'].get('workspace') or 'var'
     if os.path.exists(workspace):
         workspace = os.path.realpath(workspace)
@@ -38,7 +37,7 @@ def fair_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandaloneUI)
     setup_view(app, config['app'].get('view_packages', ()))
 
     # configure web ui
-    setup_web_ui(app, config['app']['web_ui'], workspace, log_ui_class, test_ui_class)
+    setup_web_ui(app, config['app']['web_ui'], workspace, TestsStandaloneUI)
 
     return workspace
 

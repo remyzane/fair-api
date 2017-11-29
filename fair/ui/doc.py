@@ -1,7 +1,7 @@
 from flask import request, render_template, current_app as app
 from fair import JSON, CView
 
-from .test_ui import to_html
+from . import to_html
 
 
 def index():
@@ -22,4 +22,4 @@ def index():
                                  to_html(method.element.description),
                                  ))
     title = app.config['web_ui']['doc_ui'].get('title', 'DOC UI')
-    return render_template('doc_ui.html', api_list=api_list, title=title)
+    return render_template('doc.html', api_list=api_list, title=title)

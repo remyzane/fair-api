@@ -24,7 +24,7 @@ def show_file(file_path):
 
 
 def run_profile(test_cmd, var_env, save_dir):
-    """Performance analysis
+    """ Performance analysis
 
     Generate profile png and output in console
 

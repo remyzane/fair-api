@@ -6,9 +6,12 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
-    <link href="{{ url_for('web_ui.static', filename='test_ui.css') }}" rel="stylesheet">
-    <script src="{{ url_for('web_ui.static', filename='test_ui.js') }}"></script>
+    <style>
+        {% include 'test.css' %}
+    </style>
     <script>
+        {% include 'test.js' %}
+
         var user = '{{ user }}';
         var web_ui_uri = '{{ web_ui_uri }}';
         var test_ui_uri = '{{ test_ui_uri }}';
@@ -24,27 +27,13 @@
 <body>
 
 <div class="ui top fixed inverted menu">
-    {% if curr_api_uri %}
-    <a class="item icon home-button" href="/{{ web_ui_uri }}/{{ test_ui_uri }}/?user={{ user }}"><i class="home icon"></i></a>
-    <div class="ui dropdown item"><i class="sidebar icon"></i>Api List
-        <div class="menu">
-            {% for api_uri, method, title, active in api_list %}
-            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method) }}</div>
-            {% endfor %}
-        </div>
-    </div>
-    <a class="item copy-button"><i class="linkify icon"></i>Copy Address</a>
     <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
         <i class="setting icon"></i>
     </a>
     <div class="item current-api show-message" message="{{curr_api_description | safe}}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="item message"><span></span></div>
-    {% endif %}
     <div class="right menu">
-        {% if curr_api_uri %}
         <a class="item" onclick="do_test()"><i class="setting icon"></i>Run Testing</a>
-        {% endif %}
-        <a class="item" href="/{{ web_ui_uri }}/{{ test_ui_uri }}/"><i class="sign out icon"></i>Exit</a>
     </div>
 </div>
 

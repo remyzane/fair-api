@@ -6,20 +6,11 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
-    <link href="{{ url_for('web_ui.static', filename='doc_ui.css') }}" rel="stylesheet">
+    <style>
+        {% include 'doc.css' %}
+    </style>
 </head>
 <body>
-    <div class="index-label" id="index_label">Document Index</div>
-    <table class="ui very basic table" id="index">
-        {% for api_uri, method, element, title, description in api_list %}
-        <tr>
-            <td class="method">{{ method }}</td>
-            <td class="name"><a href="#{{ api_uri }}">{{ api_uri }}</a></td>
-            <td><a href="#{{ api_uri }}">{{ title | safe }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-
 {% for api_uri, method, element, title, description in api_list %}
     <div class="title" id="{{ api_uri }}">{{ title | safe }}</div>
     <table class="ui black table summary">
@@ -27,7 +18,7 @@
             <td class="url label">Url:</td>
             <td class="url value">{{ api_uri }}</td>
             {% if element.plugin_keys %}
-            <td class="plugins label">Plugins:</td>
+            <td class="plugins label">Support:</td>
             <td class="plugins value">
                 {% for plugin in element.plugin_keys %}
                 <span>{{ plugin }}</span>
@@ -82,6 +73,5 @@
     {% endif %}
 
 {% endfor %}
-    <a href="#index_label" class="index-link">Document Index&nbsp;&nbsp;&uarr;</a>
 </body>
 </html>

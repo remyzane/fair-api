@@ -2,6 +2,7 @@ import os
 import json
 from flask import request
 from fair.plugin.jsonp import JsonP
+from . import to_html
 
 
 class TestsUI(object):
@@ -146,14 +147,3 @@ def get_curr_api_params(param_list, config):
         params.append((name, requisite, to_html(param['description']), type_name, type_display, pure_auto, param_url))
     return params
 
-
-def to_html(text):
-    text = text.replace('&', '&#38;')
-    text = text.replace(' ', '&nbsp;')
-    text = text.replace(' ', '&#160;')
-    # text = text.replace('<', '&#60;')
-    # text = text.replace('>', '&#62;')
-    text = text.replace('"', '&#34;')
-    text = text.replace('\'', '&#39;')
-    text = text.replace(os.linesep, '</br>')
-    return text

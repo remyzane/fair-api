@@ -5,7 +5,7 @@ from fair.response import ResponseRaise, JSON_P
 
 
 class JsonPRaise(ResponseRaise):
-    """Json response
+    """ Json response
 
     format: { "code": "", "message": "",  "data": "" }
     """
@@ -17,7 +17,7 @@ class JsonPRaise(ResponseRaise):
 
 
 class JsonP(Plugin):
-    """Jsonp response Plugin
+    """ Jsonp response Plugin
 
     if defined in view's return will using jsonp (accustomed to using 'callback')
     """
