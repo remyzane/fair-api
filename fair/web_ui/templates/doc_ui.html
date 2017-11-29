@@ -3,11 +3,10 @@
 <head lang="zh-cmn-Hans">
     <meta charset="UTF-8">
     <title>{{ title }}</title>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='doc_ui.css') }}"/>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
+    <link href="{{ url_for('web_ui.static', filename='doc_ui.css') }}" rel="stylesheet">
 </head>
 <body>
     <div class="index-label" id="index_label">Document Index</div>

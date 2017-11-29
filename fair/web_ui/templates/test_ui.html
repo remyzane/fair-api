@@ -3,14 +3,12 @@
 <head lang="zh-cmn-Hans">
     <meta charset="UTF-8">
     <title>{{ title }}</title>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/jquery.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/ZeroClipboard.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='fonts/lato.css') }}"/>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='libs/semantic/semantic.css') }}"/>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='libs/semantic/semantic.js') }}"></script>
-    <link rel="stylesheet" href="{{ url_for('web_ui.static', filename='test_ui.css') }}"/>
-    <script type="text/javascript" src="{{ url_for('web_ui.static', filename='test_ui.js') }}"></script>
-    <script type="text/javascript">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
+    <link href="{{ url_for('web_ui.static', filename='test_ui.css') }}" rel="stylesheet">
+    <script src="{{ url_for('web_ui.static', filename='test_ui.js') }}"></script>
+    <script>
         var user = '{{ user }}';
         var web_ui_uri = '{{ web_ui_uri }}';
         var test_ui_uri = '{{ test_ui_uri }}';
@@ -101,11 +99,6 @@
             <button class="ui button" onclick="do_to_url()">&gt;&gt; url</button>
         </div>
         <textarea id="result"></textarea>
-
-        <label for="result_new_window">
-            <input type="checkbox" id="result_new_window" {% if curr_api_config.get('json_p') %} checked="checked" {% endif %}>
-            &nbsp;<span>Automated Testing</span>
-        </label>
 
         <label for="result_new_window" style="float:right;">
             &nbsp;<span>New Window</span>&nbsp;

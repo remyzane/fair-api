@@ -8,14 +8,14 @@ $(document).ready(function(){
     $('.ui.menu .ui.dropdown').dropdown({
         on: 'hover'
     });
-    ZeroClipboard.config( { swfPath: web_ui_static + "libs/ZeroClipboard.swf" } );
-    var client = new ZeroClipboard($(".copy-button"));
-    client.on( "copy", function (event) {
-        var params = curr_api_method == 'GET' ? $.param(get_params(true)) : null;
-
-        var clipboard = event.clipboardData;
-        clipboard.setData( "text/plain", params ? curr_api_path + "?" + params : curr_api_path);
-    });
+//    ZeroClipboard.config( { swfPath: web_ui_static + "libs/ZeroClipboard.swf" } );
+//    var client = new ZeroClipboard($(".copy-button"));
+//    client.on( "copy", function (event) {
+//        var params = curr_api_method == 'GET' ? $.param(get_params(true)) : null;
+//
+//        var clipboard = event.clipboardData;
+//        clipboard.setData( "text/plain", params ? curr_api_path + "?" + params : curr_api_path);
+//    });
 
     $('.ui.menu .uri.item').on('click', function() {
         var api = $(this)[0].innerText.split(" ");
