@@ -24,9 +24,6 @@ def fair_setup(app, config):
         set_logging(config['logging'], workspace)
         # log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
-    if config.get('databases'):
-        setup_database(config['databases'])
-
     # configure flask app
     setup_app(app, config)
 
@@ -40,28 +37,6 @@ def fair_setup(app, config):
     setup_web_ui(app, config['app']['web_ui'], workspace, TestsStandaloneUI)
 
     return workspace
-
-db_classes = {
-    'mysql': peewee.MySQLDatabase,
-    'pgsql': peewee.PostgresqlDatabase,
-    'sqlite': peewee.SqliteDatabase
-}
-
-database_proxy = peewee.Proxy()
-
-
-def setup_database(config):
-    """Configure database.
-
-     cannot import view and model before call this function
-
-    :param config: database's config
-    :type  config: dict
-    """
-    database = config[0]
-    db = db_classes[database['type']](**config[0]['params'])
-    # set default db
-    database_proxy.initialize(db)
 
 
 # configure flask (app.config) defined in app section at project.yml
