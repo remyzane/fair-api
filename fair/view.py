@@ -78,7 +78,7 @@ class CView(object):
             self.params = get_request_params(request)
             self.params_proto = self.params.copy()
 
-            if self.params.get('_api') == 'doc':
+            if self.params.get('__fair') == 'doc':
                 response_doc = None
                 if self.method.element.response:
                     response_doc = rst_to_html(self.method.element.response.__doc__)
