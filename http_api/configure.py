@@ -47,7 +47,8 @@ db_classes = {
     'pgsql': peewee.PostgresqlDatabase,
     'sqlite': peewee.SqliteDatabase
 }
-db = {}
+
+database_proxy = peewee.Proxy()
 
 
 def setup_database(config):
@@ -58,11 +59,10 @@ def setup_database(config):
     :param config: database's config
     :type  config: dict
     """
-    global db
-    for database in config:
-        db[database['key']] = db_classes[database['type']](**config[0]['params'])
+    database = config[0]
+    db = db_classes[database['type']](**config[0]['params'])
     # set default db
-    peewee.Model._meta.database = db.get('default') or db[0]
+    database_proxy.initialize(db)
 
 
 # configure flask (app.config) defined in app section at project.yml

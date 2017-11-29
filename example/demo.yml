@@ -1,10 +1,4 @@
 
-# use in development and testting
-simple_server:
-  host: 0.0.0.0
-  port: 5000
-
-
 # Database list
 databases:
   -
