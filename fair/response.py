@@ -23,9 +23,9 @@ class ResponseRaise(Exception):
 class JsonRaise(ResponseRaise):
     """Json response
 
-    format: { "code": "", "message": "",  "data": "" }
+    format: { "code": "", "info": "",  "data": "" }
     """
 
     def response(self):
-        ret = {'code': self.code, 'message': self.view.codes[self.code], 'data': self.data}
+        ret = {'code': self.code, 'info': self.view.codes[self.code], 'data': self.data}
         return self.code, ret, Response(json.dumps(ret), content_type=JSON, status=self.status)
