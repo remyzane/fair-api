@@ -23,8 +23,9 @@ class JsonP(Plugin):
     """
     error_codes = {}
 
-    def __init__(self, params):
-        self.callback_field_name = params['callback_field_name']
+    def __init__(self, callback_field_name):
+        super(JsonP, self).__init__()
+        self.callback_field_name = callback_field_name
 
     def init_view(self, view_class, method):
         if method.__name__ is not 'get':

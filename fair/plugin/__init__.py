@@ -18,10 +18,8 @@ class Plugin(object):
 
     parameters = ()
 
-    def __init__(self, params):
+    def __init__(self):
         """Plugin init
-
-        :param dict params: plug config parameters
         """
 
     def init_view(self, view_class, method):

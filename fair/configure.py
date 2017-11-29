@@ -1,67 +1,40 @@
-import os
-import peewee
 import logging
-import datetime
 from importlib import import_module
 
 from .parameter import Param
-from .utility import set_logging, class_name_to_api_name, get_cls_with_path, iterate_package, rst_to_html
+from .utility import class_name_to_api_name, get_cls_with_path, iterate_package, rst_to_html
 from .ui import setup_web_ui
 from .ui.test import TestsStandaloneUI
 
 log = logging.getLogger(__name__)
 
 
-def fair_setup(app, config):
-    workspace = config['app'].get('workspace') or 'var'
+def fair_setup(app, cache_path, config, responses=None,
+               plugins=None,
+               parameter_types=None):
 
-    # setting logging
-    if config.get('logging'):
-        set_logging(config['logging'], workspace)
-        # log.debug('app config: %s', json.dumps(config['app'], indent=4))
+    app.config['fair_plugins'] = plugins or {}
 
     # configure flask app
-    setup_app(app, config)
+    setup_config(app, config)
 
-    # parameter types
-    parameter_types(app, config['app']['parameter_types'])
+    # set parameter types
+    set_parameter_types(app, parameter_types)
 
     # configure view
     setup_view(app, config['app'].get('view_packages', ()))
 
     # configure web ui
-    setup_web_ui(app, config['app']['web_ui'], workspace, TestsStandaloneUI)
-
-    return workspace
+    setup_web_ui(app, config['app']['web_ui'], cache_path, TestsStandaloneUI)
 
 
-# configure flask (app.config) defined in app section at project.yml
-def setup_app(app, config):
+def setup_config(app, config):
     """Configure flask app.
 
     :param app: Flask app object
     :param config: api's config
     :type  config: dict
     """
-
-    flask_config = config.get('flask') or {}
-    for key, value in flask_config.items():
-        # set the expiration date of a permanent session.
-        if key == 'PERMANENT_SESSION_LIFETIME':
-            app.config[key] = datetime.timedelta(days=int(value))
-        else:
-            app.config[key] = value
-
-    app_config = config.get('app') or {}
-    for key, value in app_config.items():
-        app.config[key] = value
-
-    app.config['plugins'] = app.config.get('plugins') or {}
-    for name, config in app.config['plugins'].items():
-        plugin_class = get_cls_with_path(config.pop('class'))
-        plugin = plugin_class(config)
-        app.config['plugins'][name] = plugin
-
     default_class_sign = ''
     app.config['responses'] = app.config.get('responses') or {}
     for name, class_path in app.config['responses'].items():
@@ -73,9 +46,12 @@ def setup_app(app, config):
     app.config['responses']['default'] = app.config['responses'][default_class_sign]
 
 
-def parameter_types(app, config):
+def set_parameter_types(app, parameter_types):
+    if not parameter_types:
+        parameter_types = []
+    parameter_types = ['fair.parameter'] + parameter_types
     types = {}
-    for package_name in config:
+    for package_name in parameter_types:
         exec('import %s as package' % package_name)
         parameter_package = locals()['package']
         for item in dir(parameter_package):
