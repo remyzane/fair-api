@@ -1,7 +1,7 @@
 import json
 from flask import Response
-from http_api.plugin import Plugin
-from http_api.response import ResponseRaise, JSON_P
+from fair.plugin import Plugin
+from fair.response import ResponseRaise, JSON_P
 
 
 class JsonPRaise(ResponseRaise):

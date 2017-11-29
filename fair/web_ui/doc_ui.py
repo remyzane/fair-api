@@ -1,5 +1,5 @@
 from flask import request, render_template, current_app as app
-from http_api import JSON, CView
+from fair import JSON, CView
 
 from .test_ui import to_html
 

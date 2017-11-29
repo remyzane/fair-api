@@ -1,7 +1,7 @@
 import os
 import json
 from flask import request
-from http_api.plugin.jsonp import JsonP
+from fair.plugin.jsonp import JsonP
 
 
 class TestsUI(object):

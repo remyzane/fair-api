@@ -1,6 +1,6 @@
 import json
 from flask import session, request, render_template, Response, current_app as app
-from http_api import JSON, CView
+from fair import JSON, CView
 
 from .test_ui import to_html
 

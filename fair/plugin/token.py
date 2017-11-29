@@ -3,9 +3,9 @@ import base64
 import binascii
 from Crypto.Cipher import AES
 
-from http_api.parameter import Str
-from http_api.plugin import Plugin, NOT_NULL
-from http_api.utility import get_cls_with_path
+from fair.parameter import Str
+from fair.plugin import Plugin, NOT_NULL
+from fair.utility import get_cls_with_path
 
 
 class TokenException(Exception):

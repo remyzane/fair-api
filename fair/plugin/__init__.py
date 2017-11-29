@@ -1,4 +1,4 @@
-from http_api.view import CView
+from fair.view import CView
 
 NOT_NULL = True
 ALLOW_NULL = False

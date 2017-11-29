@@ -4,7 +4,7 @@ import base64
 from mock import MagicMock
 from Crypto.Cipher import AES
 
-from http_api.plugin.token import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN_TIME_OUT
+from fair.plugin.token import Token, TokenInvalid, TokenTimeout, TokenKeyInvalid, TOKEN_TIME_OUT
 
 
 def test_token():
