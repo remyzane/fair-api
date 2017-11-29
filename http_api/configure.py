@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 
 def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandaloneUI):
-    workspace = config['app'].get('workspace') or 'work'
+    workspace = config['app'].get('workspace') or 'var'
     if os.path.exists(workspace):
         workspace = os.path.realpath(workspace)
     else:
