@@ -38,7 +38,6 @@
 </div>
 
 <div class="body x">
-    {% if curr_api_uri %}
     <div class="case">
         <div class="title">Response code</div>
         <div class="description">{{curr_api_description | safe}}</div>
@@ -95,17 +94,6 @@
         </label>
         <input size="10" style="float: right;">
     </div>
-    {% else %}
-    <table class="ui very basic table" id="index">
-        {% for api_uri, method, title, active in api_list %}
-        <tr>
-            <td class="method">{{ method }}</td>
-            <td class="name"><a href="./?user={{ user }}&method={{ method }}&api={{ api_uri }}">{{ api_uri }}</a></td>
-            <td><a href="#{{ api_uri }}">{{ title | safe }}</a></td>
-        </tr>
-        {% endfor %}
-    </table>
-    {% endif %}
 </div>
 <div class="ui modal">
     <div class="header">Setting&nbsp;&nbsp;{{ curr_api_uri }}</div>

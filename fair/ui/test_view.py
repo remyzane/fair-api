@@ -6,7 +6,6 @@ from . import to_html
 
 
 def index():
-    api_list = []
     curr_api_context = {}
     user = request.args.get('user', '')
     context = {'user': user,
@@ -15,21 +14,13 @@ def index():
                'test_ui_uri': app.config['web_ui']['test_ui']['uri'],
                'post_type': request.args.get('type', 'j')}
 
-    view_keys = list(app.view_functions.keys())
-    view_keys.sort()
-    for name in view_keys:
+    for name in app.view_functions.keys():
         view_class = getattr(app.view_functions[name], 'view_class', None)
         if view_class and issubclass(view_class, CView) and view_class != CView:
-            methods = list(view_class.request_methods.keys())
-            methods.sort()
-            for method_name in methods:
+            for method_name in view_class.request_methods.keys():
                 method = view_class.request_methods[method_name]
                 if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
                     curr_api_context = app.config['test_ui'].get_case(user, view_class, method)
-                    api_list.append((view_class.uri, method_name, to_html(method.element.title), 'active'))
-                else:
-                    api_list.append((view_class.uri, method_name, to_html(method.element.title), ''))
-    context['api_list'] = api_list
     context.update(curr_api_context)
     return render_template('test.html', **context)
 
