@@ -2,48 +2,39 @@ import logging
 from importlib import import_module
 
 from .parameter import Param
-from .utility import class_name_to_api_name, get_cls_with_path, iterate_package, rst_to_html
+from .utility import class_name_to_api_name, iterate_package
 from .ui import setup_web_ui
 from .ui.test import TestsStandaloneUI
+from .response import JsonRaise
 
 log = logging.getLogger(__name__)
 
 
-def fair_setup(app, cache_path, config, responses=None,
+def fair_setup(app, cache_path,
+               view_packages=None,
+               responses=None,
                plugins=None,
                parameter_types=None):
 
     app.config['fair_plugins'] = plugins or {}
 
-    # configure flask app
-    setup_config(app, config)
+    app.config['responses'] = {'default': JsonRaise}
 
     # set parameter types
     set_parameter_types(app, parameter_types)
 
     # configure view
-    setup_view(app, config['app'].get('view_packages', ()))
+    setup_view(app, view_packages)
 
     # configure web ui
-    setup_web_ui(app, config['app']['web_ui'], cache_path, TestsStandaloneUI)
-
-
-def setup_config(app, config):
-    """Configure flask app.
-
-    :param app: Flask app object
-    :param config: api's config
-    :type  config: dict
-    """
-    default_class_sign = ''
-    app.config['responses'] = app.config.get('responses') or {}
-    for name, class_path in app.config['responses'].items():
-        if name == 'default':
-            default_class_sign = class_path
-        else:
-            response_class = get_cls_with_path(class_path)
-            app.config['responses'][name] = response_class
-    app.config['responses']['default'] = app.config['responses'][default_class_sign]
+    web_ui_config = {
+        'uri': 'api',
+        'test_ui': {
+            'uri': 'tests'
+        }
+    }
+    app.config['web_ui'] = web_ui_config
+    setup_web_ui(app, web_ui_config, cache_path, TestsStandaloneUI)
 
 
 def set_parameter_types(app, parameter_types):
@@ -70,7 +61,7 @@ def set_parameter_types(app, parameter_types):
 
 
 # setup view url rule
-def setup_view(app, config):
+def setup_view(app, view_packages):
     """Configure view
 
     url route configure.
@@ -81,7 +72,9 @@ def setup_view(app, config):
     """
     from .view import CView
 
-    for package_path in config:
+    if not view_packages:
+        return
+    for package_path in view_packages:
         iterate_package(import_module(package_path))
 
     for view in CView.__subclasses__():
