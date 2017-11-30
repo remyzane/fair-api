@@ -1,4 +1,4 @@
-from fair.view import CView
+from fair.view_old import CView
 
 NOT_NULL = True
 ALLOW_NULL = False

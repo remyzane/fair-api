@@ -70,7 +70,7 @@ def setup_view(app, view_packages):
     :param config: view's config
     :type  config: dict
     """
-    from .view import CView
+    from .view_old import CView
 
     if not view_packages:
         return
