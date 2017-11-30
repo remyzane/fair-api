@@ -10,7 +10,8 @@ from .response import JsonRaise
 log = logging.getLogger(__name__)
 
 
-def setup(app, cache_path,
+def fair_setup(app, cache_path,
+               view_packages=None,
                responses=None,
                plugins=None,
                parameter_types=None):
@@ -21,6 +22,9 @@ def setup(app, cache_path,
 
     # set parameter types
     set_parameter_types(app, parameter_types)
+
+    # configure view
+    setup_view(app, view_packages)
 
     # configure web ui
     web_ui_config = {
@@ -54,3 +58,27 @@ def set_parameter_types(app, parameter_types):
             except TypeError:
                 pass    # Some object throw TypeError in issubclass
     app.config['parameter_types'] = types
+
+
+# setup view url rule
+def setup_view(app, view_packages):
+    """Configure view
+
+    url route configure.
+
+    :param app: Flask app object
+    :param config: view's config
+    :type  config: dict
+    """
+    from .view import CView
+
+    if not view_packages:
+        return
+    for package_path in view_packages:
+        iterate_package(import_module(package_path))
+
+    for view in CView.__subclasses__():
+        name = class_name_to_api_name(view.__name__)
+        uri = '/%s/%s' % (view.__module__.split('.')[0], name)
+        endpoint = '%s.%s' % (view.__module__.split('.')[0], name)
+        app.add_url_rule(uri, view_func=view.as_view(endpoint, uri, app))

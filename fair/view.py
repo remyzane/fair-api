@@ -2,7 +2,7 @@ import logging
 from flask import render_template, current_app as app
 from flask.views import request
 
-from .element import Element
+from .element_old import Element
 from .response import ResponseRaise
 from .utility import get_request_params, text_to_html, rst_to_html
 
@@ -46,7 +46,7 @@ class CView(object):
         cls.uri = uri
         cls.__request_methods(view_wrapper)
         for method in cls.request_methods.values():
-            method.element = Element(app, cls, method)
+            method.element = Element(app, method)
             for plugin in method.element.plugins:
                 plugin.init_view(cls, method)
                 # add plugin.parameters to method.element.param_list.

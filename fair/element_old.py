@@ -1,7 +1,6 @@
 import os
 import logging
 import docutils
-from flask import current_app as app
 from docutils.core import publish_doctree
 
 from .parameter import Param, List
@@ -83,7 +82,7 @@ class Element(object):
 
     code_dict = None
 
-    def __init__(self, method):
+    def __init__(self, app, method):
         self.title = ''
         self.plugins = []
         self.plugin_keys = []
@@ -101,7 +100,7 @@ class Element(object):
         self.__element_code_set('exception', 'Unknown exception', 'common')
         self.__element_code_set('param_unknown', 'Unknown parameter', 'common')
         if not method.__doc__:
-            raise Exception('%s doc not defined' % method.__name__)
+            raise Exception('%s doc not undefined' % method.__name__)
         try:
             doc_field = publish_doctree(method.__doc__)
             self.__parse_doc_tree(app, method, doc_field)

@@ -2,7 +2,7 @@ import re
 
 
 class Param(object):
-    """ Parameter that don't need to conversion.
+    """ Parameter
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description
@@ -24,7 +24,7 @@ class Param(object):
 
 
 class Str(Param):
-    """ Str and it's sub class don't need [conversion] function
+    """ String type parameter
     """
     error_code = 'param_type_error_str'
     description = 'Parameter must be String'
@@ -87,15 +87,12 @@ class Float(Param):
     @classmethod
     def structure(cls, view, value):
         return float(value)
-        if type(value) in [int, float]:
-            return
-        return cls.code
 
 
 class List(Param):
     """ List type parameter
 
-    POST (application/json) only, so don't need [conversion] function
+    POST (application/json) only
 
     :cvar str error_code: Error code
     :cvar str description: Parameter description
