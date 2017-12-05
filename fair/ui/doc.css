@@ -36,9 +36,10 @@ table tr.label {
 
     padding-right: .6em;
 }
-.summary .method {
-    width: 5em;
+.ui.table.summary td.method {
+    text-align: right;
 }
+
 .summary .label {
     text-align: center;
 }

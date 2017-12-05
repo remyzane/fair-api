@@ -2,7 +2,7 @@
 <html>
 <head lang="zh-cmn-Hans">
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title>DOC {{ url }}</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
@@ -11,11 +11,11 @@
     </style>
 </head>
 <body>
-    <div class="title" id="{{ api_uri }}">{{ api_title | safe }}</div>
+    <div class="title">{{ title | safe }}</div>
     <table class="ui black table summary">
         <tr>
             <td class="url label">Url:</td>
-            <td class="url value">{{ api_uri }}</td>
+            <td class="url value"></td>
             {% if element.plugin_keys %}
             <td class="plugins label">Support:</td>
             <td class="plugins value">
@@ -24,11 +24,16 @@
                 {% endfor %}
             </td>
             {% endif %}
-            <td class="method label">Method:</td>
-            <td class="method value">{{ method }}</td>
+            <td class="method">
+                {% for method in methods %}
+                {% if method not in ('OPTIONS', 'HEAD') %}
+                <span class="value">{{ method }}</span>&nbsp;&nbsp;&nbsp;
+                {% endif %}
+                {% endfor %}
+            </td>
         </tr>
         {% if description %}
-        <tr><td class="description" colspan="{{ 6 if element.plugin_keys else 4 }}">{{ description | safe }}</td></tr>
+        <tr><td class="description" colspan="{{ 6 if element.plugin_keys else 4 }}">aaa {{ description | safe }}</td></tr>
         {% endif %}
     </table>
     {% if element.param_list %}
@@ -72,5 +77,10 @@
     </table>
     {% endif %}
 
+    <script>
+        // support for api gateway
+        $("td.url.value").text(window.location.pathname);
+        document.title = "DOC " + window.location.pathname;
+    </script>
 </body>
 </html>

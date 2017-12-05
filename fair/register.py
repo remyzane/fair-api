@@ -11,35 +11,6 @@ from .response import JsonRaise
 log = logging.getLogger(__name__)
 
 
-def get_parameter_types(parameter_types=None):
-    if not parameter_types:
-        parameter_types = []
-    parameter_types = ['fair.parameter'] + parameter_types
-    types = {}
-    for package_name in parameter_types:
-        exec('import %s as package' % package_name)
-        parameter_package = locals()['package']
-        for item in dir(parameter_package):
-            # flask's request and session(werkzeug.local.LocalProxy) raise RuntimeError
-            if item in ['request', 'session']:
-                continue
-            parameter = getattr(parameter_package, item)
-            try:
-                if issubclass(parameter, Param):
-                    if parameter.__name__ not in types:
-                        types[parameter.__name__] = parameter
-
-            except TypeError:
-                pass    # Some object throw TypeError in issubclass
-    return types
-
-
-def default():
-    fair_conf = dict()
-    fair_conf['plugins'] = {'json_p': JsonP('callback')}
-    fair_conf['responses'] = {'default': JsonRaise}
-    fair_conf['parameter_types'] = get_parameter_types()
-    return fair_conf
 
 
 def register_tests(app, test_storage=TestsLocalStorage, **params):

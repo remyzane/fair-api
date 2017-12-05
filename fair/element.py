@@ -3,6 +3,7 @@ import logging
 import docutils
 from docutils.core import publish_doctree
 
+from .air import Air
 from .parameter import Param, List
 from .utility import rst_to_html
 
@@ -85,9 +86,9 @@ class Element(object):
 
     code_dict = None
 
-    def __init__(self, fair_conf, view_func, rule):
-        self._fair_conf = fair_conf
-        self._rule = rule
+    def __init__(self, air, view_func, rule):
+        self.air = air     # type: Air
+        self.rule = rule
         self.title = ''
         self.plugins = []
         self.plugin_keys = []
@@ -113,6 +114,18 @@ class Element(object):
         except Exception:
             log.exception('element defined error')
 
+        for plugin in self.plugins:
+            plugin.init_view(view_func)
+            # add plugin.parameters to method.element.param_list.
+            if plugin.parameters:
+                plugin_parameters = list(plugin.parameters)
+                param_list = list(self.param_list)
+                while plugin_parameters:
+                    p = plugin_parameters.pop()
+                    param_list.insert(0, {'name': p[0], 'type': p[1], 'requisite': p[2], 'description': p[3]})
+                self.param_list = tuple(param_list)
+
+
     def __clear_up(self):
         if self.param_not_null:
             self.code_index.insert(2, 'param_missing')
@@ -126,7 +139,7 @@ class Element(object):
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
         self.code_list = tuple(self.code_list)
-        self.response = self.response or self._fair_conf['responses']['default']
+        self.response = self.response or self.air.responses['default']
         self.description = self.description or ''
 
     def __element_code_set(self, error_code, error_message, category='biz'):
@@ -140,10 +153,10 @@ class Element(object):
         print(name)
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'response':
-            self.response = self._fair_conf['responses'][content]
+            self.response = self.air.responses[content]
         elif name == 'plugin':
             for item in content.split():
-                plugin = self._fair_conf['plugins'].get(item)
+                plugin = self.air.plugins.get(item)
                 if not plugin:
                     raise Exception('%s use undefined plugin %s' % (view_func.__name__, item))
                 self.plugins.append(plugin)
@@ -156,16 +169,16 @@ class Element(object):
             items = name[6:].split()
             param_type = items[0]
             if param_type.endswith(']'):
-                sub_type = self._fair_conf['parameter_types'].get(param_type.split('[')[1][:-1])
-                param_type = self._fair_conf['parameter_types'].get(param_type.split('[')[0])
+                sub_type = self.air.parameter_types.get(param_type.split('[')[1][:-1])
+                param_type = self.air.parameter_types.get(param_type.split('[')[0])
                 param_type = param_type(sub_type)
             else:
-                param_type = self._fair_conf['parameter_types'].get(param_type)
+                param_type = self.air.parameter_types.get(param_type)
             if not param_type:
                 raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
                                                                            view_func.__name__,
                                                                            items[0]))
-            for request_method in self._rule.methods:
+            for request_method in self.rule.methods:
                 if request_method not in ('HEAD', 'OPTIONS'):
                     if request_method not in param_type.support:
                         raise Exception('parameter %s not support http %s method in %s',

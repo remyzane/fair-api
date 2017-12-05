@@ -24,7 +24,7 @@ def get_package_data(package):
     return {package: file_paths}
 
 
-setup(name='flask-http-api',
+setup(name='fair',
       version='0.1',
       description='',
       long_description='',
