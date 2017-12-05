@@ -2,11 +2,40 @@ import os
 import string
 import logging
 import pkgutil
+from flask import request
 from importlib import import_module
 from docutils.core import publish_string
 from docutils.writers.html4css1 import Writer, HTMLTranslator
 
 log = logging.getLogger(__name__)
+
+
+class ContextClass(object):
+    """ Context Class
+    ab = ContextClass(a=1, b=2)      ab.__dict__  # {'a': 1, 'b': 2}
+    """
+    def __init__(self, **params):
+        for key, value in params.items():
+            setattr(self, key, value)
+
+
+def request_args(arg, default_value=None):
+    """ request parameter getter
+    """
+    if request.method == 'GET':
+        return request.args.get(arg, default_value)
+    else:   # POST
+        # get from url
+        value = request.args.get(arg)
+        if value:
+            return value
+        else:
+            if request.json is None:
+                # Content-Type: application/x-www-form-urlencoded
+                return request.form.get(arg, default_value)
+            else:
+                # Content-Type: application/json
+                return request.json.get(arg, default_value)
 
 
 # call logging

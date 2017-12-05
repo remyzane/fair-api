@@ -1,7 +1,6 @@
 import os
 import logging
 import docutils
-from flask import current_app as app
 from docutils.core import publish_doctree
 
 from .parameter import Param, List
@@ -11,7 +10,10 @@ log = logging.getLogger(__name__)
 
 
 class Element(object):
-    """
+    """ Element info generator
+
+    Generate element info through view_func doc
+
         element: {
         title: 'xxxxx',
         description: 'xxxxxx',
@@ -83,7 +85,9 @@ class Element(object):
 
     code_dict = None
 
-    def __init__(self, method):
+    def __init__(self, fair_conf, view_func, url):
+        self._fair_conf = fair_conf
+        self._url = url
         self.title = ''
         self.plugins = []
         self.plugin_keys = []
@@ -100,16 +104,16 @@ class Element(object):
         self.__element_code_set('success', 'Success', 'common')
         self.__element_code_set('exception', 'Unknown exception', 'common')
         self.__element_code_set('param_unknown', 'Unknown parameter', 'common')
-        if not method.__doc__:
-            raise Exception('%s doc not defined' % method.__name__)
+        if not view_func.__doc__:
+            raise Exception('%s doc not defined' % view_func.__name__)
         try:
-            doc_field = publish_doctree(method.__doc__)
-            self.__parse_doc_tree(app, method, doc_field)
-            self.__clear_up(app)
+            doc_field = publish_doctree(view_func.__doc__)
+            self.__parse_doc_tree(view_func, doc_field)
+            self.__clear_up()
         except Exception:
             log.exception('element defined error')
 
-    def __clear_up(self, app):
+    def __clear_up(self):
         if self.param_not_null:
             self.code_index.insert(2, 'param_missing')
             self.code_list.insert(2, ('param_missing', 'Missing parameter', 'common'))
@@ -122,7 +126,7 @@ class Element(object):
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
         self.code_list = tuple(self.code_list)
-        self.response = self.response or app.config['responses']['default']
+        self.response = self.response or self._fair_conf['responses']['default']
         self.description = self.description or ''
 
     def __element_code_set(self, error_code, error_message, category='biz'):
@@ -131,16 +135,17 @@ class Element(object):
             self.code_list.append((error_code, error_message, category))
             self.code_dict[error_code] = error_message
 
-    def __parse_doc_field(self, app, method, doc_field):
+    def __parse_doc_field(self, view_func, doc_field):
         name = doc_field.children[0].astext()
+        print(name)
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'response':
-            self.response = app.config['responses'][content]
+            self.response = self._fair_conf['responses'][content]
         elif name == 'plugin':
             for item in content.split():
-                plugin = app.config['fair_plugins'].get(item)
+                plugin = self._fair_conf['plugins'].get(item)
                 if not plugin:
-                    raise Exception('%s use undefined plugin %s' % (method.__name__, item))
+                    raise Exception('%s use undefined plugin %s' % (view_func.__name__, item))
                 self.plugins.append(plugin)
                 self.plugin_keys.append(item)
                 for error_code, error_message in plugin.error_codes.items():
@@ -151,16 +156,19 @@ class Element(object):
             items = name[6:].split()
             param_type = items[0]
             if param_type.endswith(']'):
-                sub_type = app.config['parameter_types'].get(param_type.split('[')[1][:-1])
-                param_type = app.config['parameter_types'].get(param_type.split('[')[0])
+                sub_type = self._fair_conf['parameter_types'].get(param_type.split('[')[1][:-1])
+                param_type = self._fair_conf['parameter_types'].get(param_type.split('[')[0])
                 param_type = param_type(sub_type)
             else:
-                param_type = app.config['parameter_types'].get(param_type)
+                param_type = self._fair_conf['parameter_types'].get(param_type)
             if not param_type:
-                raise Exception('%s.%s use undefined parameter type %s' % (self.__name__, method.__name__, items[0]))
-            if method.__name__.upper() not in param_type.support:
-                raise Exception('%s.%s use parameter %s type that not support %s method.' %
-                                (self.__name__, method.__name__, param_type.__name__, method.__name__.upper()))
+                raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
+                                                                           view_func.__name__,
+                                                                           items[0]))
+            if view_func.__name__.upper() not in param_type.support:
+                raise Exception('parameter %s not support http %s method in %s',
+                                param_type.__name__, view_func.__name__.upper(), self._url)
+
             param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
             if len(items) > 2 and items[1] == '*':
                 param['requisite'] = True
@@ -173,13 +181,14 @@ class Element(object):
             self.param_types[items[-1]] = param_type
             if isinstance(param['type'], List):
                 self.__element_code_set(param_type.type.error_code, param_type.type.description, 'type')
-                self.__element_code_set(param_type.error_code, param_type.description % param_type.type.__name__, 'type')
+                self.__element_code_set(param_type.error_code,
+                                        param_type.description % param_type.type.__name__, 'type')
             elif param['type'] != Param:
                 self.__element_code_set(param_type.error_code, param_type.description, 'type')
         else:
             setattr(self, name, content)
 
-    def __parse_doc_tree(self, app, method, doc_tree):
+    def __parse_doc_tree(self, view_func, doc_tree):
         if type(doc_tree) == docutils.nodes.term:
             self.title = rst_to_html(doc_tree.rawsource)
             return
@@ -195,8 +204,8 @@ class Element(object):
             return
 
         if type(doc_tree) == docutils.nodes.field:
-            self.__parse_doc_field(app, method, doc_tree)
+            self.__parse_doc_field(view_func, doc_tree)
             return
 
         for item in doc_tree.children:
-            self.__parse_doc_tree(app, method, item)
+            self.__parse_doc_tree(view_func, item)

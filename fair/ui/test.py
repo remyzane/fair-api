@@ -5,7 +5,7 @@ from fair.plugin.jsonp import JsonP
 from fair.utility import text_to_html
 
 
-class TestsUI(object):
+class TestsStorage(object):
 
     def get_case(self, user, view, method):
         raise NotImplementedError
@@ -27,7 +27,7 @@ class TestsUI(object):
         return False
 
 
-class TestsStandaloneUI(TestsUI):
+class TestsLocalStorage(TestsStorage):
 
     def __init__(self, workspace, params=None):
         self.workspace = workspace

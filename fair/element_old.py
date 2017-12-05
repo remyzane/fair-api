@@ -137,7 +137,7 @@ class Element(object):
             self.response = app.config['responses'][content]
         elif name == 'plugin':
             for item in content.split():
-                plugin = app.config['fair_plugins'].get(item)
+                plugin = app.config['plugins'].get(item)
                 if not plugin:
                     raise Exception('%s use undefined plugin %s' % (method.__name__, item))
                 self.plugins.append(plugin)
