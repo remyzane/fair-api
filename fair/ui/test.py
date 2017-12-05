@@ -1,6 +1,7 @@
 from flask import request, render_template, current_app as app
 from werkzeug.routing import Rule
 
+from . import method_filter
 from ..element import Element
 
 
@@ -23,8 +24,9 @@ def test_ui(view_func):
     #             if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
     #                 curr_api_context = app.config['test_ui'].get_case(user, view_class, method)
     # context.update(curr_api_context)
+
     return render_template('test.html',
                            url=request.path,
-                           methods=rule.methods,
+                           methods=method_filter(rule.methods),
                            curr_api_config={}
                            )

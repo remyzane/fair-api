@@ -1,6 +1,15 @@
 from flask import Response
 
 
+def method_filter(methods):
+    ret = []
+    for method in methods:
+        if method not in ('OPTIONS', 'HEAD'):
+            ret.append(method)
+    ret.sort()
+    return set(ret)
+
+
 def adapter(view_func, sign='test'):
     from .doc import doc_ui
     from .test import test_ui

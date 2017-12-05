@@ -30,9 +30,7 @@
             {% endif %}
             <td class="method">
                 {% for method in methods %}
-                {% if method not in ('OPTIONS', 'HEAD') %}
-                <span class="value">{{ method }}</span>&nbsp;&nbsp;&nbsp;
-                {% endif %}
+                <span class="ui circular label value">{{ method }}</span>
                 {% endfor %}
             </td>
         </tr>

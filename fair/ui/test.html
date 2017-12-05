@@ -22,15 +22,15 @@
 <body>
 
 <div class="ui top fixed inverted menu">
-    <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
-        <i class="setting icon"></i>
-    </a>
     <div class="ui dropdown item"><i class="sidebar icon"></i><div class="menu">
-            {% for api_uri, method, title, active in api_list %}
+            {% for method in methods %}
             <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method) }}</div>
             {% endfor %}
         </div>
     </div>
+    <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
+        <i class="setting icon"></i>
+    </a>
 
     <div class="item current-api show-message" message="{{curr_api_description | safe}}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="item message"><span></span></div>
