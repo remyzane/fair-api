@@ -10,13 +10,18 @@
         {% include 'test.css' %}
     </style>
     <script>
+        {% include 'test.js' %}
+
+        var user = '{{ user }}';
+        var web_ui_uri = '{{ web_ui_uri }}';
+        var test_ui_uri = '{{ test_ui_uri }}';
+        var web_ui_static = '{{ url_for('web_ui.static', filename='') }}';
         var post_type = '{{ post_type }}';
+        var curr_api_uri = '{{ curr_api_uri }}';
         var curr_api_path = '{{ curr_api_path }}';
         var curr_api_method = '{{ curr_api_method }}';
         var curr_api_json_p = '{{ curr_api_json_p }}';
         var test_cases = {};
-
-        {% include 'test.js' %}
     </script>
 </head>
 <body>
@@ -25,20 +30,10 @@
     <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
         <i class="setting icon"></i>
     </a>
-    <div class="ui dropdown item"><i class="sidebar icon"></i><div class="menu">
-            {% for api_uri, method, title, active in api_list %}
-            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method) }}</div>
-            {% endfor %}
-        </div>
-    </div>
-
     <div class="item current-api show-message" message="{{curr_api_description | safe}}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="item message"><span></span></div>
     <div class="right menu">
-        <a class="item" onclick="do_test()"><i class="play icon"></i>Run Testing</a>
-        <a class="item icon setting-button" onclick="javascript:show_doc();">
-            <i class="code icon"></i>
-        </a>
+        <a class="item" onclick="do_test()"><i class="setting icon"></i>Run Testing</a>
     </div>
 </div>
 
@@ -101,7 +96,7 @@
     </div>
 </div>
 <div class="ui modal">
-    <div class="header">Setting</div>
+    <div class="header">Setting&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="content">
         {% if curr_api_json_p %}
         <label for="json_p">

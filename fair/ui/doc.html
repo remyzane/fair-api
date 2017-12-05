@@ -11,7 +11,11 @@
     </style>
 </head>
 <body>
-    <div class="title">{{ title | safe }}</div>
+    <div class="title">{{ title | safe }}
+        <a class="item icon test" onclick="javascript:show_test();">
+            <i class="video play outline olive icon"></i>
+        </a>
+    </div>
     <table class="ui black table summary">
         <tr>
             <td class="url label">Url:</td>
@@ -77,10 +81,13 @@
     </table>
     {% endif %}
 
-    <script>
-        // support for api gateway
-        $("td.url.value").text(window.location.pathname);
-        document.title = "DOC " + window.location.pathname;
-    </script>
+<script>
+    // support for api gateway
+    $("td.url.value").text(window.location.pathname);
+    document.title = "DOC " + window.location.pathname;
+    function show_test(){
+        window.location = window.location.pathname + '?fair=test';
+    }
+</script>
 </body>
 </html>

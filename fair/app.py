@@ -33,12 +33,9 @@ class Fair(Flask):
     def dispatch_request(self):
         # 404: None    static: flask.helpers._PackageBoundObject.send_static_file
         view_func = self.view_functions.get(request.endpoint)
-        print(request.endpoint)
-        print(view_func)
-        response_accept = request.headers.get('Accept')
+        # response_accept = request.headers.get('Accept')
         # if 'text/html' in response_accept:
         sign = request_args('fair')
-        print(sign)
         if sign:
             return ui.adapter(view_func, sign)
 

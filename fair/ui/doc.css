@@ -16,6 +16,9 @@ table tr.label {
     font-size: 2em;
     margin: 1.5em 0 1em 0;
 }
+.title a.test {
+    float: right;
+}
 .summary .value {
     font-weight: bold;
 }

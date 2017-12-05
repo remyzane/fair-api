@@ -20,7 +20,7 @@ $(document).ready(function(){
     $('.ui.menu .uri.item').on('click', function() {
         var api = $(this)[0].innerText.split(" ");
         window.location.href = window.location.pathname +
-            '?user=' + user + '&type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
+            '?type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
     });
     init_test_case();
     $('.param-mode').change(function(){
@@ -330,15 +330,13 @@ function params_not_equal(old_params, new_params){
 function save_case(code){
     var param_mode = $('.param-mode').is(':checked');
     var data = {
-        "user": user,
-        "api_path": curr_api_uri,
         "params": get_params(false),
         "param_mode": param_mode,
         "method": curr_api_method,
         "code": code
     };
     $.ajax({
-        url: '/' + web_ui_uri + '/' + test_ui_uri + '/save_case',
+        url: window.location.pathname + '/save_case',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -365,7 +363,7 @@ function save_case(code){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui_uri + '/tests/save_case]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + window.location.pathname + '/tests/save_case]'); }
     });
 }
 
@@ -410,15 +408,13 @@ function get_params_config(){
 
 function save_config(){
     var data = {
-        "user": user,
-        "api_path": curr_api_uri,
         "post_type": get_post_type(),
         "json_p": $('#json_p').is(':checked'),
         "method": curr_api_method,
         "params": get_params_config()
     };
     $.ajax({
-        url: '/' + web_ui_uri + '/' + test_ui_uri + '/save_config',
+        url: window.location.pathname + '/save_config',
         type: 'POST',
         data: JSON.stringify(data),
         timeout: 30000,
@@ -429,6 +425,10 @@ function save_config(){
                 alert(JSON.stringify(_data, null, 4));
             }
         },
-        error: function(xhr, status, error) { alert('Can not access API [' + '/' + web_ui_uri + '/tests/save_config]'); }
+        error: function(xhr, status, error) { alert('Can not access API [' + window.location.pathname + '/tests/save_config]'); }
     });
+}
+
+function show_doc(){
+    window.location = window.location.pathname + '?fair=doc';
 }
