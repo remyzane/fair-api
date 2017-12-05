@@ -60,36 +60,37 @@ class Element(object):
             'zz': 'zzzzzzz'
         }
     """
-    title = None
-
-    description = None
-
-    response = None
-
-    plugin = None
-
-    param_list = None
-
-    param_dict = None
-
-    param_index = None
-
-    param_default = None
-
-    param_not_null = None
-
-    param_allow_null = None
-
-    param_types = None
-
-    code_index = None
-
-    code_dict = None
+    # title = None
+    #
+    # description = None
+    #
+    # response = None
+    #
+    # plugin = None
+    #
+    # param_list = None
+    #
+    # param_dict = None
+    #
+    # param_index = None
+    #
+    # param_default = None
+    #
+    # param_not_null = None
+    #
+    # param_allow_null = None
+    #
+    # param_types = None
+    #
+    # code_index = None
+    #
+    # code_dict = None
 
     def __init__(self, air, view_func, rule):
         self.air = air     # type: Air
         self.rule = rule
         self.title = ''
+        self.description = None
         self.plugins = []
         self.plugin_keys = []
         self.param_list = []

@@ -1,15 +1,59 @@
+import os
 from flask import request, render_template, current_app as app
 from werkzeug.routing import Rule
 
+from fair.utility import text_to_html
 from . import method_filter
+from ..plugin import jsonp
 from ..element import Element
+from ..utility import ContextClass
+
+
+def get_api_params(param_list, config):
+    params = []
+    params_config = config['params'] if config else {}
+    for param in param_list:
+        name = param['name']
+        requisite = b'\xe2\x97\x8f'.decode() if param['requisite'] else ''
+        if param['type'].has_sub_type:
+            type_name = '%s[%s]' % (param['type'].__name__, param['type'].type.__name__)
+            type_display = '''<span message="%s">%s</span>[<span message="%s">%s</span>]''' % (
+                param['type'].description, param['type'].__name__,
+                param['type'].type.description, param['type'].type.__name__)
+        else:
+            type_name = param['type'].__name__
+            type_display = '''<span class="show-message" message="%s">%s</span>''' % \
+                           (text_to_html(param['type'].description), param['type'].__name__)
+        pure_auto = 'checked="checked"' if name in params_config and params_config[name]['pure_auto'] else ''
+        param_url = params_config[name]['url'] if name in params_config else ''
+        params.append((name, requisite, text_to_html(param['description']), type_name, type_display, pure_auto, param_url))
+    return params
 
 
 def test_ui(view_func):
     rule = view_func.rule           # type: Rule
     element = view_func.element     # type: Element
-    curr_api_context = {}
-    user = request.args.get('user', '')
+
+    c = ContextClass()
+    context = {'api_config': {}, 'api_json_p': None}
+
+    title, description = element.title, element.description
+    c.url = request.path
+    c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
+    c.method = 'GET'
+    c.methods = method_filter(rule.methods)
+    c.params = get_api_params(element.param_list, context.get('api_config'))
+    c.description = text_to_html(title + (os.linesep * 2 if description else '') + description)
+    c.params_config = {}
+    c.curr_api_config = {}
+
+    for plugin in element.plugins:
+        if isinstance(plugin, jsonp.JsonP):
+            c.json_p = plugin.callback_field_name
+    # return context
+
+
+
     # context = {'user': user,
     #            'title': 'Test UI',
     #            'web_ui_uri': app.config['web_ui']['uri'],
@@ -25,8 +69,4 @@ def test_ui(view_func):
     #                 curr_api_context = app.config['test_ui'].get_case(user, view_class, method)
     # context.update(curr_api_context)
 
-    return render_template('test.html',
-                           url=request.path,
-                           methods=method_filter(rule.methods),
-                           curr_api_config={}
-                           )
+    return render_template('test.html', c=c)

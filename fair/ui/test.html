@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-<head lang="zh-cmn-Hans">
+<head>
     <meta charset="UTF-8">
     <title>{{ title }}</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
@@ -23,8 +23,8 @@
 
 <div class="ui top fixed inverted menu">
     <div class="ui dropdown item"><i class="sidebar icon"></i><div class="menu">
-            {% for method in methods %}
-            <div class="uri item {{ active }}">{{ '%s %s' % (api_uri, method) }}</div>
+            {% for method in c.methods %}
+            <div class="uri item {{ active }}">{{ method }}</div>
             {% endfor %}
         </div>
     </div>
@@ -32,7 +32,7 @@
         <i class="setting icon"></i>
     </a>
 
-    <div class="item current-api show-message" message="{{curr_api_description | safe}}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
+    <div class="item current-api show-message" message="{{ c.description | safe }}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
     <div class="item message"><span></span></div>
     <div class="right menu">
         <a class="item" onclick="do_test()"><i class="play icon"></i>Run Testing</a>
@@ -45,7 +45,7 @@
 <div class="body x">
     <div class="case">
         <div class="title">Response code</div>
-        <div class="description">{{curr_api_description | safe}}</div>
+        <div class="description">{{ c.description | safe }}</div>
         <div class="ui secondary vertical menu">
             {% for code, message, cases in curr_api_codes %}
                 {% if code == '----' %}
@@ -95,7 +95,7 @@
 
         <label for="result_new_window" style="float:right;">
             &nbsp;<span>New Window</span>&nbsp;
-            <input type="checkbox" id="result_new_window" {% if curr_api_config.get('json_p') %} checked="checked" {% endif %}>
+            <input type="checkbox" id="result_new_window" {% if c.curr_api_config.get('json_p') %} checked="checked" {% endif %}>
         </label>
         <input size="10" style="float: right;">
     </div>
@@ -105,7 +105,7 @@
     <div class="content">
         {% if curr_api_json_p %}
         <label for="json_p">
-            <input type="checkbox" id="json_p" {% if curr_api_config.get('json_p') %} checked="checked" {% endif %}>
+            <input type="checkbox" id="json_p" {% if c.curr_api_config.get('json_p') %} checked="checked" {% endif %}>
             &nbsp;&nbsp; <strong>Use JSONP mode, &nbsp;&nbsp; correlation parameter:</strong>
         </label>
          </br>
