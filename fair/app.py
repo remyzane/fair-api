@@ -1,19 +1,20 @@
 from flask import Flask, request, render_template
 
-from . import ui
+from .ui import doc, setup as setup_ui
 from . import register
 from .utility import ContextClass, request_args, rst_to_html, text_to_html
 from .element import Element
 
 
-def set_view_func(fair_conf, view_func, url):
+def set_view_func(fair_conf, view_func, rule):
     """
     :param fair_conf:
     :param view_func:
+    :param rule:
     :return:
     """
     # get element info from fn doc
-    element = Element(fair_conf, view_func, url)
+    element = Element(fair_conf, view_func, rule)
 
     fn_fair = ContextClass(element=element)
 
@@ -36,7 +37,7 @@ class Fair(Flask):
 
     def __init__(self, import_name, **kwargs):
         super(Fair, self).__init__(import_name, **kwargs)
-        ui.setup(self)
+        setup_ui(self)
         self.config['fair'] = register.default()
 
     def route(self, url=None, **options):
@@ -44,8 +45,9 @@ class Fair(Flask):
         def decorator(view_func):
             endpoint = options.pop('endpoint', url)
             self.add_url_rule(url, endpoint, view_func, **options)
-            set_view_func(self.config['fair'], view_func, url)
             rule = self.url_map._rules_by_endpoint[endpoint][0]
+            print(dir(rule))
+            set_view_func(self.config['fair'], view_func, rule)
 
             return view_func
 
@@ -64,8 +66,7 @@ class Fair(Flask):
         if 'text/html' in response_accept:
             sign = request_args('__fair')
             # if sign:
-            from .ui.doc import fair_ui
-            return fair_ui(element, sign)
+            return doc.fair_ui(element, sign)
 
         response = super(Fair, self).dispatch_request()
         return response

@@ -85,9 +85,9 @@ class Element(object):
 
     code_dict = None
 
-    def __init__(self, fair_conf, view_func, url):
+    def __init__(self, fair_conf, view_func, rule):
         self._fair_conf = fair_conf
-        self._url = url
+        self._rule = rule
         self.title = ''
         self.plugins = []
         self.plugin_keys = []
@@ -165,9 +165,11 @@ class Element(object):
                 raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
                                                                            view_func.__name__,
                                                                            items[0]))
-            if view_func.__name__.upper() not in param_type.support:
-                raise Exception('parameter %s not support http %s method in %s',
-                                param_type.__name__, view_func.__name__.upper(), self._url)
+            for request_method in self._rule.methods:
+                if request_method not in ('HEAD', 'OPTIONS'):
+                    if request_method not in param_type.support:
+                        raise Exception('parameter %s not support http %s method in %s',
+                                        param_type.__name__, request_method, self._url)
 
             param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
             if len(items) > 2 and items[1] == '*':

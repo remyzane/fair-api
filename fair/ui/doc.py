@@ -4,7 +4,6 @@ from ..utility import ContextClass, request_args, rst_to_html, text_to_html
 from ..element import Element
 
 
-
 def fair_ui(element, sign='test'):
     # if sign == 'doc':
     response_doc = None

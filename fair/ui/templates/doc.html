@@ -35,16 +35,17 @@
     <div class="section">Request Parameters:</div>
     <table class="ui olive table parameters">
         <tr class="label">
-            <td>Name</td>
-            <td colspan="2"></td>
-            <td class="type">Type</td>
+            <td class="name">Name</td>
+            <td class="requisite"></td>
+            <td class="type-name"></td>
+            <td class="type-description">Type</td>
             <td>Description</td>
         </tr>
         {% for param in element.param_list %}
         <tr class="param">
             <td class="name">{{ param.name }}</td>
             <td class="requisite">{{ '*' if param.requisite else '' }}</td>
-            <td class="type">{{ param.type.__name__ }}</td>
+            <td class="type-name">{{ param.type.__name__ }}</td>
             <td class="type-description">{{ param.type.description }}</td>
             <td class="description">{{ param.description }}</td>
         </tr>
@@ -55,19 +56,19 @@
     {% if element.response %}
     <div class="section">Response Data:</div>
     <table class="ui olive table codes">
-        <tr><td rowspan="{{ element.code_list | length + 2 }}">{{ response_doc | safe }}</td></tr>
         {% if element.code_list %}
         <tr class="label">
-            <td>Code</td>
+            <td class="code">Code</td>
             <td>Description</td>
         </tr>
-        {% for code,  description, category in element.code_list %}
-        <tr class="item {{ category }}">
-            <td class="code">{{ code }}</td>
-            <td class="description">{{ description }}</td>
-        </tr>
-        {% endfor %}
+            {% for code,  description, category in element.code_list %}
+            <tr class="item {{ category }}">
+                <td class="code">{{ code }}</td>
+                <td class="description">{{ description }}</td>
+            </tr>
+            {% endfor %}
         {% endif %}
+        <tr class="label"><td colspan="2">{{ response_doc | safe }}</td></tr>
     </table>
     {% endif %}
 

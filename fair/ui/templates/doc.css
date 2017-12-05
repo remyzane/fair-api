@@ -49,26 +49,42 @@ table tr.label {
     font-weight: bold;
 }
 
-.parameters .label .type {
-    padding-left: 0;
+.parameters .label .name {
+    width: 12em;
 }
-.parameters .param .type {
-    text-align: right;
+.parameters .label .requisite {
+    width: 2em;
+}
+.parameters .label .type-name {
+    width: 6.7em;
+}
+
+.parameters .param .name {
+    font-size: 1.1em;
     padding-right: 0;
+}
+.parameters .param .type-name {
+    text-align: right;
+    padding: 0.78571429em 0;
 }
 .parameters .param .type-description {
     color: #888888;
     font-size: .8em;
-    padding-left: .5em;
+    padding-left: 1.1em;
 }
 
-.codes .item.common, .codes .item.type {
-    color: #995a31;
-}
 .codes .item.plugin, .codes .item.biz {
     color: #b58105;
 }
 
 .codes blockquote {
     margin: 1em;
+}
+
+.codes .code {
+    font-size: 1.1em;
+}
+
+.codes .label .code {
+    width: 19em;
 }
