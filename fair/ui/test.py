@@ -40,8 +40,8 @@ def test_ui(view_func):
     title, description = element.title, element.description
     c.url = request.path
     c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
-    c.method = 'GET'
-    c.methods = method_filter(rule.methods)
+    c.methods = get_method_list(view_func)
+    c.method = 'GET' or c.methods[0]
     c.params = get_api_params(element.param_list, context.get('api_config'))
     c.description = text_to_html(title + (os.linesep * 2 if description else '') + description)
     c.params_config = {}

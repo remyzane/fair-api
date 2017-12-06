@@ -14,7 +14,7 @@ def doc_ui(view_func):
         response_doc = rst_to_html(element.response.__doc__)
     return render_template('doc.html',
                            url=request.path,
-                           methods=method_filter(rule.methods),
+                           methods=method_filter(view_func.element),
                            element=element,
                            title=text_to_html(element.title),
                            response_doc=response_doc,

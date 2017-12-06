@@ -10,6 +10,21 @@ from .utility import rst_to_html
 log = logging.getLogger(__name__)
 
 
+# TODO 为了实现 ui 需要对只支持 post 的方法 强制加入 get，该情况时 所有 get 请求无论是否带 fair 参数都会启动页面
+# 请求方法也只能通过 element 获取
+
+
+# def method_filter(view_func):
+# def get_method_list(view_func):
+#     element = view_func.element
+#     ret = []
+#     for method in methods:
+#         if method not in ('OPTIONS', 'HEAD'):
+#             ret.append(method)
+#     ret.sort()
+#     return set(ret)
+
+
 class Element(object):
     """ Element info generator
 
@@ -91,6 +106,7 @@ class Element(object):
         self.rule = rule
         self.title = ''
         self.description = None
+        self.response = None
         self.plugins = []
         self.plugin_keys = []
         self.param_list = []

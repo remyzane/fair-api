@@ -5,22 +5,16 @@ function get_post_type(){
     return type ? type : 'j';
 }
 $(document).ready(function(){
-    $('.ui.menu .ui.dropdown').dropdown({
+    $('#head .url').text(window.location.pathname);
+    $('.method-chooser').dropdown({
         on: 'hover'
     });
-//    ZeroClipboard.config( { swfPath: web_ui_static + "libs/ZeroClipboard.swf" } );
-//    var client = new ZeroClipboard($(".copy-button"));
-//    client.on( "copy", function (event) {
-//        var params = curr_api_method == 'GET' ? $.param(get_params(true)) : null;
-//
-//        var clipboard = event.clipboardData;
-//        clipboard.setData( "text/plain", params ? curr_api_path + "?" + params : curr_api_path);
-//    });
-
-    $('.ui.menu .uri.item').on('click', function() {
+    $('.method-chooser div.item').on('click', function() {
         var api = $(this)[0].innerText.split(" ");
-        window.location.href = window.location.pathname +
-            '?type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
+        url = window.location.pathname + '?type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
+        console.log(url);
+        $('.method-chooser span.method-name').text(api[0]);
+        // window.location.href =
     });
     init_test_case();
     $('.param-mode').change(function(){
@@ -38,18 +32,18 @@ $(document).ready(function(){
             });
         }
     });
-    if ($('.body .params').height() > $('.body .use-case').height()) {
-        $('.body .use-case').height($('.body .params').height());
+    if ($('#body .params').height() > $('#body .use-case').height()) {
+        $('#body .use-case').height($('#body .params').height());
     }
     if (window.innerHeight > 480) {
         $('#result').height(window.innerHeight - 200);
     }
 
-    $(".show-message").mouseover(function(){
-        $(".menu .message span").html($(this).attr('message'));
+    $(".has-hint").mouseover(function(){
+        $("#head .hint-info span").html($(this).attr('hint'));
     });
-    $(".show-message").mouseout(function(){
-        $(".menu .message span").html('');
+    $(".has-hint").mouseout(function(){
+        $(".menu .hint-info span").html('');
     });
 
     $(".green.ok.button").click(save_config);
@@ -223,7 +217,7 @@ function do_test(){
     if(!params){
         return;
     }
-    if (curr_api_method == "GET") {
+    if (c_method == "GET") {
         var request = {
             type: 'GET',
             url: params_str ? curr_api_path + "?" + params_str : curr_api_path,
@@ -332,7 +326,7 @@ function save_case(code){
     var data = {
         "params": get_params(false),
         "param_mode": param_mode,
-        "method": curr_api_method,
+        "method": c_method,
         "code": code
     };
     $.ajax({
@@ -410,7 +404,7 @@ function save_config(){
     var data = {
         "post_type": get_post_type(),
         "json_p": $('#json_p').is(':checked'),
-        "method": curr_api_method,
+        "method": c_method,
         "params": get_params_config()
     };
     $.ajax({

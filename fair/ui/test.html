@@ -12,28 +12,35 @@
     <script>
         var post_type = '{{ post_type }}';
         var curr_api_path = '{{ curr_api_path }}';
-        var curr_api_method = '{{ curr_api_method }}';
+        var c_method = '{{ c_method }}';
         var curr_api_json_p = '{{ curr_api_json_p }}';
         var test_cases = {};
 
         {% include 'test.js' %}
     </script>
 </head>
+
 <body>
 
-<div class="ui top fixed inverted menu">
-    <div class="ui dropdown item"><i class="sidebar icon"></i><div class="menu">
-            {% for method in c.methods %}
-            <div class="uri item {{ active }}">{{ method }}</div>
-            {% endfor %}
-        </div>
-    </div>
+<div id="head"class="ui top fixed inverted menu">
     <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
         <i class="setting icon"></i>
     </a>
+    <div class="ui dropdown item method-chooser">
+        <i class="angle double down icon"></i>
+        <span class="method-name">GET</span>
+        <div class="menu">
+            {% for method in c.methods %}
+            <div class="item {{ active }}">{{ method }}</div>
+            {% endfor %}
+            <div class="item">POST</div>
+            <div class="item">PUT</div>
+            <div class="item">DELETE</div>
+        </div>
+    </div>
 
-    <div class="item current-api show-message" message="{{ c.description | safe }}">{{ curr_api_method }}&nbsp;&nbsp;&nbsp;&nbsp;{{ curr_api_uri }}</div>
-    <div class="item message"><span></span></div>
+    <div class="item has-hint url" hint="{{ c.description | safe }}"></div>
+    <div class="item hint-info"><span></span></div>
     <div class="right menu">
         <a class="item" onclick="do_test()"><i class="play icon"></i>Run Testing</a>
         <a class="item icon setting-button" onclick="javascript:show_doc();">
@@ -42,7 +49,7 @@
     </div>
 </div>
 
-<div class="body x">
+<div id="body" class="x">
     <div class="case">
         <div class="title">Response code</div>
         <div class="description">{{ c.description | safe }}</div>
@@ -51,7 +58,7 @@
                 {% if code == '----' %}
             <div class="divider"></div>
                 {% else %}
-            <a class="item show-message" code="{{code}}" message="{{message | safe}}" cases="{{cases}}" use_index=-1
+            <a class="item hint" code="{{code}}" hint="{{message | safe}}" cases="{{cases}}" use_index=-1
                onclick="use_case('{{code}}')">{{ code }}</a>
                 {% endif %}
             {% endfor %}
@@ -112,7 +119,7 @@
         <span class="json-p-param"><strong>Name</strong> [{{curr_api_json_p}}] defined in API class, &nbsp;&nbsp;
             <strong>Value</strong> Generate by network lib like jQuery.ajax</span>
         {% endif %}
-        {% if curr_api_method == 'POST' %}
+        {% if c_method == 'POST' %}
         <strong>POST ContentType:</strong>&nbsp;&nbsp;&nbsp;
         <label for="post_type_j">
             <input type="radio" id="post_type_j" name="post_type" value="j"

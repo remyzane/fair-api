@@ -4,14 +4,20 @@ body {
     height: auto;
 }
 
-.ui.inverted.menu .item.current-api, .ui.inverted.menu .item.message {
-    color: #0087ba;
+#head div.hint-info {
+    color: #b5cc18;
+    font-size: 1.1em;
+    padding: 0.8em 1.14286em;
+}
+#head .url {
+    font-size: 1.2em;
+    padding: 0.728571em 1.14286em;
 }
 
-.body {
+#body {
     margin: 3.3em 0 .7em 1%;
 }
-.body div {
+#body div {
     float: left;
 }
 
@@ -27,48 +33,48 @@ body {
     font-size: .8em;
 }
 
-.body .case {
+#body .case {
     width: 20%;
     border-right: #aaaaaa solid 1px;
 }
-.body .case .title {
+#body .case .title {
     padding: 6px 7px 4px 7px;
     font-weight: bolder;
     font-size: 1.1em;
 }
-.body .case .description {
+#body .case .description {
     display: none;
 }
-.body .case .ui.secondary.vertical.menu {
+#body .case .ui.secondary.vertical.menu {
     margin-top: 3px;
     width: 100%;
 }
-.body .case .ui.secondary.vertical.menu > .item {
+#body .case .ui.secondary.vertical.menu > .item {
     margin-bottom: 0;
     padding: 8px 7px 8px 13px;
 }
-.body .case .divider {
+#body .case .divider {
     width: 100%;
     border-bottom: #cccccc solid 1px;
 }
 
-.body .params {
+#body .params {
     padding-left: 1%;
     width: 48%;
 }
-.body .params table th {
+#body .params table th {
     text-align: left;
 }
 .param-mode {
     float: right;
 }
-.body .params .mode {
+#body .params .mode {
     float: right;
     margin-bottom: -2em;
     font-size: 0.8em;
 }
 
-.body .result {
+#body .result {
     padding-left: 1.4%;
     width: 30.5%;
 }

@@ -13,10 +13,10 @@
 <body>
     <div class="title">{{ title | safe }}
         <a class="item icon test" onclick="javascript:show_test();">
-            <i class="video play outline olive icon"></i>
+            <i class="code blue icon"></i>
         </a>
     </div>
-    <table class="ui black table summary">
+    <table id="summary" class="ui black table">
         <tr>
             <td class="url label">Url:</td>
             <td class="url value"></td>
@@ -30,7 +30,7 @@
             {% endif %}
             <td class="method">
                 {% for method in methods %}
-                <span class="ui circular label value">{{ method }}</span>
+                <span class="ui circular label blue value">{{ method }}</span>
                 {% endfor %}
             </td>
         </tr>
@@ -40,7 +40,7 @@
     </table>
     {% if element.param_list %}
     <div class="section">Request Parameters:</div>
-    <table class="ui olive table parameters">
+    <table class="ui blue table parameters">
         <tr class="label">
             <td class="name">Name</td>
             <td class="requisite"></td>
@@ -62,7 +62,7 @@
 
     {% if element.response %}
     <div class="section">Response Data:</div>
-    <table class="ui olive table codes">
+    <table class="ui blue table codes">
         {% if element.code_list %}
         <tr class="label">
             <td class="code">Code</td>
@@ -75,7 +75,7 @@
             </tr>
             {% endfor %}
         {% endif %}
-        <tr class="label"><td colspan="2">{{ response_doc | safe }}</td></tr>
+        <tr id="response_doc"><td colspan="2">{{ response_doc | safe }}</td></tr>
     </table>
     {% endif %}
 

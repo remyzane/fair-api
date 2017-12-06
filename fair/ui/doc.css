@@ -5,7 +5,8 @@ body {
 }
 
 table tr.label {
-    color: #b5cc18;
+    color: #2185D0;
+    font-weight: bold;
 }
 
 .ui.table {
@@ -13,42 +14,43 @@ table tr.label {
 }
 
 .title {
-    font-size: 2em;
-    margin: 1.5em 0 1em 0;
+    font-size: 1.7em;
+    margin: 1.5em 0 .8em 0;
 }
 .title a.test {
     float: right;
 }
-.summary .value {
-    font-weight: bold;
+
+#summary {
+    font-size: 1.2em;
 }
-.summary .url.label {
+#summary .url.label {
     width: 50px;
     text-align: center;
 }
-.summary .url.value {
+#summary .url.value {
     font-size: 1.2em;
 }
-.summary .plugins.label {
+#summary .plugins.label {
     width: 5em;
 }
-.summary .plugins.value {
+#summary .plugins.value {
     width: 15em;
 }
-.summary .plugins.value span {
+#summary .plugins.value span {
 
     padding-right: .6em;
 }
-.ui.table.summary td.method {
+.ui.table#summary td.method {
     text-align: right;
 }
 
-.summary .label {
+#summary .label {
     text-align: center;
 }
 
 .section {
-    margin-top: 1em;
+    margin-top: 1.2em;
     font-size: 1.1em;
     font-weight: bold;
 }
@@ -91,4 +93,9 @@ table tr.label {
 
 .codes .label .code {
     width: 19em;
+}
+
+#response_doc {
+    color: #2185D0;
+    font-size: 1.3em;
 }
