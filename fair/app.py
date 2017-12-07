@@ -12,15 +12,13 @@ class Fair(Flask):
         super(Fair, self).__init__(import_name, **kwargs)
         self.air = Air(self)
 
-    def route(self, url=None, **options):
+    def route(self, rule=None, **options):
 
         def decorator(view_func):
-            endpoint = options.pop('endpoint', url)
 
-            self.add_url_rule(url, endpoint, view_func, **options)
+            endpoint = set_view_func(self, view_func, rule, options)
 
-            set_view_func(self, view_func, endpoint)
-
+            self.add_url_rule(rule, endpoint, view_func, **options)
             return view_func
 
         return decorator
@@ -28,6 +26,7 @@ class Fair(Flask):
     def preprocess_request(self):
         # 404: None    static: flask.helpers._PackageBoundObject.send_static_file
         view_func = self.view_functions.get(request.endpoint)
+
         return super(Fair, self).preprocess_request()
 
     def dispatch_request(self):

@@ -19,8 +19,17 @@ class Air(object):
         app.register_blueprint(fair_ui)
 
 
-def set_view_func(app, view_func, endpoint):
+def set_view_func(app, view_func, rule, options):
     from .element import Element
-    rule = app.url_map._rules_by_endpoint[endpoint][0]
-    view_func.rule = rule                                   # type: Rule
-    view_func.element = Element(app.air, view_func, rule)   # type: Element
+
+    # support: methods='GET'
+    methods = options.get('methods', None)
+
+    if methods and type(methods) == str:
+        options['methods'] = (methods.upper(),)
+
+    endpoint = options.pop('endpoint', rule)
+
+    view_func.element = Element(app.air, view_func)   # type: Element
+
+    return endpoint

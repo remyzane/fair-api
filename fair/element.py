@@ -101,9 +101,8 @@ class Element(object):
     #
     # code_dict = None
 
-    def __init__(self, air, view_func, rule):
+    def __init__(self, air, view_func):
         self.air = air     # type: Air
-        self.rule = rule
         self.title = ''
         self.description = None
         self.response = None
