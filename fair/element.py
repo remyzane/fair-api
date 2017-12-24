@@ -28,11 +28,11 @@ log = logging.getLogger(__name__)
 class Element(object):
     """ Element info generator
 
-    Generate element info through view_func doc
+    Generate element info through view's doc string
 
-        element: {
-        title: 'xxxxx',
-        description: 'xxxxxx',
+    element: {
+        title: 'xxx',
+        description: 'description',
         response: response,
         plugins: (class_A, class_B),
         plugin_keys: ('plugin_a', 'plugin_b'),
@@ -44,7 +44,7 @@ class Element(object):
                 name: xxx,
                 type: class_A,
                 requisite: True/False,
-                description: 'xxxxx'
+                description: 'xxx'
             },
             ...
         ),
@@ -53,7 +53,7 @@ class Element(object):
                 name: xxx,
                 type: class_A,
                 requisite: True/False,
-                description: 'xxxxx'
+                description: 'description'
             },
             ...
         },
@@ -64,16 +64,17 @@ class Element(object):
         }
         code_index: ('xx', 'yy', 'zz'),
         code_list: (
-            ('xx', 'xxxxxxx', 'common'),
-            ('yy', 'yyyyyyy', 'plugin'),
-            ('zz', 'zzzzzzz', 'type'),
-            ('aa', 'aaaaaaa', 'biz')
+            ('xx', 'xxx', 'common'),
+            ('yy', 'yyy', 'plugin'),
+            ('zz', 'zzz', 'type'),
+            ('aa', 'aaa', 'biz')
         )
         code_dict: {
-            'xx': 'xxxxxxx',
-            'yy': 'yyyyyyy',
-            'zz': 'zzzzzzz'
+            'xx': 'xxx',
+            'yy': 'yyy',
+            'zz': 'zzz'
         }
+    }
     """
     # title = None
     #
@@ -101,8 +102,9 @@ class Element(object):
     #
     # code_dict = None
 
-    def __init__(self, air, view_func):
-        self.air = air     # type: Air
+    def __init__(self, air, view_func, http_methods):
+        self.air = air                      # type: Air
+        self.http_methods = http_methods    # type: tuple
         self.title = ''
         self.description = None
         self.response = None
@@ -118,14 +120,15 @@ class Element(object):
         self.code_index = []
         self.code_list = []
         self.code_dict = {}
-        self.__element_code_set('success', 'Success', 'common')
-        self.__element_code_set('exception', 'Unknown exception', 'common')
-        self.__element_code_set('param_unknown', 'Unknown parameter', 'common')
+        self.__code_set('success', 'Success', 'common')
+        self.__code_set('exception', 'Unknown exception', 'common')
+        self.__code_set('param_unknown', 'Unknown parameter', 'common')
         if not view_func.__doc__:
             raise Exception('%s doc not defined' % view_func.__name__)
         try:
-            doc_field = publish_doctree(view_func.__doc__)
-            self.__parse_doc_tree(view_func, doc_field)
+            doc_string = view_func.__doc__
+            doc_tree = publish_doctree(doc_string)
+            self.__parse_doc_tree(view_func, doc_tree)
             self.__clear_up()
         except Exception:
             log.exception('element defined error')
@@ -140,7 +143,6 @@ class Element(object):
                     p = plugin_parameters.pop()
                     param_list.insert(0, {'name': p[0], 'type': p[1], 'requisite': p[2], 'description': p[3]})
                 self.param_list = tuple(param_list)
-
 
     def __clear_up(self):
         if self.param_not_null:
@@ -158,66 +160,11 @@ class Element(object):
         self.response = self.response or self.air.responses['default']
         self.description = self.description or ''
 
-    def __element_code_set(self, error_code, error_message, category='biz'):
+    def __code_set(self, error_code, error_message, category='biz'):
         if error_code not in self.code_index:
             self.code_index.append(error_code)
             self.code_list.append((error_code, error_message, category))
             self.code_dict[error_code] = error_message
-
-    def __parse_doc_field(self, view_func, doc_field):
-        name = doc_field.children[0].astext()
-        print(name)
-        content = rst_to_html(doc_field.children[1].rawsource)
-        if name == 'response':
-            self.response = self.air.responses[content]
-        elif name == 'plugin':
-            for item in content.split():
-                plugin = self.air.plugins.get(item)
-                if not plugin:
-                    raise Exception('%s use undefined plugin %s' % (view_func.__name__, item))
-                self.plugins.append(plugin)
-                self.plugin_keys.append(item)
-                for error_code, error_message in plugin.error_codes.items():
-                    self.__element_code_set(error_code, error_message, 'plugin ' + item)
-        elif name.startswith('raise '):
-            self.__element_code_set(name[6:], content)
-        elif name.startswith('param '):
-            items = name[6:].split()
-            param_type = items[0]
-            if param_type.endswith(']'):
-                sub_type = self.air.parameter_types.get(param_type.split('[')[1][:-1])
-                param_type = self.air.parameter_types.get(param_type.split('[')[0])
-                param_type = param_type(sub_type)
-            else:
-                param_type = self.air.parameter_types.get(param_type)
-            if not param_type:
-                raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
-                                                                           view_func.__name__,
-                                                                           items[0]))
-            for request_method in self.rule.methods:
-                if request_method not in ('HEAD', 'OPTIONS'):
-                    if request_method not in param_type.support:
-                        raise Exception('parameter %s not support http %s method in %s',
-                                        param_type.__name__, request_method, self._url)
-
-            param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
-            if len(items) > 2 and items[1] == '*':
-                param['requisite'] = True
-                self.param_not_null.append(items[-1])
-            else:
-                self.param_allow_null.append(items[-1])
-            self.param_list.append(param)
-            self.param_dict[items[-1]] = param
-            self.param_default[items[-1]] = None
-            self.param_types[items[-1]] = param_type
-            if isinstance(param['type'], List):
-                self.__element_code_set(param_type.type.error_code, param_type.type.description, 'type')
-                self.__element_code_set(param_type.error_code,
-                                        param_type.description % param_type.type.__name__, 'type')
-            elif param['type'] != Param:
-                self.__element_code_set(param_type.error_code, param_type.description, 'type')
-        else:
-            setattr(self, name, content)
 
     def __parse_doc_tree(self, view_func, doc_tree):
         if type(doc_tree) == docutils.nodes.term:
@@ -240,3 +187,57 @@ class Element(object):
 
         for item in doc_tree.children:
             self.__parse_doc_tree(view_func, item)
+
+    def __parse_doc_field(self, view_func, doc_field):
+        name = doc_field.children[0].astext()
+        content = rst_to_html(doc_field.children[1].rawsource)
+        if name == 'response':
+            self.response = self.air.responses[content]
+        elif name == 'plugin':
+            for item in content.split():
+                plugin = self.air.plugins.get(item)
+                if not plugin:
+                    raise Exception('%s use undefined plugin %s' % (view_func.__name__, item))
+                self.plugins.append(plugin)
+                self.plugin_keys.append(item)
+                for error_code, error_message in plugin.error_codes.items():
+                    self.__code_set(error_code, error_message, 'plugin ' + item)
+        elif name.startswith('raise '):
+            self.__code_set(name[6:], content)
+        elif name.startswith('param '):
+            items = name[6:].split()
+            param_type = items[0]
+            if param_type.endswith(']'):
+                sub_type = self.air.parameter_types.get(param_type.split('[')[1][:-1])
+                param_type = self.air.parameter_types.get(param_type.split('[')[0])
+                param_type = param_type(sub_type)
+            else:
+                param_type = self.air.parameter_types.get(param_type)
+            if not param_type:
+                raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
+                                                                           view_func.__name__,
+                                                                           items[0]))
+            for request_method in self.http_methods:
+                if request_method not in ('HEAD', 'OPTIONS'):
+                    if request_method not in param_type.support:
+                        raise Exception('parameter %s not support http %s method in %s',
+                                        param_type.__name__, request_method, self._url)
+
+            param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
+            if len(items) > 2 and items[1] == '*':
+                param['requisite'] = True
+                self.param_not_null.append(items[-1])
+            else:
+                self.param_allow_null.append(items[-1])
+            self.param_list.append(param)
+            self.param_dict[items[-1]] = param
+            self.param_default[items[-1]] = None
+            self.param_types[items[-1]] = param_type
+            if isinstance(param['type'], List):
+                self.__code_set(param_type.type.error_code, param_type.type.description, 'type')
+                self.__code_set(param_type.error_code,
+                                        param_type.description % param_type.type.__name__, 'type')
+            elif param['type'] != Param:
+                self.__code_set(param_type.error_code, param_type.description, 'type')
+        else:
+            setattr(self, name, content)

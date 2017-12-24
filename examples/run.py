@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+import os
 import sys
 import logging
 from importlib import import_module
@@ -12,8 +12,7 @@ logger.addHandler(handler)
 logger.setLevel('DEBUG')
 
 # set path for fair-api
-sys.path.insert(0, 'fair-api')
-sys.path.insert(0, 'example')
+sys.path.insert(0, os.path.realpath(os.path.join(__file__, '..', '..')))
 
 # get example
 example_name = sys.argv[1]

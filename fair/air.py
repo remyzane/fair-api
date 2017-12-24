@@ -17,19 +17,3 @@ class Air(object):
         templates_path = os.path.realpath(os.path.join(__file__, '..', 'ui'))
         fair_ui = Blueprint('fair_ui', __name__, template_folder=templates_path)
         app.register_blueprint(fair_ui)
-
-
-def set_view_func(app, view_func, rule, options):
-    from .element import Element
-
-    # support: methods='GET'
-    methods = options.get('methods', None)
-
-    if methods and type(methods) == str:
-        options['methods'] = (methods.upper(),)
-
-    endpoint = options.pop('endpoint', rule)
-
-    view_func.element = Element(app.air, view_func)   # type: Element
-
-    return endpoint
