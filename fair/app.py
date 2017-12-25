@@ -18,7 +18,9 @@ class Fair(Flask):
     def route(self, rule=None, **options):
 
         def decorator(view_func):
+
             self.air_decorator(rule, view_func, **options)
+
             return view_func
 
         return decorator
@@ -43,17 +45,36 @@ class Fair(Flask):
 
     def air_decorator(self, rule, view_func, **options):
 
-        endpoint = self.set_view_func(self, view_func, rule, options)
+        rule = self.air_rule(rule)
+
+        endpoint = self.air_endpoint(rule, options)
+
+        http_methods = self.air_http_method(options)
 
         self.add_url_rule(rule, endpoint, view_func, **options)
 
-    def set_view_func(self, view_func, rule, options):
-        http_methods = options.get('methods', None)
+        view_func.element = Element(self.air, view_func, rule, http_methods)
+
+    @staticmethod
+    def air_rule(rule):
+        return rule
+
+    @staticmethod
+    def air_endpoint(rule, options):
+        return options.pop('endpoint', rule)
+
+    @staticmethod
+    def air_http_method(options):
+        http_methods = options.get('methods', ('GET',))
 
         # convert methods string to duple, e.g. 'post'  ->  ('POST',)
-        if http_methods and type(http_methods) == str:
-            options['methods'] = (http_methods.upper(),)
+        if type(http_methods) == str:
+            http_methods = (http_methods.upper(),)
 
-        endpoint = options.pop('endpoint', rule)
+        # lower -> upper,  list/duple -> set
+        http_methods = set(item.upper() for item in http_methods)
 
-        view_func.element = Element(self.air, view_func, http_methods)   # type: Element
+        options['methods'] = http_methods.copy()
+        options['methods'].update(('GET',))         # add GET method for fair ui
+
+        return http_methods

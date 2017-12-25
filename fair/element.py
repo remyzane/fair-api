@@ -102,8 +102,9 @@ class Element(object):
     #
     # code_dict = None
 
-    def __init__(self, air, view_func, http_methods):
+    def __init__(self, air, view_func, rule, http_methods):
         self.air = air                      # type: Air
+        self.rule = rule
         self.http_methods = http_methods    # type: tuple
         self.title = ''
         self.description = None
@@ -214,14 +215,13 @@ class Element(object):
             else:
                 param_type = self.air.parameter_types.get(param_type)
             if not param_type:
-                raise Exception('%s.%s use undefined parameter type %s' % (self.__name__,
-                                                                           view_func.__name__,
-                                                                           items[0]))
+                error = '%s.%s use undefined parameter type %s'
+                raise Exception(error % (self.__name__, view_func.__name__, items[0]))
             for request_method in self.http_methods:
                 if request_method not in ('HEAD', 'OPTIONS'):
                     if request_method not in param_type.support:
-                        raise Exception('parameter %s not support http %s method in %s',
-                                        param_type.__name__, request_method, self._url)
+                        error = 'parameter %s not support http %s method in %s'
+                        raise Exception(error % (param_type.__name__, request_method, self.rule))
 
             param = {'name': items[-1], 'type': param_type, 'requisite': False, 'description': content}
             if len(items) > 2 and items[1] == '*':
