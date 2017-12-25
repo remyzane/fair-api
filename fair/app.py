@@ -47,9 +47,9 @@ class Fair(Flask):
 
         rule = self.air_rule(rule)
 
-        endpoint = self.air_endpoint(rule, options)
-
         http_methods = self.air_http_method(options)
+
+        endpoint = self.air_endpoint(rule, http_methods, options)
 
         self.add_url_rule(rule, endpoint, view_func, **options)
 
@@ -60,8 +60,13 @@ class Fair(Flask):
         return rule
 
     @staticmethod
-    def air_endpoint(rule, options):
-        return options.pop('endpoint', rule)
+    def air_endpoint(rule, http_methods, options):
+        methods = list(http_methods)
+        methods.sort()
+        endpoint = options.pop('endpoint', None)
+        if endpoint:
+            return endpoint
+        return rule + ' ' + '|'.join(methods)
 
     @staticmethod
     def air_http_method(options):
