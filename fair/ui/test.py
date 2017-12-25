@@ -3,7 +3,6 @@ from flask import request, render_template, current_app as app
 from werkzeug.routing import Rule
 
 from fair.utility import text_to_html
-from . import method_filter
 from ..plugin import jsonp
 from ..element import Element
 from ..utility import ContextClass
@@ -31,7 +30,6 @@ def get_api_params(param_list, config):
 
 
 def test_ui(view_func):
-    rule = view_func.rule           # type: Rule
     element = view_func.element     # type: Element
 
     c = ContextClass()

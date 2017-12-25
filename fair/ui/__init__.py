@@ -7,7 +7,7 @@ def adapter(view_func, sign='test'):
 
     if not view_func:
         return Response('404 NOT FOUND', status=404)
-    if not hasattr(view_func, 'rule') or not hasattr(view_func, 'element'):
+    if not hasattr(view_func, 'element'):
         return Response('406 Current url not have Fair UI', status=406)
 
     if sign == 'doc':

@@ -19,7 +19,7 @@ class Fair(Flask):
 
         def decorator(view_func):
 
-            self.air_decorator(rule, view_func, **options)
+            self.air_decorator(view_func, rule=rule, **options)
 
             return view_func
 
@@ -43,11 +43,11 @@ class Fair(Flask):
         response = super(Fair, self).dispatch_request()
         return response
 
-    def air_decorator(self, rule, view_func, **options):
-
-        rule = self.air_rule(rule)
+    def air_decorator(self, view_func, rule=None, **options):
 
         http_methods = self.air_http_method(options)
+
+        rule = self.air_rule(view_func, http_methods, rule=rule)
 
         endpoint = self.air_endpoint(rule, http_methods, options)
 
@@ -55,8 +55,8 @@ class Fair(Flask):
 
         view_func.element = Element(self.air, view_func, rule, http_methods)
 
-    @staticmethod
-    def air_rule(rule):
+    def air_rule(self, view_func, http_methods, rule=None):
+        self.air.set_url_map(rule, view_func, http_methods)
         return rule
 
     @staticmethod
