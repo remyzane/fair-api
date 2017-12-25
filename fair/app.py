@@ -1,19 +1,19 @@
 from flask import Flask, request
 
-from . import ui
+from . import ui as fair_ui
 from .air import Air
 from .element import Element
-from .utility import request_args
 
 
 class Fair(Flask):
     """ """
 
     def __init__(self, import_name, **kwargs):
-        tests_storage = kwargs.pop('tests_storage', None)
-        self.tests_storage = kwargs.pop('tests_storage', None)
+        air = kwargs.pop('air', None)
         super(Fair, self).__init__(import_name, **kwargs)
-        self.air = Air(self, tests_storage=tests_storage)
+
+        self.air = air or Air(self)
+        self.air.register_blueprint()
 
     def route(self, rule=None, **options):
 
@@ -32,13 +32,8 @@ class Fair(Flask):
         return super(Fair, self).preprocess_request()
 
     def dispatch_request(self):
-        # 404: None    static: flask.helpers._PackageBoundObject.send_static_file
-        view_func = self.view_functions.get(request.endpoint)
-        # response_accept = request.headers.get('Accept')
-        # if 'text/html' in response_accept:
-        sign = request_args('fair')
-        if sign:
-            return ui.adapter(view_func, sign)
+        if fair_ui.match(self, request):
+            return fair_ui.adapter(self, request)
 
         response = super(Fair, self).dispatch_request()
         return response
@@ -56,7 +51,7 @@ class Fair(Flask):
         view_func.element = Element(self.air, view_func, rule, http_methods)
 
     def air_rule(self, view_func, http_methods, rule=None):
-        self.air.set_url_map(rule, view_func, http_methods)
+        self.air.register_url_map(rule, view_func, http_methods)
         return rule
 
     @staticmethod

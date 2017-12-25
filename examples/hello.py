@@ -14,7 +14,7 @@ def hello(name):
 
 @app.route('/', methods=['post'])
 def hello_post(name):
-    """ Hello Fair-API
+    """ Hello Fair-API POST
 
     :param Str * name: you name ...
     """
@@ -23,6 +23,3 @@ def hello_post(name):
 
 if __name__ == '__main__':
     app.run('0.0.0.0', 5000)
-
-
-print(app.air.url_map)

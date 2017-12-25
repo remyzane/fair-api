@@ -6,6 +6,18 @@ from .parameter import get_parameter_types
 from .response import JsonRaise
 from .plugin import jsonp
 
+import logging
+from importlib import import_module
+
+from .plugin.jsonp import JsonP
+from .parameter import Param
+from .utility import class_name_to_api_name, iterate_package
+# from .ui import setup_web_ui
+from .storage import TestsLocalStorage
+from .response import JsonRaise
+
+log = logging.getLogger(__name__)
+
 
 class Air(object):
     """
@@ -18,7 +30,10 @@ class Air(object):
         }
     """
 
-    def __init__(self, app, tests_storage=None):
+    def __init__(self, app, browsable=True, tests_storage=None):
+        self.app = app
+
+        self.browsable = browsable
 
         self.url_map = dict()
 
@@ -30,11 +45,68 @@ class Air(object):
 
         self.tests_storage = tests_storage
 
+    def register_blueprint(self):
         templates_path = os.path.realpath(os.path.join(__file__, '..', 'ui'))
         fair_ui = Blueprint('fair_ui', __name__, template_folder=templates_path)
-        app.register_blueprint(fair_ui)
+        self.app.register_blueprint(fair_ui)
 
-    def set_url_map(self, url, view_func, http_methods):
+    def register_url_map(self, url, view_func, http_methods):
         if url not in self.url_map:
             self.url_map[url] = dict()
         self.url_map[url][view_func] = http_methods
+
+    def register_test_storage(app, test_storage=TestsLocalStorage, **params):
+        """ cache_path
+        """
+
+
+def register_parameter(app, parameters):
+    """
+
+    :param app:
+    :param parameters:
+    :return:
+    """
+
+
+def register_plugin(app, plugins):
+    """ Plugin register
+
+    :param app: flask app
+    :param plugins:
+    """
+    app.config['fair_plugins'] = plugins or {}
+
+
+def register_response(app, responses):
+    """
+
+    :param app:
+    :param responses:
+    :return:
+    """
+
+#
+#
+# def setup(app, cache_path,
+#                responses=None,
+#                plugins=None,
+#                parameter_types=None):
+#
+#
+#
+#     app.config['responses'] = {'default': JsonRaise}
+#
+#     # set parameter types
+#     set_parameter_types(app, parameter_types)
+#
+#     # configure web ui
+#     web_ui_config = {
+#         'uri': 'api',
+#         'test_ui': {
+#             'uri': 'tests'
+#         }
+#     }
+#     app.config['web_ui'] = web_ui_config
+#     setup_web_ui(app, web_ui_config, cache_path, TestsLocalStorage)
+
