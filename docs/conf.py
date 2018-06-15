@@ -285,3 +285,16 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+
+'''
+Example
+
+DOC UI
+http://flask-http-api.c88c.cn/api/docs/
+
+Test UI
+http://flask-http-api.c88c.cn/api/tests/
+
+access key: lJ9smp8llc339a5llc339a5lJ9smp8rTPdD9D53D
+'''
