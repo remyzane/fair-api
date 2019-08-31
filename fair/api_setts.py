@@ -13,7 +13,7 @@ from .plugin.jsonp import JsonP
 from .parameter import Param
 from .utility import class_name_to_api_name, iterate_package
 # from .ui import setup_web_ui
-from .storage import TestsLocalStorage
+from .test_case import TestsLocalStorage
 from .response import JsonRaise
 
 log = logging.getLogger(__name__)

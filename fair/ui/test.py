@@ -4,7 +4,7 @@ from werkzeug.routing import Rule
 
 from fair.utility import text_to_html
 from ..plugin import jsonp
-from ..element import Element
+from ..api_meta import Meta
 from ..utility import ContextClass
 
 
@@ -31,7 +31,7 @@ def get_api_params(param_list, config):
 
 def test_ui():
     return 'aaa'
-    element = view_func.element     # type: Element
+    meta = view_func.meta     # type: Meta
 
     c = ContextClass()
     context = {'api_config': {}, 'api_json_p': None}

@@ -3,7 +3,7 @@ import logging
 import docutils
 from docutils.core import publish_doctree
 
-from .setts import Setts
+from .api_setts import Setts
 from .parameter import Param, List
 from .utility import rst_to_html
 
@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 # def method_filter(view_func):
 # def get_method_list(view_func):
-#     element = view_func.element
+#     meta = view_func.meta
 #     ret = []
 #     for method in methods:
 #         if method not in ('OPTIONS', 'HEAD'):
@@ -21,10 +21,10 @@ log = logging.getLogger(__name__)
 #     return set(ret)
 
 
-class Disposer(object):
-    """ API Disposer
+class Meta(object):
+    """ API Meta
 
-    Generate element info through view's doc string
+    Generate Meta info through view's doc string
 
     element: {
         title: 'xxx',
@@ -132,7 +132,7 @@ class Disposer(object):
 
         for plugin in self.plugins:
             plugin.init_view(setts, view_func, rule, http_methods)
-            # add plugin.parameters to method.element.param_list.
+            # add plugin.parameters to method.meta.param_list.
             if plugin.parameters:
                 plugin_parameters = list(plugin.parameters)
                 param_list = list(self.param_list)
@@ -154,7 +154,7 @@ class Disposer(object):
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
         self.code_list = tuple(self.code_list)
-        self.response = self.response or self.air.responses['default']
+        self.response = self.response or self.setts.responses['default']
         self.description = self.description or ''
 
     def __code_set(self, error_code, error_message, category='biz'):
@@ -189,10 +189,10 @@ class Disposer(object):
         name = doc_field.children[0].astext()
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'response':
-            self.response = self.air.responses[content]
+            self.response = self.setts.responses[content]
         elif name == 'plugin':
             for item in content.split():
-                plugin = self.air.plugins.get(item)
+                plugin = self.setts.plugins.get(item)
                 if not plugin:
                     raise Exception('%s use undefined plugin %s' % (view_func.__name__, item))
                 self.plugins.append(plugin)
@@ -205,11 +205,11 @@ class Disposer(object):
             items = name[6:].split()
             param_type = items[0]
             if param_type.endswith(']'):
-                sub_type = self.air.parameter_types.get(param_type.split('[')[1][:-1])
-                param_type = self.air.parameter_types.get(param_type.split('[')[0])
+                sub_type = self.setts.parameter_types.get(param_type.split('[')[1][:-1])
+                param_type = self.setts.parameter_types.get(param_type.split('[')[0])
                 param_type = param_type(sub_type)
             else:
-                param_type = self.air.parameter_types.get(param_type)
+                param_type = self.setts.parameter_types.get(param_type)
             if not param_type:
                 error = '%s.%s use undefined parameter type %s'
                 raise Exception(error % (self.__name__, view_func.__name__, items[0]))

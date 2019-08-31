@@ -13,7 +13,7 @@ def match(app, request):
 
     if request.method == 'GET' and request.path in app.api.url_map:
 
-        if app.api_manager.browsable:
+        if app.api.browsable:
             response_accept = request.headers.get('Accept')
             if 'text/html' in response_accept:
                 return True
@@ -24,27 +24,27 @@ def match(app, request):
 def structure_params(view_func, params_proto, params):
 
     # check the necessary parameter's value is sed
-    for param in view_func.element.param_not_null:
+    for param in view_func.meta.param_not_null:
         if params_proto.get(param, '') == '':       # 0 is ok
-            raise view_func.element.response('param_missing', {'parameter': param})
+            raise view_func.meta.response('param_missing', {'parameter': param})
 
-    ret = view_func.element.param_default.copy()
+    ret = view_func.meta.param_default.copy()
     # parameter's type of proof and conversion
     for param, value in params.items():
-        if param not in view_func.element.param_index:
-            raise view_func.element.response('param_unknown', {'parameter': param, 'value': value})
+        if param not in view_func.meta.param_index:
+            raise view_func.meta.response('param_unknown', {'parameter': param, 'value': value})
         if value is not None:
             try:
-                ret[param] = view_func.element.param_types[param].structure(view_func, value)
+                ret[param] = view_func.meta.param_types[param].structure(view_func, value)
             except Exception:
-                raise view_func.element.response(view_func.element.param_types[param].error_code, {'parameter': param, 'value': value})
+                raise view_func.meta.response(view_func.meta.param_types[param].error_code, {'parameter': param, 'value': value})
     return ret
 
 
 def adapter(app, request):
 
     view_func = None
-    views = app.api_manager.url_map.get(request.path)
+    views = app.api.url_map.get(request.path)
 
     # return Response('404 NOT FOUND', status=404)
     for view, support_methods in views.items():
@@ -61,7 +61,7 @@ def adapter(app, request):
         params_proto = params.copy()
 
         # plugin
-        for plugin in view_func.element.plugins:
+        for plugin in view_func.meta.plugins:
             plugin.before_request(view_func)
             for parameter in plugin.parameters:
                 del params[parameter[0]]
@@ -76,7 +76,7 @@ def adapter(app, request):
     except ResponseRaise as response_raise:
         code, content, response_content = response_raise.response()
     except Exception:
-        code, content, response_content = view_func.element.response('exception').response()
+        code, content, response_content = view_func.meta.response('exception').response()
     return response_content
 
 

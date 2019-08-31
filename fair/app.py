@@ -1,8 +1,8 @@
 from flask import Flask, request
 
 from . import ui as fair_ui
-from .setts import Setts
-from .disposer import Disposer
+from .api_setts import Setts
+from .api_meta import Meta
 from .ui.doc import doc_ui
 from .ui.test import test_ui
 
@@ -21,7 +21,7 @@ class Fair(Flask):
 
         def decorator(view_func):
 
-            self.air_decorator(view_func, rule=rule, **options)
+            self.api_decorator(view_func, rule=rule, **options)
 
             return view_func
 
@@ -40,27 +40,27 @@ class Fair(Flask):
         response = super(Fair, self).dispatch_request()
         return response
 
-    def air_decorator(self, view_func, rule=None, **options):
+    def api_decorator(self, view_func, rule=None, **options):
 
-        http_methods = self.air_http_method(options)
+        http_methods = self.api_http_method(options)
 
         if rule not in self.api.url_map:
             self.add_url_rule(rule + '__doc', rule + ' DOC', doc_ui)
             self.add_url_rule(rule + '__test', rule + ' TEST', test_ui)
-        rule = self.air_rule(view_func, http_methods, rule=rule)
+        rule = self.api_rule(view_func, http_methods, rule=rule)
 
-        endpoint = self.air_endpoint(rule, http_methods, options)
+        endpoint = self.api_endpoint(rule, http_methods, options)
 
         self.add_url_rule(rule, endpoint, view_func, **options)
 
-        view_func.element = Disposer(self.api, view_func, rule, http_methods)
+        view_func.meta = Meta(self.api, view_func, rule, http_methods)
 
-    def air_rule(self, view_func, http_methods, rule=None):
+    def api_rule(self, view_func, http_methods, rule=None):
         self.api.register_url_map(rule, view_func, http_methods)
         return rule
 
     @staticmethod
-    def air_endpoint(rule, http_methods, options):
+    def api_endpoint(rule, http_methods, options):
         methods = list(http_methods)
         methods.sort()
         endpoint = options.pop('endpoint', None)
@@ -69,7 +69,7 @@ class Fair(Flask):
         return rule + ' ' + '|'.join(methods)
 
     @staticmethod
-    def air_http_method(options):
+    def api_http_method(options):
         http_methods = options.get('methods', ('GET',))
 
         # convert methods string to duple, e.g. 'post'  ->  ('POST',)

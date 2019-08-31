@@ -39,7 +39,7 @@ class TestsLocalStorage(TestsStorage):
             with open(api_config_path, 'r') as config:
                 context['api_config'] = json.load(config)
 
-        # title, description = method.element.title, method.element.description
+        # title, description = method.meta.title, method.meta.description
         # context['api_uri'] = view.uri
         # context['api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
         # context['api_method'] = method.__name__.upper()
@@ -48,7 +48,7 @@ class TestsLocalStorage(TestsStorage):
         # context['api_params_config'] = {}
         context['api_codes'] = self.get_sorted_code(view, method)
 
-        for plugin in method.element.plugins:
+        for plugin in method.api.plugins:
             if isinstance(plugin, JsonP):
                 context['api_json_p'] = plugin.callback_field_name
         return context
@@ -96,8 +96,8 @@ class TestsLocalStorage(TestsStorage):
     def get_sorted_code(self, view, method):
         codes = []
         is_param_type = False
-        for error_code in method.element.code_index:
-            error_message = method.element.code_dict[error_code]
+        for error_code in method.api.code_index:
+            error_message = method.api.code_dict[error_code]
 
             if error_code.startswith('param_type_error_') and not is_param_type:
                 codes.append(('----', None, None))

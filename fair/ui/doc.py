@@ -2,13 +2,13 @@ from flask import request, render_template
 from werkzeug.routing import Rule
 
 from ..utility import rst_to_html, text_to_html
-from ..element import Element
+from ..api_meta import Meta
 
 
 def doc_ui():
 
     return 'aaa'
-    element = view_func.element     # type: Element
+    meta = view_func.meta     # type: Meta
     response_doc = None
     if element.response:
         response_doc = rst_to_html(element.response.__doc__)
