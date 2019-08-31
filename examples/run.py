@@ -15,7 +15,7 @@ logger.setLevel('DEBUG')
 sys.path.insert(0, os.path.realpath(os.path.join(__file__, '..', '..')))
 
 # get example
-example_name = sys.argv[1]
+example_name = 'hello'
 example = import_module(example_name)
 
 # run example

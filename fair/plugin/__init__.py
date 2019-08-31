@@ -22,13 +22,13 @@ class Plugin(object):
         """Plugin init
         """
 
-    def init_view(self, view_class, method):
+    def init_view(self, air, view_func, rule, http_methods):
         """Plugin main method.
 
         Will be called each request after parameters checked.
 
-        :param CView view_class: view class
-        :param method:
+        :param view_func: view function
+        :param methods: support http method
         """
 
     def before_request(self, view):

@@ -1,4 +1,6 @@
 from flask import Response
+from ..response import ResponseRaise
+from ..utility import get_request_params, text_to_html, rst_to_html
 
 from fair.utility import ContextClass
 
@@ -9,12 +11,9 @@ def match(app, request):
     keep it simple for performance
     """
 
-    if request.method == 'GET' and request.path in app.air.url_map:
+    if request.method == 'GET' and request.path in app.api.url_map:
 
-        if 'fair' in request.args:
-            return True
-
-        if app.air.browsable:
+        if app.api_manager.browsable:
             response_accept = request.headers.get('Accept')
             if 'text/html' in response_accept:
                 return True
@@ -22,29 +21,65 @@ def match(app, request):
     return False
 
 
+def structure_params(view_func, params_proto, params):
+
+    # check the necessary parameter's value is sed
+    for param in view_func.element.param_not_null:
+        if params_proto.get(param, '') == '':       # 0 is ok
+            raise view_func.element.response('param_missing', {'parameter': param})
+
+    ret = view_func.element.param_default.copy()
+    # parameter's type of proof and conversion
+    for param, value in params.items():
+        if param not in view_func.element.param_index:
+            raise view_func.element.response('param_unknown', {'parameter': param, 'value': value})
+        if value is not None:
+            try:
+                ret[param] = view_func.element.param_types[param].structure(view_func, value)
+            except Exception:
+                raise view_func.element.response(view_func.element.param_types[param].error_code, {'parameter': param, 'value': value})
+    return ret
+
+
 def adapter(app, request):
-    from .doc import doc_ui
-    from .test import test_ui
 
-    sign = request.args.get('fair', 'test')
+    view_func = None
+    views = app.api_manager.url_map.get(request.path)
 
-    method = request.args.get('method', None)
-
-    views = app.air.url_map.get(request.path)
-
-
-    return Response('404 NOT FOUND', status=404)
+    # return Response('404 NOT FOUND', status=404)
+    for view, support_methods in views.items():
+        if request.method in support_methods:
+            view_func = view
+            break
 
     if not hasattr(view_func, 'element'):
         return Response('406 Current url not have Fair UI', status=406)
 
-    if sign == 'doc':
-        return doc_ui(view_func)
+    try:
+        # get request parameters
+        params = get_request_params(request)
+        params_proto = params.copy()
 
-    if sign == 'test':
-        return test_ui(view_func)
+        # plugin
+        for plugin in view_func.element.plugins:
+            plugin.before_request(view_func)
+            for parameter in plugin.parameters:
+                del params[parameter[0]]
 
-    return Response('406 Fair not support [%s]' % sign, status=406)
+        # structure parameters
+        params = structure_params(view_func, params_proto, params)
+
+        response_content = view_func(**params)
+
+        if type(response_content) == tuple:
+            code, content, response_content = response_content
+    except ResponseRaise as response_raise:
+        code, content, response_content = response_raise.response()
+    except Exception:
+        code, content, response_content = view_func.element.response('exception').response()
+    return response_content
+
+
 
 
 def get_view_context(views):

@@ -1,19 +1,21 @@
 from flask import Flask, request
 
 from . import ui as fair_ui
-from .air import Air
-from .element import Element
+from .setts import Setts
+from .disposer import Disposer
+from .ui.doc import doc_ui
+from .ui.test import test_ui
 
 
 class Fair(Flask):
     """ """
 
     def __init__(self, import_name, **kwargs):
-        air = kwargs.pop('air', None)
+        api = kwargs.pop('api', None)
         super(Fair, self).__init__(import_name, **kwargs)
 
-        self.air = air or Air(self)
-        self.air.register_blueprint()
+        self.api = api or Setts(self)                         # type: Setts
+        self.api.register_blueprint()
 
     def route(self, rule=None, **options):
 
@@ -42,16 +44,19 @@ class Fair(Flask):
 
         http_methods = self.air_http_method(options)
 
+        if rule not in self.api.url_map:
+            self.add_url_rule(rule + '__doc', rule + ' DOC', doc_ui)
+            self.add_url_rule(rule + '__test', rule + ' TEST', test_ui)
         rule = self.air_rule(view_func, http_methods, rule=rule)
 
         endpoint = self.air_endpoint(rule, http_methods, options)
 
         self.add_url_rule(rule, endpoint, view_func, **options)
 
-        view_func.element = Element(self.air, view_func, rule, http_methods)
+        view_func.element = Disposer(self.api, view_func, rule, http_methods)
 
     def air_rule(self, view_func, http_methods, rule=None):
-        self.air.register_url_map(rule, view_func, http_methods)
+        self.api.register_url_map(rule, view_func, http_methods)
         return rule
 
     @staticmethod

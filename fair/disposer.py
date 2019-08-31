@@ -3,15 +3,11 @@ import logging
 import docutils
 from docutils.core import publish_doctree
 
-from .air import Air
+from .setts import Setts
 from .parameter import Param, List
 from .utility import rst_to_html
 
 log = logging.getLogger(__name__)
-
-
-# TODO 为了实现 ui 需要对只支持 post 的方法 强制加入 get，该情况时 所有 get 请求无论是否带 fair 参数都会启动页面
-# 请求方法也只能通过 element 获取
 
 
 # def method_filter(view_func):
@@ -25,8 +21,8 @@ log = logging.getLogger(__name__)
 #     return set(ret)
 
 
-class Element(object):
-    """ Element info generator
+class Disposer(object):
+    """ API Disposer
 
     Generate element info through view's doc string
 
@@ -102,8 +98,8 @@ class Element(object):
     #
     # code_dict = None
 
-    def __init__(self, air, view_func, rule, http_methods):
-        self.air = air                      # type: Air
+    def __init__(self, setts, view_func, rule, http_methods):
+        self.setts = setts                                  # type: Setts
         self.rule = rule
         self.http_methods = http_methods    # type: tuple
         self.title = ''
@@ -135,7 +131,7 @@ class Element(object):
             log.exception('element defined error')
 
         for plugin in self.plugins:
-            plugin.init_view(view_func)
+            plugin.init_view(setts, view_func, rule, http_methods)
             # add plugin.parameters to method.element.param_list.
             if plugin.parameters:
                 plugin_parameters = list(plugin.parameters)

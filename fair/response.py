@@ -10,9 +10,10 @@ JSON_P = 'application/javascript; charset=utf-8'
 
 class ResponseRaise(Exception):
 
-    def __init__(self, view, code, data=None, status=None):
-        self.view = view
+    def __init__(self, api, code, data=None, status=None):
+        self.api = api
         self.code = code
+        self.info = api.code_dict[code]
         self.data = data
         self.status = status
 
@@ -22,10 +23,9 @@ class ResponseRaise(Exception):
 
 class JsonRaise(ResponseRaise):
     """Json response
-
     format: { "code": "", "info": "",  "data": "" }
     """
 
     def response(self):
-        ret = {'code': self.code, 'info': self.view.codes[self.code], 'data': self.data}
+        ret = {'code': self.code, 'info': self.info, 'data': self.data}
         return self.code, ret, Response(json.dumps(ret), content_type=JSON, status=self.status)

@@ -1,0 +1,25 @@
+[[source]]
+url = "http://pypi.pubyun.com/simple"
+verify_ssl = false
+name = "pubyun"
+#[[source]]
+#url = "https://pypi.tuna.tsinghua.edu.cn/simple/"
+#verify_ssl = false
+#name = "tsinghua"
+#[[source]]
+#url = "https://pypi.org/simple"
+#verify_ssl = true
+#name = "pypi"
+
+[packages]
+docutils = "*"
+pyyaml = "*"
+peewee = "*"
+pycryptodome = "*"
+flask = "*"
+
+[dev-packages]
+pytest = "*"
+
+[requires]
+python_version = "3"    # 为了兼顾各环境，这里不指定小版本号（推荐 3.6）

@@ -29,7 +29,8 @@ def get_api_params(param_list, config):
     return params
 
 
-def test_ui(view_func):
+def test_ui():
+    return 'aaa'
     element = view_func.element     # type: Element
 
     c = ContextClass()
@@ -38,7 +39,7 @@ def test_ui(view_func):
     title, description = element.title, element.description
     c.url = request.path
     c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
-    c.methods = get_method_list(view_func)
+    c.methods = []
     c.method = 'GET' or c.methods[0]
     c.params = get_api_params(element.param_list, context.get('api_config'))
     c.description = text_to_html(title + (os.linesep * 2 if description else '') + description)

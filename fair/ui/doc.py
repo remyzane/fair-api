@@ -5,7 +5,9 @@ from ..utility import rst_to_html, text_to_html
 from ..element import Element
 
 
-def doc_ui(view_func):
+def doc_ui():
+
+    return 'aaa'
     element = view_func.element     # type: Element
     response_doc = None
     if element.response:

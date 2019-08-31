@@ -61,3 +61,5 @@ target/
 *.min.css
 work/test/case/*/*/[^_][^_]*[^_][^_]
 work/test/profile.*
+
+Pipfile.lock

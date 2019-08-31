@@ -19,7 +19,7 @@ from .response import JsonRaise
 log = logging.getLogger(__name__)
 
 
-class Air(object):
+class Setts(object):
     """
         url_map define {
             url_1: {
@@ -86,27 +86,4 @@ def register_response(app, responses):
     :return:
     """
 
-#
-#
-# def setup(app, cache_path,
-#                responses=None,
-#                plugins=None,
-#                parameter_types=None):
-#
-#
-#
-#     app.config['responses'] = {'default': JsonRaise}
-#
-#     # set parameter types
-#     set_parameter_types(app, parameter_types)
-#
-#     # configure web ui
-#     web_ui_config = {
-#         'uri': 'api',
-#         'test_ui': {
-#             'uri': 'tests'
-#         }
-#     }
-#     app.config['web_ui'] = web_ui_config
-#     setup_web_ui(app, web_ui_config, cache_path, TestsLocalStorage)
 
