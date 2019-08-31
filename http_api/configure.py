@@ -1,5 +1,4 @@
 import os
-import peewee
 import logging
 import datetime
 from importlib import import_module
@@ -25,9 +24,6 @@ def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandalon
         set_logging(config['logging'], workspace)
         # log.debug('app config: %s', json.dumps(config['app'], indent=4))
 
-    if config.get('databases'):
-        setup_database(config['databases'])
-
     # configure flask app
     setup_app(app, config)
 
@@ -41,28 +37,6 @@ def http_api_setup(app, config, log_ui_class=LogUI, test_ui_class=TestsStandalon
     setup_web_ui(app, config['app']['web_ui'], workspace, log_ui_class, test_ui_class)
 
     return workspace
-
-db_classes = {
-    'mysql': peewee.MySQLDatabase,
-    'pgsql': peewee.PostgresqlDatabase,
-    'sqlite': peewee.SqliteDatabase
-}
-db = {}
-
-
-def setup_database(config):
-    """Configure database.
-
-     cannot import view and model before call this function
-
-    :param config: database's config
-    :type  config: dict
-    """
-    global db
-    for database in config:
-        db[database['key']] = db_classes[database['type']](**config[0]['params'])
-    # set default db
-    peewee.Model._meta.database = db.get('default') or db[0]
 
 
 # configure flask (app.config) defined in app section at project.yml

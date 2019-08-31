@@ -5,24 +5,6 @@ simple_server:
   port: 5000
 
 
-# Database list
-databases:
-  -
-    key: default
-    type: sqlite
-    params:
-      database: work/test/sqlite.db
-
-  -
-    key: second
-    type: mysql
-    params:
-      host: 192.168.1.2
-      port: 3306
-      database: xxx
-      user: xxx
-      password: xxx
-
 # saved in flask.current_app.config
 app:
   workspace: work

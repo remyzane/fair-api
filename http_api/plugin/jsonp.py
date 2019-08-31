@@ -5,7 +5,7 @@ from http_api.response import ResponseRaise, JSON_P
 
 
 class JsonPRaise(ResponseRaise):
-    """Json response
+    """JsonP Raise
 
     format: { "code": "", "message": "",  "data": "" }
     """
@@ -17,7 +17,7 @@ class JsonPRaise(ResponseRaise):
 
 
 class JsonP(Plugin):
-    """Jsonp response Plugin
+    """JsonP response Plugin
 
     if defined in view's return will using jsonp (accustomed to using 'callback')
     """

@@ -5,6 +5,7 @@ from Crypto.Cipher import AES
 
 from http_api.parameter import Str
 from http_api.plugin import Plugin, NOT_NULL
+from http_api.plugin.jsonp import JsonPRaise
 from http_api.utility import get_cls_with_path
 
 
@@ -44,7 +45,7 @@ class Token(Plugin):
                 :param str identity: Username or App Id
                 :return: str. secret key, length must be 16
                 \"""
-                key = 'not implemented '
+                key = b'not implemented '
                 return key.decode() if type(key) == bytes else key
     """
     error_codes = {'token_invalid': 'Invalid Token'}
@@ -63,6 +64,8 @@ class Token(Plugin):
     #     del method.element.param_default[PARAM_IDENTITY]
 
     def before_request(self, view):
+        if hasattr(view, 'json_p_callback_name'):
+            self.__raise_class = JsonPRaise
         # get token parameter
         token = view.params.get(PARAM_TOKEN)
         identity = view.params.get(PARAM_IDENTITY)
@@ -89,14 +92,14 @@ class Token(Plugin):
         """
         key = self.__key_provider(identity)
         try:
-            plaintext = '%d%s' % (timestamp or int(time.time()), key)
+            plaintext = '%d%s' % (timestamp or int(time.time()), key.decode())
         except TypeError:
             raise TokenTimestampInvalid('Token timestamp invalid, timestamp must be integer')
         # plaintext must be a multiple of 16 in length
         fill_size = 16 - len(plaintext) % 16
         byte_text = plaintext.encode() + b'\x00' * (0 if fill_size == 16 else fill_size)
         try:
-            aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + 'x')
+            aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + b'x')
         except ValueError:
             raise TokenKeyInvalid('Key must be 16 bytes long')
         cipher_text = aes_obj.encrypt(byte_text)
@@ -117,7 +120,7 @@ class Token(Plugin):
             raise TokenInvalid('Token must be a multiple of 16 in length')
         key = self.__key_provider(identity)
         try:
-            aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + 'x')
+            aes_obj = AES.new(key, AES.MODE_CBC, key[1:] + b'x')
         except ValueError:
             raise TokenKeyInvalid('Key must be 16 bytes long')
         try:
