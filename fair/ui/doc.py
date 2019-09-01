@@ -1,22 +1,19 @@
 from flask import request, render_template
 from werkzeug.routing import Rule
 
-from ..utility import rst_to_html, text_to_html
+from ..utility import rst_to_html, text_to_html, ContextClass
 from ..api_meta import Meta
+from flask import current_app as app
 
 
 def doc_ui():
-
-    return 'aaa'
-    meta = view_func.meta     # type: Meta
-    response_doc = None
-    if element.response:
-        response_doc = rst_to_html(element.response.__doc__)
-    return render_template('doc.html',
-                           url=request.path,
-                           # methods=method_filter(view_func.element),
-                           methods=element.http_methods,
-                           element=element,
-                           title=text_to_html(element.title),
-                           response_doc=response_doc,
-                           description=text_to_html(element.description))
+    views = app.api.url_map[request.url_rule.rule[:-5]]
+    apis = []
+    for view_func in views:
+        meta = view_func.meta       # type: Meta
+        response_doc = None
+        if meta.response:
+            response_doc = rst_to_html(meta.response.__doc__)
+        apis.append(ContextClass(title=text_to_html(meta.title), description=text_to_html(meta.description),
+                                 methods=meta.http_methods, meta=meta, response_doc=response_doc))
+    return render_template('doc.html', api_url=request.path[:-5], apis=apis)    # url 为 flask 模板内置变量

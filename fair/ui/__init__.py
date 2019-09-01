@@ -52,7 +52,7 @@ def adapter(app, request):
             view_func = view
             break
 
-    if not hasattr(view_func, 'element'):
+    if not hasattr(view_func, 'meta'):
         return Response('406 Current url not have Fair UI', status=406)
 
     try:

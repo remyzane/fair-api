@@ -29,24 +29,24 @@ def get_api_params(param_list, config):
     return params
 
 
-def test_ui():
+def exe_ui():
     return 'aaa'
     meta = view_func.meta     # type: Meta
 
     c = ContextClass()
     context = {'api_config': {}, 'api_json_p': None}
 
-    title, description = element.title, element.description
+    title, description = meta.title, meta.description
     c.url = request.path
     c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
     c.methods = []
     c.method = 'GET' or c.methods[0]
-    c.params = get_api_params(element.param_list, context.get('api_config'))
+    c.params = get_api_params(meta.param_list, context.get('api_config'))
     c.description = text_to_html(title + (os.linesep * 2 if description else '') + description)
     c.params_config = {}
     c.curr_api_config = {}
 
-    for plugin in element.plugins:
+    for plugin in meta.plugins:
         if isinstance(plugin, jsonp.JsonP):
             c.json_p = plugin.callback_field_name
     # return context
@@ -56,7 +56,7 @@ def test_ui():
     # context = {'user': user,
     #            'title': 'Test UI',
     #            'web_ui_uri': app.config['web_ui']['uri'],
-    #            'test_ui_uri': app.config['web_ui']['test_ui']['uri'],
+    #            'exe_ui_uri': app.config['web_ui']['exe_ui']['uri'],
     #            'post_type': request.args.get('type', 'j')}
 
     # for name in app.view_functions.keys():
@@ -65,7 +65,28 @@ def test_ui():
     #         for method_name in view_class.request_methods.keys():
     #             method = view_class.request_methods[method_name]
     #             if view_class.uri == request.args.get('api', '') and method_name == request.args.get('method', ''):
-    #                 curr_api_context = app.config['test_ui'].get_case(user, view_class, method)
+    #                 curr_api_context = app.config['exe_ui'].get_case(user, view_class, method)
     # context.update(curr_api_context)
 
     return render_template('test.html', c=c)
+
+
+
+import json
+from flask import request, render_template, Response, current_app as app
+# from fair import JSON, CView
+
+
+
+def save_case():
+    result = app.config['exe_ui'].save_case(**request.json)
+    return Response(json.dumps(result), content_type=JSON)
+
+
+def save_config():
+    result = app.config['exe_ui'].save_config(**request.json)
+    return Response(json.dumps(result), content_type=JSON)
+
+
+
+

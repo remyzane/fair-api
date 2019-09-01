@@ -13,7 +13,7 @@ def get(uid):
     return 'Hello %s' % uid
 
 
-@app.route('/hello', methods='post')
+@app.route('/hello', methods=['put', 'post'])
 def post(name):
     """ Hello Fair-API
 
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 #     # configure web ui
 #     web_ui_config = {
 #         'uri': 'api',
-#         'test_ui': {
+#         'exe_ui': {
 #             'uri': 'tests'
 #         }
 #     }

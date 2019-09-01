@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>DOC {{ url }}</title>
+    <title>DOC {{ api_url }}</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
@@ -11,34 +11,35 @@
     </style>
 </head>
 <body>
-    <div class="title">{{ title | safe }}
+{% for api in apis %}
+    <div class="title">{{ api.title | safe }}
         <a class="item icon test" onclick="javascript:show_test();">
-            <i class="code blue icon"></i>
+            <i class="play blue icon"></i>
         </a>
     </div>
     <table id="summary" class="ui black table">
         <tr>
             <td class="url label">Url:</td>
             <td class="url value"></td>
-            {% if element.plugin_keys %}
+            {% if api.meta.plugin_keys %}
             <td class="plugins label">Support:</td>
             <td class="plugins value">
-                {% for plugin in element.plugin_keys %}
+                {% for plugin in api.meta.plugin_keys %}
                 <span>{{ plugin }}</span>
                 {% endfor %}
             </td>
             {% endif %}
             <td class="method">
-                {% for method in methods %}
+                {% for method in api.methods %}
                 <span class="ui circular label blue value">{{ method }}</span>
                 {% endfor %}
             </td>
         </tr>
-        {% if description %}
-        <tr><td class="description" colspan="{{ 6 if element.plugin_keys else 4 }}">aaa {{ description | safe }}</td></tr>
+        {% if api.description %}
+        <tr><td class="description" colspan="{{ 6 if api.meta.plugin_keys else 4 }}">{{ api.description | safe }}</td></tr>
         {% endif %}
     </table>
-    {% if element.param_list %}
+    {% if api.meta.param_list %}
     <div class="section">Request Parameters:</div>
     <table class="ui blue table parameters">
         <tr class="label">
@@ -48,7 +49,7 @@
             <td class="type-description">Type</td>
             <td>Description</td>
         </tr>
-        {% for param in element.param_list %}
+        {% for param in api.meta.param_list %}
         <tr class="param">
             <td class="name">{{ param.name }}</td>
             <td class="requisite">{{ '*' if param.requisite else '' }}</td>
@@ -60,31 +61,31 @@
     </table>
     {% endif %}
 
-    {% if element.response %}
+    {% if api.meta.response %}
     <div class="section">Response Data:</div>
     <table class="ui blue table codes">
-        {% if element.code_list %}
+        {% if api.meta.code_list %}
         <tr class="label">
             <td class="code">Code</td>
             <td>Description</td>
         </tr>
-            {% for code,  description, category in element.code_list %}
+            {% for code,  code_desc, category in api.meta.code_list %}
             <tr class="item {{ category }}">
                 <td class="code">{{ code }}</td>
-                <td class="description">{{ description }}</td>
+                <td class="description">{{ code_desc }}</td>
             </tr>
             {% endfor %}
         {% endif %}
-        <tr id="response_doc"><td colspan="2">{{ response_doc | safe }}</td></tr>
+        <tr id="response_doc"><td colspan="2">{{ api.response_doc | safe }}</td></tr>
     </table>
     {% endif %}
-
+{% endfor %}
 <script>
     // support for api gateway
     $("td.url.value").text(window.location.pathname);
     document.title = "DOC " + window.location.pathname;
     function show_test(){
-        window.location = window.location.pathname + '?fair=test';
+        window.location = '{{ api_url }}__exe';
     }
 </script>
 </body>

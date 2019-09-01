@@ -18,6 +18,14 @@ class ContextClass(object):
         for key, value in params.items():
             setattr(self, key, value)
 
+    @property
+    def __data__(self):
+        data = self.__dict__
+        for key, value in data.items():
+            if isinstance(value, ContextClass):
+                data[key] = value.__data__
+        return data
+
 
 def request_args(arg, default_value=None):
     """ request parameter getter

@@ -4,7 +4,7 @@ from . import ui as fair_ui
 from .api_setts import Setts
 from .api_meta import Meta
 from .ui.doc import doc_ui
-from .ui.test import test_ui
+from .ui.exe import exe_ui
 
 
 class Fair(Flask):
@@ -46,7 +46,7 @@ class Fair(Flask):
 
         if rule not in self.api.url_map:
             self.add_url_rule(rule + '__doc', rule + ' DOC', doc_ui)
-            self.add_url_rule(rule + '__test', rule + ' TEST', test_ui)
+            self.add_url_rule(rule + '__test', rule + ' TEST', exe_ui)
         rule = self.api_rule(view_func, http_methods, rule=rule)
 
         endpoint = self.api_endpoint(rule, http_methods, options)

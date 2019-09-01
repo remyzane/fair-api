@@ -43,7 +43,7 @@ class TestsLocalStorage(TestsStorage):
         # context['api_uri'] = view.uri
         # context['api_path'] = 'http://' + request.environ['HTTP_HOST'] + view.uri
         # context['api_method'] = method.__name__.upper()
-        # context['api_params'] = get_api_params(method.element.param_list, context.get('api_config'))
+        # context['api_params'] = get_api_params(method.meta.param_list, context.get('api_config'))
         # context['api_description'] = text_to_html(title + (os.linesep*2 if description else '') + description)
         # context['api_params_config'] = {}
         context['api_codes'] = self.get_sorted_code(view, method)
@@ -55,7 +55,7 @@ class TestsLocalStorage(TestsStorage):
 
     def get_case_dir(self, api_uri, method_name):
         api_path = '_'.join(api_uri[1:].split('/'))
-        case_dir = os.path.realpath(os.path.join(self.workspace, 'test_ui', api_path, method_name))
+        case_dir = os.path.realpath(os.path.join(self.workspace, 'exe_ui', api_path, method_name))
         if not os.path.exists(case_dir):
             os.makedirs(case_dir)
         return case_dir

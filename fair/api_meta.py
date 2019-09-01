@@ -26,7 +26,7 @@ class Meta(object):
 
     Generate Meta info through view's doc string
 
-    element: {
+    meta: {
         title: 'xxx',
         description: 'description',
         response: response,
@@ -128,7 +128,7 @@ class Meta(object):
             self.__parse_doc_tree(view_func, doc_tree)
             self.__clear_up()
         except Exception:
-            log.exception('element defined error')
+            log.exception('meta defined error')
 
         for plugin in self.plugins:
             plugin.init_view(setts, view_func, rule, http_methods)

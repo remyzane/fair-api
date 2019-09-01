@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class Element(object):
     """
-        element: {
+        meta: {
         title: 'xxxxx',
         description: 'xxxxxx',
         response: response,
@@ -96,9 +96,9 @@ class Element(object):
         self.code_index = []
         self.code_list = []
         self.code_dict = {}
-        self.__element_code_set('success', 'Success', 'common')
-        self.__element_code_set('exception', 'Unknown exception', 'common')
-        self.__element_code_set('param_unknown', 'Unknown parameter', 'common')
+        self.__meta_code_set('success', 'Success', 'common')
+        self.__meta_code_set('exception', 'Unknown exception', 'common')
+        self.__meta_code_set('param_unknown', 'Unknown parameter', 'common')
         if not method.__doc__:
             raise Exception('%s doc not undefined' % method.__name__)
         try:
@@ -106,7 +106,7 @@ class Element(object):
             self.__parse_doc_tree(app, method, doc_field)
             self.__clear_up(app)
         except Exception:
-            log.exception('element defined error')
+            log.exception('meta defined error')
 
     def __clear_up(self, app):
         if self.param_not_null:
@@ -124,7 +124,7 @@ class Element(object):
         self.response = self.response or app.config['responses']['default']
         self.description = self.description or ''
 
-    def __element_code_set(self, error_code, error_message, category='biz'):
+    def __meta_code_set(self, error_code, error_message, category='biz'):
         if error_code not in self.code_index:
             self.code_index.append(error_code)
             self.code_list.append((error_code, error_message, category))
@@ -143,9 +143,9 @@ class Element(object):
                 self.plugins.append(plugin)
                 self.plugin_keys.append(item)
                 for error_code, error_message in plugin.error_codes.items():
-                    self.__element_code_set(error_code, error_message, 'plugin ' + item)
+                    self.__meta_code_set(error_code, error_message, 'plugin ' + item)
         elif name.startswith('raise '):
-            self.__element_code_set(name[6:], content)
+            self.__meta_code_set(name[6:], content)
         elif name.startswith('param '):
             items = name[6:].split()
             param_type = items[0]
@@ -171,10 +171,10 @@ class Element(object):
             self.param_default[items[-1]] = None
             self.param_types[items[-1]] = param_type
             if isinstance(param['type'], List):
-                self.__element_code_set(param_type.type.error_code, param_type.type.description, 'type')
-                self.__element_code_set(param_type.error_code, param_type.description % param_type.type.__name__, 'type')
+                self.__meta_code_set(param_type.type.error_code, param_type.type.description, 'type')
+                self.__meta_code_set(param_type.error_code, param_type.description % param_type.type.__name__, 'type')
             elif param['type'] != Param:
-                self.__element_code_set(param_type.error_code, param_type.description, 'type')
+                self.__meta_code_set(param_type.error_code, param_type.description, 'type')
         else:
             setattr(self, name, content)
 

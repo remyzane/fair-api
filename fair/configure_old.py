@@ -4,7 +4,7 @@ from importlib import import_module
 from .parameter import Param
 from .utility import class_name_to_api_name, iterate_package
 from .ui import setup_web_ui
-from .ui.test import TestsLocalStorage
+from .ui.exe import TestsLocalStorage
 from .response import JsonRaise
 
 log = logging.getLogger(__name__)
@@ -29,7 +29,7 @@ def fair_setup(app, cache_path,
     # configure web ui
     web_ui_config = {
         'uri': 'api',
-        'test_ui': {
+        'exe_ui': {
             'uri': 'tests'
         }
     }

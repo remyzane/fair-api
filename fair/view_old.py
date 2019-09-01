@@ -2,7 +2,7 @@ import logging
 from flask import render_template, current_app as app
 from flask.views import request
 
-from .element_old import Element
+from .meta_old import Element
 from .response import ResponseRaise
 from .utility import get_request_params, text_to_html, rst_to_html
 
@@ -46,27 +46,27 @@ class CView(object):
         cls.uri = uri
         cls.__request_methods(view_wrapper)
         for method in cls.request_methods.values():
-            method.element = Element(app, method)
-            for plugin in method.element.plugins:
+            method.meta = Element(app, method)
+            for plugin in method.meta.plugins:
                 plugin.init_view(cls, method)
-                # add plugin.parameters to method.element.param_list.
+                # add plugin.parameters to method.meta.param_list.
                 if plugin.parameters:
                     plugin_parameters = list(plugin.parameters)
-                    param_list = list(method.element.param_list)
+                    param_list = list(method.meta.param_list)
                     while plugin_parameters:
                         p = plugin_parameters.pop()
                         param_list.insert(0, {'name': p[0], 'type': p[1], 'requisite': p[2], 'description': p[3]})
-                    method.element.param_list = tuple(param_list)
+                    method.meta.param_list = tuple(param_list)
 
     def __init__(self):
         # the following variables is different in per request
         self.request = request
         self.application_json = False if request.json is None else True     # Content-Type: application/json
         self.method = self.request_methods[request.method]
-        self.element = self.method.element
-        self.raise_response = self.element.response
-        self.types = self.element.param_types
-        self.codes = self.element.code_dict
+        self.meta = self.method.meta
+        self.raise_response = self.meta.response
+        self.types = self.meta.param_types
+        self.codes = self.meta.code_dict
         self.params = {}
         self.params_proto = {}
         self.params_log = ''
@@ -80,19 +80,19 @@ class CView(object):
 
             if self.params.get('__fair') == 'doc':
                 response_doc = None
-                if self.method.element.response:
-                    response_doc = rst_to_html(self.method.element.response.__doc__)
+                if self.method.meta.response:
+                    response_doc = rst_to_html(self.method.meta.response.__doc__)
                 return render_template('doc.html',
                                        title='DOC UI',
                                        api_uri=self.uri,
                                        method=request.method,
-                                       element=self.method.element,
-                                       api_title=text_to_html(self.method.element.title),
+                                       meta=self.method.meta,
+                                       api_title=text_to_html(self.method.meta.title),
                                        response_doc=response_doc,
-                                       description=text_to_html(self.method.element.description))
+                                       description=text_to_html(self.method.meta.description))
 
             # plugin
-            for plugin in self.element.plugins:
+            for plugin in self.meta.plugins:
                 plugin.before_request(self)
                 for parameter in plugin.parameters:
                     del self.params[parameter[0]]
@@ -136,14 +136,14 @@ class CView(object):
         self.params_log = _request_params % self.params_proto
 
         # check the necessary parameter's value is sed
-        for param in self.element.param_not_null:
+        for param in self.meta.param_not_null:
             if self.params_proto.get(param, '') == '':       # 0 is ok
                 raise self.rr('param_missing', {'parameter': param})
 
-        params = self.element.param_default.copy()
+        params = self.meta.param_default.copy()
         # parameter's type of proof and conversion
         for param, value in self.params.items():
-            if param not in self.element.param_index:
+            if param not in self.meta.param_index:
                 raise self.rr('param_unknown', {'parameter': param, 'value': value})
             if value is not None:
                 try:
