@@ -16,4 +16,4 @@ def doc_ui():
             response_doc = rst_to_html(meta.response.__doc__)
         apis.append(ContextClass(title=text_to_html(meta.title), description=text_to_html(meta.description),
                                  methods=meta.http_methods, meta=meta, response_doc=response_doc))
-    return render_template('doc.html', api_url=request.path[:-5], apis=apis)    # url 为 flask 模板内置变量
+    return render_template('doc.html', apis=apis)    # url 为 flask 模板内置变量

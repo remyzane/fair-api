@@ -2,7 +2,6 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>DOC {{ api_url }}</title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
@@ -13,7 +12,7 @@
 <body>
 {% for api in apis %}
     <div class="title">{{ api.title | safe }}
-        <a class="item icon test" onclick="javascript:show_test();">
+        <a class="item icon execute" onclick="javascript:show_exe();">
             <i class="play blue icon"></i>
         </a>
     </div>
@@ -82,10 +81,10 @@
 {% endfor %}
 <script>
     // support for api gateway
-    $("td.url.value").text(window.location.pathname);
-    document.title = "DOC " + window.location.pathname;
-    function show_test(){
-        window.location = '{{ api_url }}__exe';
+    $("td.url.value").text(window.location.pathname.replace('__doc', ''));
+    document.title = "DOC " + window.location.pathname.replace('__doc', '');
+    function show_exe(){
+        window.location = window.location.pathname.replace('__doc', '__exe');
     }
 </script>
 </body>

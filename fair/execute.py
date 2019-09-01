@@ -5,7 +5,7 @@ from fair.plugin.jsonp import JsonP
 from fair.utility import text_to_html
 
 
-class TestsStorage(object):
+class CaseStorage(object):
 
     def get_case(self, view, method):
         raise NotImplementedError
@@ -27,7 +27,7 @@ class TestsStorage(object):
         return False
 
 
-class TestsLocalStorage(TestsStorage):
+class CaseLocalStorage(CaseStorage):
 
     def __init__(self, workspace):
         self.workspace = workspace
@@ -52,6 +52,21 @@ class TestsLocalStorage(TestsStorage):
             if isinstance(plugin, JsonP):
                 context['api_json_p'] = plugin.callback_field_name
         return context
+
+    def get_exe_case(self, view, method, code):
+        use_cases = ''
+        case_path = os.path.join(self.get_case_dir(view.uri, method.__name__.upper()), code)
+        if os.path.exists(case_path):
+            data_file = open(case_path, 'r')
+            for line in data_file.readlines():
+                line = line.replace(os.linesep, '')
+                if use_cases:
+                    use_cases += ', ' + line
+                else:
+                    use_cases += line
+            data_file.close()
+        return '[%s]' % use_cases
+
 
     def get_case_dir(self, api_uri, method_name):
         api_path = '_'.join(api_uri[1:].split('/'))
@@ -108,20 +123,6 @@ class TestsLocalStorage(TestsStorage):
                 is_param_type = False
 
             codes.append((error_code, text_to_html(error_message),
-                          self.get_test_case(view, method, error_code)))
+                          self.get_exe_case(view, method, error_code)))
 
         return codes
-
-    def get_test_case(self, view, method, code):
-        use_cases = ''
-        case_path = os.path.join(self.get_case_dir(view.uri, method.__name__.upper()), code)
-        if os.path.exists(case_path):
-            data_file = open(case_path, 'r')
-            for line in data_file.readlines():
-                line = line.replace(os.linesep, '')
-                if use_cases:
-                    use_cases += ', ' + line
-                else:
-                    use_cases += line
-            data_file.close()
-        return '[%s]' % use_cases

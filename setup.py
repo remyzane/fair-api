@@ -48,7 +48,4 @@ setup(name='fair',
             'pytest',
             'mock',
             'pycrypto',
-      ]
-      )
-
-# TODO The web test case's automation (in unit test)
+      ])

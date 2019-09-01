@@ -57,4 +57,4 @@ if __name__ == '__main__':
 #         }
 #     }
 #     app.config['web_ui'] = web_ui_config
-#     setup_web_ui(app, web_ui_config, cache_path, TestsLocalStorage)
+#     setup_web_ui(app, web_ui_config, cache_path, CaseLocalStorage)

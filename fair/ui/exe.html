@@ -7,16 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
     <style>
-        {% include 'test.css' %}
+        {% include 'exe.css' %}
     </style>
     <script>
         var post_type = '{{ post_type }}';
         var curr_api_path = '{{ curr_api_path }}';
         var c_method = '{{ c_method }}';
         var curr_api_json_p = '{{ curr_api_json_p }}';
-        var test_cases = {};
+        var exe_cases = {};
 
-        {% include 'test.js' %}
+        {% include 'exe.js' %}
     </script>
 </head>
 
@@ -42,7 +42,7 @@
     <div class="item has-hint url" hint="{{ c.description | safe }}"></div>
     <div class="item hint-info"><span></span></div>
     <div class="right menu">
-        <a class="item" onclick="do_test()"><i class="play icon"></i>Run Testing</a>
+        <a class="item" onclick="execute()"><i class="play icon"></i>Run Testing</a>
         <a class="item icon setting-button" onclick="javascript:show_doc();">
             <i class="code icon"></i>
         </a>

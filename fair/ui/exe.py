@@ -68,7 +68,7 @@ def exe_ui():
     #                 curr_api_context = app.config['exe_ui'].get_case(user, view_class, method)
     # context.update(curr_api_context)
 
-    return render_template('test.html', c=c)
+    return render_template('exe.html', c=c)
 
 
 

@@ -46,7 +46,7 @@ class Fair(Flask):
 
         if rule not in self.api.url_map:
             self.add_url_rule(rule + '__doc', rule + ' DOC', doc_ui)
-            self.add_url_rule(rule + '__test', rule + ' TEST', exe_ui)
+            self.add_url_rule(rule + '__exe', rule + ' EXE', exe_ui)
         rule = self.api_rule(view_func, http_methods, rule=rule)
 
         endpoint = self.api_endpoint(rule, http_methods, options)

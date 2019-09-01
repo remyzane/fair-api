@@ -22,9 +22,7 @@ class ResponseRaise(Exception):
 
 
 class JsonRaise(ResponseRaise):
-    """Json response
-    format: { "code": "", "info": "",  "data": "" }
-    """
+    """Json format：{ "code": "", "info": "",  "data": ... } """   # 请勿修改该 doc str，doc_ui 界面要使用
 
     def response(self):
         ret = {'code': self.code, 'info': self.info, 'data': self.data}

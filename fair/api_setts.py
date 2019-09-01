@@ -13,7 +13,7 @@ from .plugin.jsonp import JsonP
 from .parameter import Param
 from .utility import class_name_to_api_name, iterate_package
 # from .ui import setup_web_ui
-from .test_case import TestsLocalStorage
+from .execute import CaseLocalStorage
 from .response import JsonRaise
 
 log = logging.getLogger(__name__)
@@ -30,10 +30,8 @@ class Setts(object):
         }
     """
 
-    def __init__(self, app, browsable=True, tests_storage=None):
+    def __init__(self, app, case_storage=None):
         self.app = app
-
-        self.browsable = browsable
 
         self.url_map = dict()
 
@@ -43,7 +41,7 @@ class Setts(object):
 
         self.parameter_types = get_parameter_types()
 
-        self.tests_storage = tests_storage
+        self.case_storage = case_storage                    # 执行（测试）案例存储
 
     def register_blueprint(self):
         templates_path = os.path.realpath(os.path.join(__file__, '..', 'ui'))
@@ -55,7 +53,7 @@ class Setts(object):
             self.url_map[url] = dict()
         self.url_map[url][view_func] = http_methods
 
-    def register_test_storage(app, test_storage=TestsLocalStorage, **params):
+    def register_case_storage(app, case_storage=CaseLocalStorage, **params):
         """ cache_path
         """
 

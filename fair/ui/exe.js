@@ -211,7 +211,7 @@ function do_to_url(){
     }
 }
 
-function do_test(){
+function execute(){
     var params = get_params(true);
     var params_str = $.param(params);
     if(!params){

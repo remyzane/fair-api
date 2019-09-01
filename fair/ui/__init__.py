@@ -13,7 +13,7 @@ def match(app, request):
 
     if request.method == 'GET' and request.path in app.api.url_map:
 
-        if app.api.browsable:
+        if app.api:
             response_accept = request.headers.get('Accept')
             if 'text/html' in response_accept:
                 return True
