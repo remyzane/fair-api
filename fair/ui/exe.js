@@ -5,7 +5,8 @@ function get_post_type(){
     return type ? type : 'j';
 }
 $(document).ready(function(){
-    $('#head .url').text(window.location.pathname);
+    document.title = "EXE " + window.location.pathname.replace('__exe', '');
+    $('#head .url').text($('#head .url').text() + window.location.pathname.replace('__exe', ''));
     $('.method-chooser').dropdown({
         on: 'hover'
     });
@@ -38,14 +39,6 @@ $(document).ready(function(){
     if (window.innerHeight > 480) {
         $('#result').height(window.innerHeight - 200);
     }
-
-    $(".has-hint").mouseover(function(){
-        $("#head .hint-info span").html($(this).attr('hint'));
-    });
-    $(".has-hint").mouseout(function(){
-        $(".menu .hint-info span").html('');
-    });
-
     $(".green.ok.button").click(save_config);
 });
 
@@ -423,6 +416,6 @@ function save_config(){
     });
 }
 
-function show_doc(){
-    window.location = window.location.pathname + '?fair=doc';
+function show_doc_ui(){
+    window.open(window.location.pathname.replace('__exe', '__doc'));
 }

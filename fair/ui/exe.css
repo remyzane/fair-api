@@ -4,16 +4,15 @@ body {
     height: auto;
 }
 
-#head div.hint-info {
-    color: #b5cc18;
-    font-size: 1.1em;
-    padding: 0.8em 1.14286em;
-}
 #head .url {
+    color: #b5cc18;
     font-size: 1.2em;
     padding: 0.728571em 1.14286em;
 }
-
+#head .execute {
+    padding-left: 2em;
+    padding-right: 2em;
+}
 #body {
     margin: 3.3em 0 .7em 1%;
 }
@@ -28,11 +27,6 @@ body {
     font-size: 1.1em;
 }
 
-#index .method {
-    color: #aaaaaa;
-    font-size: .8em;
-}
-
 #body .case {
     width: 20%;
     border-right: #aaaaaa solid 1px;
@@ -41,9 +35,6 @@ body {
     padding: 6px 7px 4px 7px;
     font-weight: bolder;
     font-size: 1.1em;
-}
-#body .case .description {
-    display: none;
 }
 #body .case .ui.secondary.vertical.menu {
     margin-top: 3px;

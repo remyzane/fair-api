@@ -1,7 +1,8 @@
 import os
+import random
 from flask import request, render_template, current_app as app
 from werkzeug.routing import Rule
-
+from flask import redirect
 from fair.utility import text_to_html
 from ..plugin import jsonp
 from ..api_meta import Meta
@@ -30,19 +31,28 @@ def get_api_params(param_list, config):
 
 
 def exe_ui():
-    return 'aaa'
-    meta = view_func.meta     # type: Meta
-
     c = ContextClass()
+    c.method = request.args.get('method', None)
+    views = app.api.url_map[request.url_rule.rule[:-5]]
+    meta = None
+    for view_func in views:
+        if not c.method:
+            meta = view_func.meta  # type: Meta
+            method = 'GET' if 'GET' in meta.http_methods else random.choice(meta.http_methods)
+            return redirect(request.url_rule.rule + '?method=' + method)
+        if c.method in view_func.meta.http_methods:
+            meta = view_func.meta  # type: Meta
+            break
+    if not meta:
+        return 'Http method [%s] not support' % c.method
+
     context = {'api_config': {}, 'api_json_p': None}
 
     title, description = meta.title, meta.description
     c.url = request.path
     c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
-    c.methods = []
-    c.method = 'GET' or c.methods[0]
     c.params = get_api_params(meta.param_list, context.get('api_config'))
-    c.description = text_to_html(title + (os.linesep * 2 if description else '') + description)
+    c.title = text_to_html(title)
     c.params_config = {}
     c.curr_api_config = {}
 

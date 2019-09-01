@@ -11,26 +11,18 @@
 </head>
 <body>
 {% for api in apis %}
-    <div class="title">{{ api.title | safe }}
-        <a class="item icon execute" onclick="javascript:show_exe();">
-            <i class="play blue icon"></i>
-        </a>
-    </div>
+    <div class="title">{{ api.title | safe }}</div>
     <table id="summary" class="ui black table">
         <tr>
             <td class="url label">Url:</td>
             <td class="url value"></td>
-            {% if api.meta.plugin_keys %}
-            <td class="plugins label">Support:</td>
-            <td class="plugins value">
+
+            <td class="fun">
                 {% for plugin in api.meta.plugin_keys %}
-                <span>{{ plugin }}</span>
-                {% endfor %}
-            </td>
-            {% endif %}
-            <td class="method">
+                <span class="ui circular label teal value">&nbsp;{{ plugin }}&nbsp;</span>
+                {% endfor %}&nbsp;
                 {% for method in api.methods %}
-                <span class="ui circular label blue value">{{ method }}</span>
+                <a class="ui circular label blue value" onclick="javascript:show_exe_ui('{{ method }}');">&nbsp;► {{ method }}&nbsp;</a>
                 {% endfor %}
             </td>
         </tr>
@@ -83,8 +75,9 @@
     // support for api gateway
     $("td.url.value").text(window.location.pathname.replace('__doc', ''));
     document.title = "DOC " + window.location.pathname.replace('__doc', '');
-    function show_exe(){
-        window.location = window.location.pathname.replace('__doc', '__exe');
+    function show_exe_ui(method){
+        var p = window.location.pathname.indexOf('?') === -1 ? '?' : '&';
+        window.open(window.location.pathname.replace('__doc', '__exe') + p + 'method=' + method);
     }
 </script>
 </body>

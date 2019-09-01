@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>{{ title }}</title>
+    <title></title>
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
@@ -23,36 +23,16 @@
 <body>
 
 <div id="head"class="ui top fixed inverted menu">
-    <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
-        <i class="setting icon"></i>
-    </a>
-    <div class="ui dropdown item method-chooser">
-        <i class="angle double down icon"></i>
-        <span class="method-name">GET</span>
-        <div class="menu">
-            {% for method in c.methods %}
-            <div class="item {{ active }}">{{ method }}</div>
-            {% endfor %}
-            <div class="item">POST</div>
-            <div class="item">PUT</div>
-            <div class="item">DELETE</div>
-        </div>
-    </div>
-
-    <div class="item has-hint url" hint="{{ c.description | safe }}"></div>
-    <div class="item hint-info"><span></span></div>
-    <div class="right menu">
-        <a class="item" onclick="execute()"><i class="play icon"></i>Run Testing</a>
-        <a class="item icon setting-button" onclick="javascript:show_doc();">
-            <i class="code icon"></i>
-        </a>
-    </div>
+    <div class="item url">{{ c.method }}&nbsp;&nbsp;&nbsp;</div>
+    <div class="item">{{ c.title | safe }}</div>
+    <a class="item icon" onclick="javascript:show_doc_ui();"><i class="file icon"></i></a>
+    <a class="item icon" onclick="javascript:$('.ui.modal').modal('show');"><i class="setting icon"></i></a>
+    <a class="item icon execute" onclick="execute()"><i class="play icon"></i></a>
 </div>
 
 <div id="body" class="x">
     <div class="case">
         <div class="title">Response code</div>
-        <div class="description">{{ c.description | safe }}</div>
         <div class="ui secondary vertical menu">
             {% for code, message, cases in curr_api_codes %}
                 {% if code == '----' %}
