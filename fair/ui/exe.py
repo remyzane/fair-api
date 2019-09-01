@@ -34,29 +34,28 @@ def exe_ui():
     c = ContextClass()
     c.method = request.args.get('method', None)
     views = app.api.url_map[request.url_rule.rule[:-5]]
-    meta = None
+    c.meta = None                       # type: Meta
     for view_func in views:
         if not c.method:
-            meta = view_func.meta  # type: Meta
-            method = 'GET' if 'GET' in meta.http_methods else random.choice(meta.http_methods)
+            c.meta = view_func.meta
+            method = 'GET' if 'GET' in c.meta.http_methods else random.choice(c.meta.http_methods)
             return redirect(request.url_rule.rule + '?method=' + method)
         if c.method in view_func.meta.http_methods:
-            meta = view_func.meta  # type: Meta
+            c.meta = view_func.meta
             break
-    if not meta:
+    if not c.meta:
         return 'Http method [%s] not support' % c.method
 
     context = {'api_config': {}, 'api_json_p': None}
 
-    title, description = meta.title, meta.description
     c.url = request.path
     c.path = 'http://+ request.environ[HTTP_HOST] + view.uri'
-    c.params = get_api_params(meta.param_list, context.get('api_config'))
-    c.title = text_to_html(title)
+    c.params = get_api_params(c.meta.param_list, context.get('api_config'))
+    c.title = text_to_html(c.meta.title)
     c.params_config = {}
     c.curr_api_config = {}
 
-    for plugin in meta.plugins:
+    for plugin in c.meta.plugins:
         if isinstance(plugin, jsonp.JsonP):
             c.json_p = plugin.callback_field_name
     # return context

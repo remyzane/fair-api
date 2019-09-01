@@ -104,7 +104,7 @@ class Meta(object):
         self.http_methods = http_methods    # type: tuple
         self.title = ''
         self.description = None
-        self.response = None
+        self.response_cls = None
         self.plugins = []
         self.plugin_keys = []
         self.param_list = []
@@ -141,6 +141,9 @@ class Meta(object):
                     param_list.insert(0, {'name': p[0], 'type': p[1], 'requisite': p[2], 'description': p[3]})
                 self.param_list = tuple(param_list)
 
+    def response(self, code, data=None, status=None):
+        return self.response_cls(code, data=data, status=status)
+
     def __clear_up(self):
         if self.param_not_null:
             self.code_index.insert(2, 'param_missing')
@@ -154,7 +157,7 @@ class Meta(object):
         self.param_index = self.param_not_null + self.param_allow_null
         self.code_index = tuple(self.code_index)
         self.code_list = tuple(self.code_list)
-        self.response = self.response or self.setts.responses['default']
+        self.response_cls = self.response_cls or self.setts.responses['default']
         self.description = self.description or ''
 
     def __code_set(self, error_code, error_message, category='biz'):
@@ -189,7 +192,7 @@ class Meta(object):
         name = doc_field.children[0].astext()
         content = rst_to_html(doc_field.children[1].rawsource)
         if name == 'response':
-            self.response = self.setts.responses[content]
+            self.response_cls = self.setts.responses[content]
         elif name == 'plugin':
             for item in content.split():
                 plugin = self.setts.plugins.get(item)

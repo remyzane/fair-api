@@ -10,14 +10,11 @@ def match(app, request):
 
     keep it simple for performance
     """
-
-    if request.method == 'GET' and request.path in app.api.url_map:
-
-        if app.api:
-            response_accept = request.headers.get('Accept')
-            if 'text/html' in response_accept:
-                return True
-
+    if request.path in app.api.url_map:
+        for view_func, methods in app.api.url_map[request.path].items():
+            if request.method in methods:
+                if app.api:
+                    return True
     return False
 
 
@@ -36,17 +33,15 @@ def structure_params(view_func, params_proto, params):
         if value is not None:
             try:
                 ret[param] = view_func.meta.param_types[param].structure(view_func, value)
-            except Exception:
+            except Exception as e:
                 raise view_func.meta.response(view_func.meta.param_types[param].error_code, {'parameter': param, 'value': value})
     return ret
 
 
 def adapter(app, request):
-
     view_func = None
     views = app.api.url_map.get(request.path)
 
-    # return Response('404 NOT FOUND', status=404)
     for view, support_methods in views.items():
         if request.method in support_methods:
             view_func = view
@@ -68,18 +63,15 @@ def adapter(app, request):
 
         # structure parameters
         params = structure_params(view_func, params_proto, params)
-
+        request.meta = view_func.meta
         response_content = view_func(**params)
-
-        if type(response_content) == tuple:
-            code, content, response_content = response_content
+        if isinstance(response_content, ResponseRaise):
+            response_content = response_content.response()
     except ResponseRaise as response_raise:
-        code, content, response_content = response_raise.response()
-    except Exception:
-        code, content, response_content = view_func.meta.response('exception').response()
+        response_content = response_raise.response()
+    except Exception as e:
+        response_content = view_func.meta.response('exception').response()
     return response_content
-
-
 
 
 def get_view_context(views):

@@ -1,4 +1,5 @@
 import re
+from flask import request
 
 
 class Param(object):
@@ -54,7 +55,7 @@ class Str(Param):
 
     @classmethod
     def structure(cls, view, value):
-        if view.application_json and type(value) is not str:
+        if request.json is not None and type(value) is not str:
             raise Exception()
         return value
 

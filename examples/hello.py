@@ -1,4 +1,6 @@
 from fair import Fair
+from flask import request
+from fair.response import JsonRaise
 
 app = Fair(__name__)
 
@@ -14,12 +16,13 @@ def get(uid):
 
 
 @app.route('/hello', methods=['put', 'post'])
-def post(name):
+def post(name, msg):
     """ Hello Fair-API
 
     :param Str * name: you name ...
+    :param Str msg: you message ...
     """
-    return 'Hello %s' % name
+    return JsonRaise('success', {'name': name, 'msg': msg})
 
 
 @app.route('/echo', methods='post')

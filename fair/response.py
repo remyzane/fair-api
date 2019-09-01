@@ -1,6 +1,6 @@
 import json
 import logging
-from flask import Response
+from flask import Response, request
 
 log = logging.getLogger(__name__)
 
@@ -10,10 +10,9 @@ JSON_P = 'application/javascript; charset=utf-8'
 
 class ResponseRaise(Exception):
 
-    def __init__(self, api, code, data=None, status=None):
-        self.api = api
+    def __init__(self, code, data=None, status=None):
         self.code = code
-        self.info = api.code_dict[code]
+        self.info = request.meta.code_dict[code]
         self.data = data
         self.status = status
 
@@ -26,4 +25,6 @@ class JsonRaise(ResponseRaise):
 
     def response(self):
         ret = {'code': self.code, 'info': self.info, 'data': self.data}
-        return self.code, ret, Response(json.dumps(ret), content_type=JSON, status=self.status)
+        if self.code == 'exception':
+            log.exception('%s %s', request.path, ret)
+        return Response(json.dumps(ret), content_type=JSON, status=self.status)

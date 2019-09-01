@@ -13,9 +13,7 @@ $(document).ready(function(){
     $('.method-chooser div.item').on('click', function() {
         var api = $(this)[0].innerText.split(" ");
         url = window.location.pathname + '?type=' + get_post_type() + '&api=' + api[0] + '&method=' + api[1];
-        console.log(url);
         $('.method-chooser span.method-name').text(api[0]);
-        // window.location.href =
     });
     init_test_case();
     $('.param-mode').change(function(){
@@ -99,7 +97,6 @@ function get_params(auto_gen_param){
                 }
             }
             var type = $("#" + this.id + "_type").val();
-            console.log(type);
             if (type == 'Int' || type == 'Float') {
                 if (value) {
                     var _value = new Number(value);
