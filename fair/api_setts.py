@@ -4,7 +4,6 @@ from flask import Blueprint
 
 from .parameter import get_parameter_types
 from .response import JsonRaise
-from .plugin import jsonp
 from .execute import CaseLocalStorage
 
 log = logging.getLogger(__name__)
@@ -22,6 +21,7 @@ class Setts(object):
     """
 
     def __init__(self, app, case_storage=None):
+        from .plugin import jsonp
         self.app = app
 
         self.url_map = dict()

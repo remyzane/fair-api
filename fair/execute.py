@@ -1,7 +1,6 @@
 import os
 import json
 from flask import request
-from fair.plugin.jsonp import JsonP
 from fair.utility import text_to_html
 
 
@@ -33,6 +32,8 @@ class CaseLocalStorage(CaseStorage):
         self.workspace = workspace
 
     def get_case(self, view, method):
+        from fair.plugin.jsonp import JsonP
+
         context = {'api_config': {}, 'api_json_p': None}
         api_config_path = os.path.join(self.get_case_dir(view.uri, method.__name__.upper()), '__config__')
         if os.path.exists(api_config_path):

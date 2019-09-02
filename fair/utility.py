@@ -131,3 +131,23 @@ def iterate_package(package):
         sub_package = import_module('%s.%s' % (package.__package__, modname))
         if is_pkg:
             iterate_package(sub_package)
+
+
+def structure_params(view_func, params_proto, params):
+
+    # check the necessary parameter's value is sed
+    for param in view_func.meta.param_not_null:
+        if params_proto.get(param, '') == '':       # 0 is ok
+            raise view_func.meta.response('param_missing', {'parameter': param})
+
+    ret = view_func.meta.param_default.copy()
+    # parameter's type of proof and conversion
+    for param, value in params.items():
+        if param not in view_func.meta.param_index:
+            raise view_func.meta.response('param_unknown', {'parameter': param, 'value': value})
+        if value is not None:
+            try:
+                ret[param] = view_func.meta.param_types[param].structure(view_func, value)
+            except Exception as e:
+                raise view_func.meta.response(view_func.meta.param_types[param].error_code, {'parameter': param, 'value': value})
+    return ret

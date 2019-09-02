@@ -1,7 +1,7 @@
-from fair.view_old import CView
-
 NOT_NULL = True
 ALLOW_NULL = False
+from ..api_setts import Setts
+from ..api_meta import Meta
 
 
 class Plugin(object):
@@ -22,27 +22,17 @@ class Plugin(object):
         """Plugin init
         """
 
-    def init_view(self, air, view_func, rule, http_methods):
+    def init_view(self, setts: Setts, view_func, rule, http_methods):
         """Plugin main method.
-
         Will be called each request after parameters checked.
-
-        :param view_func: view function
-        :param methods: support http method
         """
 
-    def before_request(self, view):
+    def before_request(self, meta: Meta):
         """Plugin main method.
-
         Will be called each request after parameters checked.
-
-        :param CView view: view class instance
         """
 
-    def after_request(self, view):
+    def after_request(self, meta: Meta):
         """Plugin main method.
-
         Will be called each request after parameters checked.
-
-        :param CView view: view class instance
         """

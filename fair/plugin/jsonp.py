@@ -1,18 +1,17 @@
 import json
-from flask import Response
-from fair.plugin import Plugin
-from fair.response import ResponseRaise, JSON_P
+from flask import Response, request
+from ..api_setts import Setts
+from ..api_meta import Meta
+from ..plugin import Plugin
+from ..response import ResponseRaise, JSON_P
 
 
 class JsonPRaise(ResponseRaise):
-    """ Json Raise
-
-    format: { "code": "", "info": "",  "data": "" }
-    """
+    """Json format：{ "code": "", "info": "",  "data": ... } """   # 请勿修改该 doc str，doc_ui 界面要使用
 
     def response(self):
-        ret = {'code': self.code, 'info': self.view.codes[self.code], 'data': self.data}
-        content = self.view.json_p_callback_name + '(' + json.dumps(ret) + ')'
+        ret = {'code': self.code, 'info': request.meta.code_dict[self.code], 'data': self.data}
+        content = request.meta.json_p_callback_name + '(' + json.dumps(ret) + ')'
         return self.code, ret, Response(content, content_type=JSON_P, status=self.status)
 
 
@@ -27,16 +26,16 @@ class JsonP(Plugin):
         super(JsonP, self).__init__()
         self.callback_field_name = callback_field_name
 
-    def init_view(self, air, view_func, rule, http_methods):
+    def init_view(self, setts: Setts, view_func, rule, http_methods):
         if 'GET' not in http_methods:
             raise Exception('Error define in %s: json_p plugin only support GET method.' % rule)
 
-    def before_request(self, view):
-        if self.callback_field_name in view.params:
-            view.json_p_callback_name = view.params[self.callback_field_name]
-            view.raise_response = JsonPRaise
-            del view.params[self.callback_field_name]
-            if '_' in view.params:
-                del view.params['_']
-            if '1_' in view.params:
-                del view.params['1_']
+    def before_request(self, meta: Meta):
+        if self.callback_field_name in meta.params:
+            meta.json_p_callback_name = meta.params[self.callback_field_name]
+            meta.raise_response = JsonPRaise
+            del meta.params[self.callback_field_name]
+            if '_' in meta.params:
+                del meta.params['_']
+            if '1_' in meta.params:
+                del meta.params['1_']

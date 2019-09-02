@@ -1,9 +1,7 @@
-from flask import request, render_template
-from werkzeug.routing import Rule
+from flask import request, render_template, current_app as app
 
 from ..utility import rst_to_html, text_to_html, ContextClass
 from ..api_meta import Meta
-from flask import current_app as app
 
 
 def doc_ui():
