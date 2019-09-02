@@ -46,19 +46,6 @@ def request_args(arg, default_value=None):
                 return request.json.get(arg, default_value)
 
 
-# call logging
-def call_log(api_name, api_url, call_params, return_data):
-    return '''
-Call %s ------------->
-URL:
-    %s
-Params:
-    %s
-Return:
-    %s
--------------------%s<''' % (api_name, api_url, call_params, return_data, '-'*len(api_name))
-
-
 def class_name_to_api_name(class_name):
     api_name = class_name[0].lower()
     for char in class_name[1:]:
@@ -110,7 +97,7 @@ def text_to_html(text):
     return text
 
 
-def get_request_params(request):
+def get_request_params():
     if request.method == 'GET':
         return request.args.copy().to_dict()
     else:

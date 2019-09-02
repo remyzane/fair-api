@@ -4,6 +4,7 @@ from ..api_setts import Setts
 from ..api_meta import Meta
 from ..plugin import Plugin
 from ..response import ResponseRaise, JSON_P
+from ..utility import get_request_params
 
 
 class JsonPRaise(ResponseRaise):
@@ -30,12 +31,12 @@ class JsonP(Plugin):
         if 'GET' not in http_methods:
             raise Exception('Error define in %s: json_p plugin only support GET method.' % rule)
 
-    def before_request(self, meta: Meta):
-        if self.callback_field_name in meta.params:
-            meta.json_p_callback_name = meta.params[self.callback_field_name]
+    def before_request(self, meta: Meta, params):
+        if self.callback_field_name in params:
+            meta.json_p_callback_name = params[self.callback_field_name]
             meta.raise_response = JsonPRaise
-            del meta.params[self.callback_field_name]
-            if '_' in meta.params:
-                del meta.params['_']
-            if '1_' in meta.params:
-                del meta.params['1_']
+            del params[self.callback_field_name]
+            if '_' in params:
+                del params['_']
+            if '1_' in params:
+                del params['1_']

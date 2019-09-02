@@ -12,7 +12,7 @@ def get(uid):
     :plugin: json_p
     :param Int * uid: you id ...
     """
-    return 'Hello %s' % uid
+    return JsonRaise('success', {'uid': uid})
 
 
 @app.route('/hello', methods=['put', 'post'])
@@ -31,7 +31,7 @@ def echo(name):
 
     :param Str * name: you name ...
     """
-    return 'Echo %s' % name
+    return JsonRaise('success', {'name': name})
 
 
 if __name__ == '__main__':

@@ -71,19 +71,19 @@ class Fair(Flask):
             return Response('406 Current url not have Fair UI', status=406)
 
         try:
+            request.meta = view_func.meta
             # get request parameters
-            params = get_request_params(request)
+            params = get_request_params()
             params_proto = params.copy()
 
             # plugin
             for plugin in view_func.meta.plugins:
-                plugin.before_request(view_func.meta)
+                plugin.before_request(view_func.meta, params)
                 for parameter in plugin.parameters:
                     del params[parameter[0]]
 
             # structure parameters
             params = structure_params(view_func, params_proto, params)
-            request.meta = view_func.meta
             response_content = view_func(**params)
             if isinstance(response_content, ResponseRaise):
                 response_content = response_content.response()
