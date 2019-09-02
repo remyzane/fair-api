@@ -1,6 +1,5 @@
 from flask import Flask, request
 
-from . import ui as fair_ui
 from .api_setts import Setts
 from .api_meta import Meta
 from .ui.doc import doc_ui
