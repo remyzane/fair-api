@@ -87,6 +87,8 @@ html_fragment_writer.translator_class = HTMLFragmentTranslator
 
 
 def rst_to_html(source):
+    if not source:
+        return ''
     html = publish_string(source, writer=html_fragment_writer)
     html = html.split(b'<div class="document">\n\n\n')[1][:-8]     # len('\n</div>\n') == 8
     if html.startswith(b'<p>'):
