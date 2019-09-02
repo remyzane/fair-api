@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.2.1/dist/jquery.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.2.12/dist/semantic.js"></script>
+    <style>
+        {% include 'test.css' %}
+    </style>
+    <script>
+        var post_type = '{{ post_type }}';
+        var curr_api_path = '{{ curr_api_path }}';
+        var c_method = '{{ c_method }}';
+        var curr_api_json_p = '{{ curr_api_json_p }}';
+        var test_cases = {};
+
+        {% include 'test.js' %}
+    </script>
+</head>
+
+<body>
+
+<div id="head"class="ui top fixed inverted menu">
+    <a class="item icon setting-button" onclick="javascript:$('.ui.modal').modal('show');">
+        <i class="setting icon"></i>
+    </a>
+    <div class="ui dropdown item method-chooser">
+        <i class="angle double down icon"></i>
+        <span class="method-name">GET</span>
+        <div class="menu">
+            {% for method in c.methods %}
+            <div class="item {{ active }}">{{ method }}</div>
+            {% endfor %}
+            <div class="item">POST</div>
+            <div class="item">PUT</div>
+            <div class="item">DELETE</div>
+        </div>
+    </div>
+
+    <div class="item has-hint url" hint="{{ c.description | safe }}"></div>
+    <div class="item hint-info"><span></span></div>
+    <div class="right menu">
+        <a class="item" onclick="do_test()"><i class="play icon"></i>Run Testing</a>
+        <a class="item icon setting-button" onclick="javascript:show_doc();">
+            <i class="code icon"></i>
+        </a>
+    </div>
+</div>
+
+<div id="body" class="x">
+    <div class="case">
+        <div class="title">Response code</div>
+        <div class="description">{{ c.description | safe }}</div>
+        <div class="ui secondary vertical menu">
+            {% for code, message, cases in curr_api_codes %}
+                {% if code == '----' %}
+            <div class="divider"></div>
+                {% else %}
+            <a class="item hint" code="{{code}}" hint="{{message | safe}}" cases="{{cases}}" use_index=-1
+               onclick="use_case('{{code}}')">{{ code }}</a>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="params">
+        <table style="width:100%;border-spacing:0;">
+            <tr>
+                <th style="width:8%;">Type</th>
+                <th style="width:3%;"></th>
+                <th style="width:25%;">Parameter Name</th>
+                <th>Parameter Value</th>
+                <th style="width:3.5%;"><input type="checkbox" class="param-mode"></th>
+            </tr>
+            {% for name, requisite, description, type_name, type_display, pure_auto, param_url in curr_api_params %}
+            <tr>
+                <td class="type">{{ type_display | safe }}</td>
+                <td class="requisite">{{ requisite }}</td>
+                <td class="param-name show-message" message="{{ description | safe }}">{{ name }}</td>
+                <td>
+                    <div class="ui transparent input param">
+                        <input type="text" id="{{ name }}" name="param" onchange="param_onchange(this);">
+                    </div>
+                </td>
+                <td>
+                    <input type="checkbox" id="{{ name }}_select" name="param_select" style="float:right">
+                </td>
+                <input type="hidden" id="{{ name }}_type" name="param_type" value="{{ type_name }}">
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="result">
+        <div class="four ui small basic buttons">
+            <button class="ui button" onclick="do_use_json()">&lt;&lt; json</button>
+            <button class="ui button" onclick="do_to_json()">&gt;&gt; json</button>
+            <button class="ui button" onclick="do_use_url()">&lt;&lt; url</button>
+            <button class="ui button" onclick="do_to_url()">&gt;&gt; url</button>
+        </div>
+        <textarea id="result"></textarea>
+
+        <label for="result_new_window" style="float:right;">
+            &nbsp;<span>New Window</span>&nbsp;
+            <input type="checkbox" id="result_new_window" {% if c.curr_api_config.get('json_p') %} checked="checked" {% endif %}>
+        </label>
+        <input size="10" style="float: right;">
+    </div>
+</div>
+<div class="ui modal">
+    <div class="header">Setting</div>
+    <div class="content">
+        {% if curr_api_json_p %}
+        <label for="json_p">
+            <input type="checkbox" id="json_p" {% if c.curr_api_config.get('json_p') %} checked="checked" {% endif %}>
+            &nbsp;&nbsp; <strong>Use JSONP mode, &nbsp;&nbsp; correlation parameter:</strong>
+        </label>
+         </br>
+        <span class="json-p-param"><strong>Name</strong> [{{curr_api_json_p}}] defined in API class, &nbsp;&nbsp;
+            <strong>Value</strong> Generate by network lib like jQuery.ajax</span>
+        {% endif %}
+        {% if c_method == 'POST' %}
+        <strong>POST ContentType:</strong>&nbsp;&nbsp;&nbsp;
+        <label for="post_type_j">
+            <input type="radio" id="post_type_j" name="post_type" value="j"
+                   {% if post_type == 'j' %} checked="checked" {% endif %}/>&nbsp;&nbsp;application/json
+        </label>&nbsp;&nbsp;&nbsp;
+        <label for="post_type_f">
+            <input type="radio" id="post_type_f" name="post_type" value="f"
+                   {% if post_type == 'f' %} checked="checked" {% endif %}/>&nbsp;&nbsp;application/x-www-form-urlencoded
+        </label>
+        {% endif %}
+        <h4 class="ui dividing header"></h4>
+        <table style="width:100%;border-spacing:0;">
+            <tr>
+                <th style="width:8%;">Type</th>
+                <th style="width:3%;"></th>
+                <th style="width:19%;">Parameter Name</th>
+                <th style="width:18%;">Input Value</th>
+                <th style="width:52%;">Value Generator URL (append Input Value if need and inputted)</th>
+            </tr>
+            {% for name, requisite, description, type_name, type_display, pure_auto, param_url in curr_api_params %}
+            <tr>
+                <td class="type">{{ type_name }}</td>
+                <td class="requisite">{{ requisite }}</td>
+                <td>{{ name }}</td>
+                <td>
+                    <label for="{{ name }}_pure_auto">
+                        <input type="checkbox" id="{{ name }}_pure_auto" {{ pure_auto }}>&nbsp;Not Need
+                    </label>
+                </td>
+                <td>
+                    <div class="ui transparent input param-url">
+                        <input type="text" id="{{ name }}_url" name="param_url" value="{{ param_url }}">
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <div class="actions">
+        <div class="ui red cancel button"><i class="remove icon"></i>Cancel</div>
+        <div class="ui green ok button"><i class="checkmark icon"></i>OK</div>
+    </div>
+</div>
+</body>
+</html>
