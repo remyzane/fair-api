@@ -1,7 +1,7 @@
-NOT_NULL = True
-ALLOW_NULL = False
 from ..api_setts import Setts
 from ..api_meta import Meta
+NOT_NULL = True
+ALLOW_NULL = False
 
 
 class Plugin(object):

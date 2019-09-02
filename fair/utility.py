@@ -121,7 +121,6 @@ def iterate_package(package):
 
 
 def structure_params(view_func, params_proto, params):
-
     # check the necessary parameter's value is sed
     for param in view_func.meta.param_not_null:
         if params_proto.get(param, '') == '':       # 0 is ok

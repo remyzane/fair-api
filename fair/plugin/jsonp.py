@@ -4,7 +4,6 @@ from ..api_setts import Setts
 from ..api_meta import Meta
 from ..plugin import Plugin
 from ..response import ResponseRaise, JSON_P
-from ..utility import get_request_params
 
 
 class JsonPRaise(ResponseRaise):

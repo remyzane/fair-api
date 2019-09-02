@@ -36,8 +36,8 @@ class Fair(Flask):
         return super(Fair, self).preprocess_request()
 
     def dispatch_request(self):
-        if self.match():
-            return self.adapter()
+        if self.is_api():
+            return self.api_adapter()
 
         response = super(Fair, self).dispatch_request()
         return response
@@ -57,7 +57,16 @@ class Fair(Flask):
 
         view_func.meta = Meta(self.api, view_func, rule, http_methods)
 
-    def adapter(self):
+    def is_api(self):
+        """ keep it simple for performance """
+        from flask import request
+        if request.path in self.api.url_map:
+            for view_func, methods in self.api.url_map[request.path].items():
+                if request.method in methods:
+                    return True
+        return False
+
+    def api_adapter(self):
         view_func = None
         views = self.api.url_map.get(request.path)
 
@@ -91,18 +100,6 @@ class Fair(Flask):
         except Exception as e:
             response_content = view_func.meta.response('exception').response()
         return response_content
-
-    def match(self):
-        """ Check fair ui whether or not shown
-
-        keep it simple for performance
-        """
-        if request.path in self.api.url_map:
-            for view_func, methods in self.api.url_map[request.path].items():
-                if request.method in methods:
-                    if self.api:
-                        return True
-        return False
 
     def api_rule(self, view_func, http_methods, rule=None):
         self.api.register_url_map(rule, view_func, http_methods)
