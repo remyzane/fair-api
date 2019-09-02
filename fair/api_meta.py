@@ -10,17 +10,6 @@ from .utility import rst_to_html
 log = logging.getLogger(__name__)
 
 
-# def method_filter(view_func):
-# def get_method_list(view_func):
-#     meta = view_func.meta
-#     ret = []
-#     for method in methods:
-#         if method not in ('OPTIONS', 'HEAD'):
-#             ret.append(method)
-#     ret.sort()
-#     return set(ret)
-
-
 class Meta(object):
     """ API Meta
 
@@ -72,32 +61,6 @@ class Meta(object):
         }
     }
     """
-    # title = None
-    #
-    # description = None
-    #
-    # response = None
-    #
-    # plugin = None
-    #
-    # param_list = None
-    #
-    # param_dict = None
-    #
-    # param_index = None
-    #
-    # param_default = None
-    #
-    # param_not_null = None
-    #
-    # param_allow_null = None
-    #
-    # param_types = None
-    #
-    # code_index = None
-    #
-    # code_dict = None
-
     def __init__(self, setts, view_func, rule, http_methods):
         self.setts = setts                                  # type: Setts
         self.rule = rule
